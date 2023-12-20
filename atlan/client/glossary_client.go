@@ -37,7 +37,8 @@ func GetGlossaryByGuid(glossaryGuid string) (*model.Glossary, error) {
 }
 
 // GetGlossaryTermByGuid retrieves a model term by its GUID using the default AtlanClient.
-func GetGlossaryTermByGuid(glossaryGuid string) (*model.GlossaryTermResponse, error) {
+
+func GetGlossaryTermByGuid(glossaryGuid string) (*model.GlossaryTerm, error) {
 	if defaultAtlanClient == nil {
 		return nil, fmt.Errorf("default AtlanClient not initialized")
 	}
