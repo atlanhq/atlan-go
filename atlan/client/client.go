@@ -19,7 +19,8 @@ type AtlanClient struct {
 	logger        *log.Logger
 }
 
-var defaultAtlanClient *AtlanClient
+var DefaultAtlanClient *AtlanClient
+var DefaultAtlanTagCache *AtlanTagCache
 
 // Init initializes the default AtlanClient.
 func Init() error {
@@ -34,10 +35,12 @@ func Init() error {
 	}
 
 	var err error
-	defaultAtlanClient, err = NewAtlanClient(apiKey, baseURL)
+	DefaultAtlanClient, err = NewAtlanClient(apiKey, baseURL)
 	if err != nil {
 		return err
 	}
+	DefaultAtlanTagCache = NewAtlanTagCache(DefaultAtlanClient)
+
 	return nil
 }
 
@@ -62,9 +65,9 @@ func NewAtlanClient(apiKey, baseURL string) (*AtlanClient, error) {
 }
 
 // CallAPI makes a generic API call.
-func (ac *AtlanClient) CallAPI(apiPath, method string, queryParams map[string]string, requestObj interface{}) ([]byte, error) {
+func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestObj interface{}) ([]byte, error) {
 	params := deepCopy(ac.requestParams)
-	path := ac.host + apiPath
+	path := ac.host + api.Endpoint.Atlas + api.Path
 
 	if queryParams != nil {
 		params["params"] = queryParams
@@ -78,9 +81,9 @@ func (ac *AtlanClient) CallAPI(apiPath, method string, queryParams map[string]st
 		params["data"] = bytes.NewBuffer(requestJSON)
 	}
 
-	ac.logAPICall(method, path)
+	ac.logAPICall(api.Method, path)
 
-	response, err := ac.makeRequest(method, path, params)
+	response, err := ac.makeRequest(api.Method, path, params)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +96,7 @@ func (ac *AtlanClient) CallAPI(apiPath, method string, queryParams map[string]st
 		return nil, fmt.Errorf("error reading response body: %v", err)
 	}
 
-	if response.StatusCode != http.StatusOK {
+	if response.StatusCode != api.Status {
 		return nil, fmt.Errorf("unexpected HTTP status: %s", response.Status)
 	}
 

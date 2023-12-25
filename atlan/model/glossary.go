@@ -157,15 +157,8 @@ type GlossaryTerm struct {
 	Files                  []interface{}      `json:"files"`
 	Metrics                []interface{}      `json:"metrics"`
 	SodaChecks             []interface{}      `json:"sodaChecks"`
-	Tags                   []struct {
-		TypeName                          string `json:"typeName"`
-		EntityGuid                        string `json:"entityGuid"`
-		EntityStatus                      string `json:"entityStatus"`
-		Propagate                         bool   `json:"propagate"`
-		RemovePropagationsOnEntityDelete  bool   `json:"removePropagationsOnEntityDelete"`
-		RestrictPropagationThroughLineage bool   `json:"restrictPropagationThroughLineage"`
-	} `json:"classifications"`
-	Anchor struct {
+	Tags                   []AtlanTag         `json:"classifications"`
+	Anchor                 struct {
 		Guid                   string `json:"guid"`
 		TypeName               string `json:"typeName"`
 		EntityStatus           string `json:"entityStatus"`
@@ -178,6 +171,15 @@ type GlossaryTerm struct {
 		} `json:"relationshipAttributes"`
 	} `json:"anchor"`
 	Labels []interface{} `json:"labels"`
+}
+
+type AtlanTag struct {
+	TypeName                          string `json:"typeName"`
+	EntityGuid                        string `json:"entityGuid"`
+	EntityStatus                      string `json:"entityStatus"`
+	Propagate                         bool   `json:"propagate"`
+	RemovePropagationsOnEntityDelete  bool   `json:"removePropagationsOnEntityDelete"`
+	RestrictPropagationThroughLineage bool   `json:"restrictPropagationThroughLineage"`
 }
 
 func (g *Glossary) UnmarshalJSON(data []byte) error {
@@ -305,14 +307,7 @@ func (gt *GlossaryTerm) UnmarshalJSON(data []byte) error {
 				Metrics    []interface{} `json:"metrics"`
 				SodaChecks []interface{} `json:"sodaChecks"`
 			} `json:"relationshipAttributes"`
-			Tags []struct {
-				TypeName                          string `json:"typeName"`
-				EntityGuid                        string `json:"entityGuid"`
-				EntityStatus                      string `json:"entityStatus"`
-				Propagate                         bool   `json:"propagate"`
-				RemovePropagationsOnEntityDelete  bool   `json:"removePropagationsOnEntityDelete"`
-				RestrictPropagationThroughLineage bool   `json:"restrictPropagationThroughLineage"`
-			} `json:"classifications"`
+			Tags   []AtlanTag `json:"classifications"`
 			Anchor struct {
 				Guid                   string `json:"guid"`
 				TypeName               string `json:"typeName"`

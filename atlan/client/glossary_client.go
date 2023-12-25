@@ -3,7 +3,6 @@ package client
 import (
 	"atlan-go/atlan/model"
 	"fmt"
-	"net/http"
 )
 
 // GlossaryClient defines the client for interacting with the model API.
@@ -16,14 +15,15 @@ func NewGlossaryClient(ac *AtlanClient) *GlossaryClient {
 	return &GlossaryClient{client: ac}
 }
 
-// GetGlossaryByGuid retrieves a model by its GUID using the default AtlanClient.
 func GetGlossaryByGuid(glossaryGuid string) (*model.Glossary, error) {
-	if defaultAtlanClient == nil {
+	if DefaultAtlanClient == nil {
 		return nil, fmt.Errorf("default AtlanClient not initialized")
 	}
 
-	apiPath := fmt.Sprintf("/api/meta/entity/guid/%s", glossaryGuid)
-	response, err := defaultAtlanClient.CallAPI(apiPath, http.MethodGet, nil, nil)
+	api := &GET_ENTITY_BY_GUID
+	api.Path += glossaryGuid
+
+	response, err := DefaultAtlanClient.CallAPI(api, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -36,15 +36,15 @@ func GetGlossaryByGuid(glossaryGuid string) (*model.Glossary, error) {
 	return g, nil
 }
 
-// GetGlossaryTermByGuid retrieves a model term by its GUID using the default AtlanClient.
-
 func GetGlossaryTermByGuid(glossaryGuid string) (*model.GlossaryTerm, error) {
-	if defaultAtlanClient == nil {
+	if DefaultAtlanClient == nil {
 		return nil, fmt.Errorf("default AtlanClient not initialized")
 	}
 
-	apiPath := fmt.Sprintf("/api/meta/entity/guid/%s", glossaryGuid)
-	response, err := defaultAtlanClient.CallAPI(apiPath, http.MethodGet, nil, nil)
+	api := &GET_ENTITY_BY_GUID
+	api.Path += glossaryGuid
+
+	response, err := DefaultAtlanClient.CallAPI(api, nil, nil)
 	if err != nil {
 		return nil, err
 	}
