@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -12,13 +13,15 @@ import (
 
 // AtlanClient defines the Atlan API client structure.
 type AtlanClient struct {
-	session       *http.Client
-	host          string
-	apiKey        string
-	requestParams map[string]interface{}
-	logger        *log.Logger
+	session        *http.Client
+	host           string
+	apiKey         string
+	loggingEnabled bool
+	requestParams  map[string]interface{}
+	logger         *log.Logger
 }
 
+var LoggingEnabled = true
 var DefaultAtlanClient *AtlanClient
 var DefaultAtlanTagCache *AtlanTagCache
 
@@ -49,6 +52,11 @@ func NewAtlanClient(apiKey, baseURL string) (*AtlanClient, error) {
 	client := &http.Client{}
 	logger := log.New(os.Stdout, "AtlanClient: ", log.LstdFlags|log.Lshortfile)
 
+	if LoggingEnabled {
+		logger = log.New(os.Stdout, "AtlanClient: ", log.LstdFlags|log.Lshortfile)
+	} else {
+		logger = log.New(ioutil.Discard, "", 0) // Logger that discards all log output
+	}
 	return &AtlanClient{
 		session: client,
 		host:    baseURL,
@@ -60,7 +68,8 @@ func NewAtlanClient(apiKey, baseURL string) (*AtlanClient, error) {
 				"Content-type":  "application/json",
 			},
 		},
-		logger: logger,
+		logger:         logger,
+		loggingEnabled: LoggingEnabled,
 	}, nil
 }
 
@@ -149,10 +158,12 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 }
 
 func (ac *AtlanClient) logAPICall(method, path string) {
-	ac.logger.Println("------------------------------------------------------")
-	ac.logger.Printf("Call         : %s %s\n", method, path)
-	ac.logger.Printf("Content-type : application/json\n")
-	ac.logger.Printf("Accept       : application/json\n")
+	if ac.loggingEnabled {
+		ac.logger.Println("------------------------------------------------------")
+		ac.logger.Printf("Call         : %s %s\n", method, path)
+		ac.logger.Printf("Content-type : application/json\n")
+		ac.logger.Printf("Accept       : application/json\n")
+	}
 }
 
 func (ac *AtlanClient) logHTTPStatus(response *http.Response) {

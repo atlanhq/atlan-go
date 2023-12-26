@@ -123,8 +123,7 @@ func (c *TypeDefClient) Purge(name string, typedefType model.TypeDef) error {
 	case *model.EnumDef:
 		//internalName = name
 	case *model.AtlanTagDef:
-		//atlanTagCache := NewAtlanTagCache(defaultAtlanClient)
-		//internalName := fmt.Sprintf("Name: %s\n:", atlanTagCache.GetIDForName(name))
+		//internalName := fmt.Sprintf("Name: %s\n:", GetIDForName(name))
 	default:
 		return fmt.Errorf("unsupported TypeDef type: %T", t)
 	}
@@ -141,7 +140,7 @@ func (c *TypeDefClient) Purge(name string, typedefType model.TypeDef) error {
 	case *model.EnumDef:
 		//EnumCache.refreshCache()
 	case *model.AtlanTagDef:
-		//AtlanTagCache.RefreshCache(AtlanTagCache{})
+		RefreshCache()
 	default:
 		return fmt.Errorf("unsupported TypeDef type: %T", t)
 	}
