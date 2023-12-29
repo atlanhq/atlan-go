@@ -91,7 +91,6 @@ func (c *AtlanTagCache) RefreshCache() error {
 	c.cacheByID = make(map[string]model.AtlanTagDef)
 	c.mapIDToName = make(map[string]string)
 	c.mapNameToID = make(map[string]string)
-	fmt.Printf("atlanTags: %s\n", atlanTags)
 
 	for _, atlanTag := range atlanTags.AtlanTagDefs {
 		c.cacheByID[atlanTag.TypeDefBase.GUID] = atlanTag
@@ -99,28 +98,20 @@ func (c *AtlanTagCache) RefreshCache() error {
 		c.mapNameToID[atlanTag.DisplayName] = atlanTag.Name
 	}
 
-	fmt.Printf("cacheByID: %s\n", c.cacheByID)
-	fmt.Printf("mapIDToName: %s\n", c.mapIDToName)
-	fmt.Printf("mapNameToID: %s\n", c.mapNameToID)
-
 	return nil
 }
 
 // GetIDForName translates the provided human-readable Atlan tag name to its Atlan-internal ID string.
 func (c *AtlanTagCache) GetIDForName(name string) (string, error) {
-	fmt.Printf("cacheByID: %s\n", c.cacheByID)
-	fmt.Printf("mapIDToName: %s\n", c.mapIDToName)
-	fmt.Printf("mapNameToID: %s\n", c.mapNameToID)
+
 	clsID, found := c.mapNameToID[name]
 
-	fmt.Printf("clsID: %s\n", clsID)
 	if !found && name != "" {
 		// If not found, refresh the cache and look again (could be stale)
 		if err := c.RefreshCache(); err != nil {
 			return "", err
 		}
 		clsID, found = c.mapNameToID[name]
-		fmt.Printf("clsID2: %s\n", clsID)
 		if !found {
 			// If still not found after refresh, mark it as deleted (could be
 			// an entry in an audit log that refers to a classification that
@@ -135,22 +126,17 @@ func (c *AtlanTagCache) GetIDForName(name string) (string, error) {
 
 // GetNameForID translates the provided Atlan-internal classification ID string to the human-readable Atlan tag name.
 func (c *AtlanTagCache) GetNameForID(idstr string) (string, error) {
-	c.mutex.RLock()
 
 	clsName, found := c.mapIDToName[idstr]
-	c.mutex.RUnlock()
 
 	if !found && idstr != "" {
-		c.mutex.Lock()
 
 		// If not found, refresh the cache and look again (could be stale)
 		if err := c.RefreshCache(); err != nil {
 			return "", err
-			c.mutex.Unlock()
 
 		}
 		clsName, found = c.mapIDToName[idstr]
-		c.mutex.Unlock()
 
 		if !found {
 			// If still not found after refresh, mark it as deleted (could be

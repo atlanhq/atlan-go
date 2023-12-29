@@ -46,12 +46,12 @@ type TypeDefBase struct {
 type AtlanTagDef struct {
 	TypeDefBase
 	TypeDef
-	Options       map[string]interface{}   `json:"options"`
-	AttributeDefs []map[string]interface{} `json:"attributeDefs"`
-	DisplayName   string                   `json:"displayName"`
-	EntityTypes   []string                 `json:"entityTypes"`
-	SubTypes      []string                 `json:"subTypes"`
-	SuperTypes    []string                 `json:"superTypes"`
+	Options       map[string]interface{} `json:"options"`
+	AttributeDefs []AttributesDefsTags   `json:"attributeDefs"`
+	DisplayName   string                 `json:"displayName"`
+	EntityTypes   []string               `json:"entityTypes"`
+	SubTypes      []string               `json:"subTypes"`
+	SuperTypes    []string               `json:"superTypes"`
 }
 
 type TypeDefResponse struct {
@@ -61,6 +61,22 @@ type TypeDefResponse struct {
 	EntityDefs         []EntityDef         `json:"entityDefs"`
 	RelationshipDefs   []RelationshipDef   `json:"relationshipDefs"`
 	CustomMetadataDefs []CustomMetadataDef `json:"businessMetadataDefs"`
+}
+
+type AttributesDefsTags struct {
+	name                  string `json:"name"`
+	typename              string `json:"typeName"`
+	isOptional            bool   `json:"isOptional"`
+	cardinality           string `json:"cardinality"`
+	valuesmincount        int    `json:"valuesMinCount"`
+	valuesmaxcount        int    `json:"valuesMaxCount"`
+	isUnique              bool   `json:"isUnique"`
+	isIndexable           bool   `json:"isIndexable"`
+	includeInNotification bool   `json:"includeInNotification"`
+	skipScrubbing         bool   `json:"skipScrubbing"`
+	searchWeight          int    `json:"searchWeight"`
+	displayName           string `json:"displayName"`
+	isDefaultValueNull    bool   `json:"isDefaultValueNull"`
 }
 
 type EnumDef struct {
