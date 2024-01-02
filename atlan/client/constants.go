@@ -93,4 +93,11 @@ var (
 		Status:   http.StatusOK,
 		Endpoint: AtlasEndpoint,
 	}
+
+	INDEX_SEARCH = API{
+		Path:     "search/indexsearch/",
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: AtlasEndpoint,
+	}
 )

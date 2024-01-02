@@ -88,6 +88,8 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 			return nil, fmt.Errorf("error marshaling request object: %v", err)
 		}
 		params["data"] = bytes.NewBuffer(requestJSON)
+		// ac.logger.Printf("Request JSON: %s\n", string(requestJSON))
+
 	}
 
 	ac.logAPICall(api.Method, path)
@@ -126,8 +128,9 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 		if !ok {
 			return nil, fmt.Errorf("missing or invalid 'data' parameter for POST/PUT/DELETE request")
 		}
-
 		req, err = http.NewRequest(method, path, body)
+		req.Header.Set("Content-Type", "application/json")
+
 	default:
 		return nil, fmt.Errorf("unsupported HTTP method: %s", method)
 	}
