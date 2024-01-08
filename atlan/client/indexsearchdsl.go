@@ -8,6 +8,7 @@ import (
 
 type Attributes string
 type LiteralState string
+type SortOrder string
 
 const (
 	ConnectorName                 Attributes   = "connectorName"
@@ -44,6 +45,8 @@ const (
 	Active                        LiteralState = "ACTIVE"
 	Deleted                       LiteralState = "DELETED"
 	Purged                        LiteralState = "PURGED"
+	Ascending                     SortOrder    = "asc"
+	Descending                    SortOrder    = "desc"
 )
 
 // Query is an interface that represents the base query behavior.
@@ -149,6 +152,12 @@ type MatchQuery struct {
 	ZeroTermsQuery                  *string
 	MaxExpansions                   *int
 	PrefixLength                    *int
+}
+
+type SortItem struct {
+	Field      string
+	Order      *SortOrder
+	NestedPath *string
 }
 
 func (t *TermQuery) ToJSON() map[string]interface{} {
@@ -409,19 +418,86 @@ func (m *MatchQuery) ToJSON() map[string]interface{} {
 	}
 }
 
+func (s *SortItem) ToJSON() map[string]interface{} {
+	parameters := map[string]interface{}{
+		"order": s.Order,
+	}
+	if s.NestedPath != nil {
+		parameters["nested"] = map[string]interface{}{
+			"path": s.NestedPath,
+		}
+	}
+	return map[string]interface{}{
+		s.Field: parameters,
+	}
+}
+
+type IndexSearchIterator struct {
+	request        IndexSearchRequest
+	currentPage    int
+	pageSize       int
+	totalResults   int64
+	hasMoreResults bool
+}
+
+type SearchRequest struct {
+	Attributes []string `json:"attributes,omitempty"`
+	Offset     int      `json:"from,omitempty"`
+	Size       int      `json:"size,omitempty"`
+}
+
+func NewIndexSearchIterator(pageSize int, initialRequest IndexSearchRequest) *IndexSearchIterator {
+	return &IndexSearchIterator{
+		request:        initialRequest,
+		currentPage:    0,
+		pageSize:       pageSize,
+		totalResults:   0,
+		hasMoreResults: true,
+	}
+}
+
+func (it *IndexSearchIterator) Next() (*IndexSearchResponse, error) {
+	if !it.hasMoreResults {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	it.request.Dsl.From = it.currentPage * it.pageSize
+	it.request.Dsl.Size = it.pageSize
+
+	response, err := search(it.request)
+	if err != nil {
+		return nil, err
+	}
+
+	it.totalResults = response.ApproximateCount
+	it.hasMoreResults = int64(it.request.Dsl.From+it.pageSize) < it.totalResults
+	it.currentPage++
+
+	return response, nil
+}
+
+func (it *IndexSearchIterator) HasMoreResults() bool {
+	return it.hasMoreResults
+}
+
 type IndexSearchRequest struct {
-	Dsl                    dsl  `json:"dsl"`
-	SuppressLogs           bool `json:"suppressLogs"`
-	ShowSearchScore        bool `json:"showSearchScore"`
-	ExcludeMeanings        bool `json:"excludeMeanings"`
-	ExcludeClassifications bool `json:"excludeClassifications"`
+	SearchRequest
+	Dsl                    dsl      `json:"dsl"`
+	RelationAttributes     []string `json:"relationAttributes,omitempty"`
+	SuppressLogs           bool     `json:"suppressLogs"`
+	ShowSearchScore        bool     `json:"showSearchScore"`
+	ExcludeMeanings        bool     `json:"excludeMeanings"`
+	ExcludeClassifications bool     `json:"excludeClassifications"`
 }
 
 type dsl struct {
 	From           int                    `json:"from"`
 	Size           int                    `json:"size"`
+	aggregation    map[string]interface{} `json:"aggregation,omitempty"`
 	Query          map[string]interface{} `json:"query"`
 	TrackTotalHits bool                   `json:"track_total_hits"`
+	PostFilter     *Query                 `json:"post_filter,omitempty"`
+	Sort           []SortItem             `json:"sort,omitempty"`
 }
 
 type IndexSearchResponse struct {
@@ -483,6 +559,11 @@ func search(request IndexSearchRequest) (*IndexSearchResponse, error) {
 
 func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
 	boolQuery, err := WithActiveGlossary(glossaryName)
+	if err != nil {
+		return nil, err
+	}
+	pageSize := 2
+
 	request := IndexSearchRequest{
 		Dsl: dsl{
 			From:           0,
@@ -495,13 +576,71 @@ func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
 		ExcludeMeanings:        false,
 		ExcludeClassifications: false,
 	}
+
+	iterator := NewIndexSearchIterator(pageSize, request)
+
+	for iterator.HasMoreResults() {
+		response, err := iterator.Next()
+		if err != nil {
+			return nil, fmt.Errorf("error executing search: %v", err)
+		}
+		for _, entity := range response.Entities {
+			if entity.TypeName == "AtlasGlossary" {
+				return response, nil
+			}
+		}
+	}
 	// Call the search function
-	response, err := search(request)
+	//response, err := search(request)
+	//if err != nil {
+	//	return nil, fmt.Errorf("error executing search: %v", err)
+	//}
+
+	// return response, nil
+	return nil, nil
+}
+
+func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*IndexSearchResponse, error) {
+	boolQuery, err := WithActiveCategory(categoryName, glossaryQualifiedName)
 	if err != nil {
-		return nil, fmt.Errorf("error executing search: %v", err)
+		return nil, err
+	}
+	pageSize := 1
+
+	request := IndexSearchRequest{
+		Dsl: dsl{
+			From:           0,
+			Size:           2,
+			Query:          boolQuery.ToJSON(),
+			TrackTotalHits: true,
+		},
+		SuppressLogs:           true,
+		ShowSearchScore:        false,
+		ExcludeMeanings:        false,
+		ExcludeClassifications: false,
 	}
 
-	return response, nil
+	iterator := NewIndexSearchIterator(pageSize, request)
+
+	for iterator.HasMoreResults() {
+		response, err := iterator.Next()
+		if err != nil {
+			return nil, fmt.Errorf("error executing search: %v", err)
+		}
+		for _, entity := range response.Entities {
+			if entity.TypeName == "AtlasGlossaryCategory" {
+				return response, nil
+			}
+		}
+	}
+	// Call the search function
+	//response, err := search(request)
+	//if err != nil {
+	//	return nil, fmt.Errorf("error executing search: %v", err)
+	//}
+
+	// return response, nil
+	return nil, nil
 }
 
 // Methods
@@ -516,6 +655,19 @@ func WithActiveGlossary(name string) (*BoolQuery, error) {
 
 	return &BoolQuery{
 		Filter: []Query{q1, q2, q3},
+	}, nil
+}
+
+func WithActiveCategory(name string, glossaryqualifiedname string) (*BoolQuery, error) {
+	q1, err := WithState("ACTIVE")
+	if err != nil {
+		return nil, err
+	}
+	q2 := WithTypeName("AtlasGlossaryCategory")
+	q3 := WithName(name)
+	q4 := WithGlossary(glossaryqualifiedname)
+	return &BoolQuery{
+		Filter: []Query{q1, q2, q3, q4},
 	}, nil
 }
 
@@ -541,6 +693,13 @@ func WithTypeName(value string) *TermQuery {
 func WithName(value string) *TermQuery {
 	return &TermQuery{
 		Field: string(Name),
+		Value: value,
+	}
+}
+
+func WithGlossary(value string) *TermQuery {
+	return &TermQuery{
+		Field: string(Glossary),
 		Value: value,
 	}
 }
