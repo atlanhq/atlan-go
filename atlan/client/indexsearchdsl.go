@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
 )
 
 type Attributes string
@@ -456,24 +457,64 @@ func NewIndexSearchIterator(pageSize int, initialRequest IndexSearchRequest) *In
 	}
 }
 
-func (it *IndexSearchIterator) Next() (*IndexSearchResponse, error) {
+func (it *IndexSearchIterator) Next() ([]*IndexSearchResponse, error) {
 	if !it.hasMoreResults {
 		return nil, fmt.Errorf("no more results available")
 	}
 
-	it.request.Dsl.From = it.currentPage * it.pageSize
+	// Perform an initial search to get the approximateCount
+	it.request.Dsl.From = 0
 	it.request.Dsl.Size = it.pageSize
-
 	response, err := search(it.request)
 	if err != nil {
 		return nil, err
 	}
-
 	it.totalResults = response.ApproximateCount
+	it.hasMoreResults = it.totalResults > 0
+	if !it.hasMoreResults {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	// If approximateCount is 1, return the response immediately
+	if it.totalResults == 1 {
+		return []*IndexSearchResponse{response}, nil
+	}
+
+	// Num of pages to fetch
+	numPageGroups := int((it.totalResults + int64(it.pageSize) - 1) / int64(it.pageSize))
+	var wg sync.WaitGroup
+	responses := make([]*IndexSearchResponse, numPageGroups)
+	errors := make([]error, numPageGroups)
+
+	// Fetch all pages in parallel
+	for i := 0; i < numPageGroups; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			it.request.Dsl.From = i * it.pageSize
+			it.request.Dsl.Size = it.pageSize
+			response, err := search(it.request)
+			if err != nil {
+				errors[i] = err
+				return
+			}
+			responses[i] = response
+		}(i)
+	}
+
+	wg.Wait()
+
+	for _, err := range errors {
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Update the iterator state
 	it.hasMoreResults = int64(it.request.Dsl.From+it.pageSize) < it.totalResults
 	it.currentPage++
 
-	return response, nil
+	return responses, nil
 }
 
 func (it *IndexSearchIterator) HasMoreResults() bool {
@@ -562,49 +603,6 @@ func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	pageSize := 2
-
-	request := IndexSearchRequest{
-		Dsl: dsl{
-			From:           0,
-			Size:           2,
-			Query:          boolQuery.ToJSON(),
-			TrackTotalHits: true,
-		},
-		SuppressLogs:           true,
-		ShowSearchScore:        false,
-		ExcludeMeanings:        false,
-		ExcludeClassifications: false,
-	}
-
-	iterator := NewIndexSearchIterator(pageSize, request)
-
-	for iterator.HasMoreResults() {
-		response, err := iterator.Next()
-		if err != nil {
-			return nil, fmt.Errorf("error executing search: %v", err)
-		}
-		for _, entity := range response.Entities {
-			if entity.TypeName == "AtlasGlossary" {
-				return response, nil
-			}
-		}
-	}
-	// Call the search function
-	//response, err := search(request)
-	//if err != nil {
-	//	return nil, fmt.Errorf("error executing search: %v", err)
-	//}
-
-	// return response, nil
-	return nil, nil
-}
-
-func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*IndexSearchResponse, error) {
-	boolQuery, err := WithActiveCategory(categoryName, glossaryQualifiedName)
-	if err != nil {
-		return nil, err
-	}
 	pageSize := 1
 
 	request := IndexSearchRequest{
@@ -623,13 +621,60 @@ func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*Ind
 	iterator := NewIndexSearchIterator(pageSize, request)
 
 	for iterator.HasMoreResults() {
-		response, err := iterator.Next()
+		responses, err := iterator.Next()
 		if err != nil {
 			return nil, fmt.Errorf("error executing search: %v", err)
 		}
-		for _, entity := range response.Entities {
-			if entity.TypeName == "AtlasGlossaryCategory" {
-				return response, nil
+		for _, response := range responses {
+			for _, entity := range response.Entities {
+				if entity.TypeName == "AtlasGlossary" {
+					return response, nil
+				}
+			}
+		}
+	}
+	// Call the search function
+	//response, err := search(request)
+	//if err != nil {
+	//	return nil, fmt.Errorf("error executing search: %v", err)
+	//}
+
+	// return response, nil
+	return nil, nil
+}
+
+func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*IndexSearchResponse, error) {
+	boolQuery, err := WithActiveCategory(categoryName, glossaryQualifiedName)
+	if err != nil {
+		return nil, err
+	}
+	pageSize := 2
+
+	request := IndexSearchRequest{
+		Dsl: dsl{
+			From:           0,
+			Size:           2,
+			Query:          boolQuery.ToJSON(),
+			TrackTotalHits: true,
+		},
+		SuppressLogs:           true,
+		ShowSearchScore:        false,
+		ExcludeMeanings:        false,
+		ExcludeClassifications: false,
+	}
+
+	iterator := NewIndexSearchIterator(pageSize, request)
+
+	for iterator.HasMoreResults() {
+		responses, err := iterator.Next()
+		if err != nil {
+			return nil, fmt.Errorf("error executing search: %v", err)
+		}
+		for _, response := range responses {
+			for _, entity := range response.Entities {
+				if entity.TypeName == "AtlasGlossaryCategory" {
+					return response, err
+				}
 			}
 		}
 	}
