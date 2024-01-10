@@ -457,7 +457,31 @@ func NewIndexSearchIterator(pageSize int, initialRequest IndexSearchRequest) *In
 	}
 }
 
-func (it *IndexSearchIterator) Next() ([]*IndexSearchResponse, error) {
+func (it *IndexSearchIterator) NextPage() (*IndexSearchResponse, error) {
+	if !it.hasMoreResults {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	it.request.Dsl.From = it.currentPage * it.pageSize
+	it.request.Dsl.Size = it.pageSize
+
+	response, err := search(it.request)
+	if err != nil {
+		return nil, err
+	}
+
+	it.totalResults = response.ApproximateCount
+	it.hasMoreResults = int64(it.request.Dsl.From+it.pageSize) < it.totalResults
+	it.currentPage++
+
+	return response, nil
+}
+
+func (it *IndexSearchIterator) CurrentPage() int {
+	return it.currentPage
+}
+
+func (it *IndexSearchIterator) IteratePages() ([]*IndexSearchResponse, error) {
 	if !it.hasMoreResults {
 		return nil, fmt.Errorf("no more results available")
 	}
@@ -621,7 +645,7 @@ func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
 	iterator := NewIndexSearchIterator(pageSize, request)
 
 	for iterator.HasMoreResults() {
-		responses, err := iterator.Next()
+		responses, err := iterator.IteratePages()
 		if err != nil {
 			return nil, fmt.Errorf("error executing search: %v", err)
 		}
@@ -648,7 +672,7 @@ func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*Ind
 	if err != nil {
 		return nil, err
 	}
-	pageSize := 2
+	pageSize := 1
 
 	request := IndexSearchRequest{
 		Dsl: dsl{
@@ -666,15 +690,14 @@ func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*Ind
 	iterator := NewIndexSearchIterator(pageSize, request)
 
 	for iterator.HasMoreResults() {
-		responses, err := iterator.Next()
+		response, err := iterator.NextPage()
 		if err != nil {
 			return nil, fmt.Errorf("error executing search: %v", err)
 		}
-		for _, response := range responses {
-			for _, entity := range response.Entities {
-				if entity.TypeName == "AtlasGlossaryCategory" {
-					return response, err
-				}
+		fmt.Println("Current Page: ", iterator.CurrentPage())
+		for _, entity := range response.Entities {
+			if entity.TypeName == "AtlasGlossaryCategory" {
+				return response, err
 			}
 		}
 	}
