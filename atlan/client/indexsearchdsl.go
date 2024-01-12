@@ -556,13 +556,15 @@ type IndexSearchRequest struct {
 }
 
 type dsl struct {
-	From           int                    `json:"from"`
-	Size           int                    `json:"size"`
-	aggregation    map[string]interface{} `json:"aggregation,omitempty"`
-	Query          map[string]interface{} `json:"query"`
-	TrackTotalHits bool                   `json:"track_total_hits"`
-	PostFilter     *Query                 `json:"post_filter,omitempty"`
-	Sort           []SortItem             `json:"sort,omitempty"`
+	From                int                    `json:"from"`
+	Size                int                    `json:"size"`
+	aggregation         map[string]interface{} `json:"aggregation,omitempty"`
+	Query               map[string]interface{} `json:"query"`
+	TrackTotalHits      bool                   `json:"track_total_hits"`
+	PostFilter          *Query                 `json:"post_filter,omitempty"`
+	Sort                []SortItem             `json:"sort,omitempty"`
+	IncludesOnResults   []string               `json:"includesOnResults,omitempty"`
+	IncludesOnRelations []string               `json:"includesOnRelations,omitempty"`
 }
 
 type IndexSearchResponse struct {
