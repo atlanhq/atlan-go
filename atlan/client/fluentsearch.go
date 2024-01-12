@@ -128,7 +128,6 @@ func (fs *FluentSearch) Execute() ([]*IndexSearchResponse, error) {
 	for iterator.HasMoreResults() {
 		{
 			response, err := iterator.NextPage()
-			fmt.Println(response)
 			if err != nil {
 				fmt.Printf("Error executing search: %v\n", err)
 				return nil, err
@@ -152,17 +151,15 @@ func (fs *FluentSearch) ToRequest() *IndexSearchRequest {
 			aggregation:         fs.Aggregations,
 			IncludesOnResults:   fs.IncludesOnResults,
 			IncludesOnRelations: fs.IncludesOnRelations,
+			TrackTotalHits:      true,
 		},
 	}
 
 	// Add Wheres to Query
 	if len(fs.Wheres) > 0 {
 		boolQuery := &BoolQuery{Filter: fs.Wheres}
-		fmt.Println(boolQuery.ToJSON())
 		request.Dsl.Query = boolQuery.ToJSON()
 	}
-
-	fmt.Println(request)
 
 	// Add WhereNots to Query
 	if len(fs.WhereNots) > 0 {
@@ -188,6 +185,7 @@ func (fs *FluentSearch) ToRequest() *IndexSearchRequest {
 		} else {
 			request.Dsl.Query = map[string]interface{}{
 				"bool": map[string]interface{}{
+					"filter": request.Dsl.Query,
 					"must":   request.Dsl.Query,
 					"should": boolQuery.ToJSON(),
 				},
