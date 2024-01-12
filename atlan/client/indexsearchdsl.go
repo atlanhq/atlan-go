@@ -643,7 +643,7 @@ func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
 		ExcludeMeanings:        false,
 		ExcludeClassifications: false,
 	}
-
+	fmt.Println(request)
 	iterator := NewIndexSearchIterator(pageSize, request)
 
 	for iterator.HasMoreResults() {
