@@ -157,7 +157,7 @@ type MatchQuery struct {
 
 type SortItem struct {
 	Field      string
-	Order      *SortOrder
+	Order      SortOrder
 	NestedPath *string
 }
 
@@ -420,17 +420,11 @@ func (m *MatchQuery) ToJSON() map[string]interface{} {
 }
 
 func (s *SortItem) ToJSON() map[string]interface{} {
-	parameters := map[string]interface{}{
-		"order": s.Order,
-	}
+	sortField := map[string]interface{}{"order": string(s.Order)}
 	if s.NestedPath != nil {
-		parameters["nested"] = map[string]interface{}{
-			"path": s.NestedPath,
-		}
+		sortField["nested"] = map[string]interface{}{"path": *s.NestedPath}
 	}
-	return map[string]interface{}{
-		s.Field: parameters,
-	}
+	return map[string]interface{}{s.Field: sortField}
 }
 
 type IndexSearchIterator struct {
@@ -556,15 +550,15 @@ type IndexSearchRequest struct {
 }
 
 type dsl struct {
-	From                int                    `json:"from"`
-	Size                int                    `json:"size"`
-	aggregation         map[string]interface{} `json:"aggregation,omitempty"`
-	Query               map[string]interface{} `json:"query"`
-	TrackTotalHits      bool                   `json:"track_total_hits"`
-	PostFilter          *Query                 `json:"post_filter,omitempty"`
-	Sort                []SortItem             `json:"sort,omitempty"`
-	IncludesOnResults   []string               `json:"includesOnResults,omitempty"`
-	IncludesOnRelations []string               `json:"includesOnRelations,omitempty"`
+	From                int                      `json:"from"`
+	Size                int                      `json:"size"`
+	aggregation         map[string]interface{}   `json:"aggregation,omitempty"`
+	Query               map[string]interface{}   `json:"query"`
+	TrackTotalHits      bool                     `json:"track_total_hits"`
+	PostFilter          *Query                   `json:"post_filter,omitempty"`
+	Sort                []map[string]interface{} `json:"sort,omitempty"`
+	IncludesOnResults   []string                 `json:"includesOnResults,omitempty"`
+	IncludesOnRelations []string                 `json:"includesOnRelations,omitempty"`
 }
 
 type IndexSearchResponse struct {
@@ -631,12 +625,20 @@ func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
 	}
 	pageSize := 1
 
+	sortItems := []SortItem{{Field: string(ModifiedBy), Order: Ascending}}
+	sortItemsJSON := make([]map[string]interface{}, len(sortItems))
+	for i, item := range sortItems {
+		sortItemsJSON[i] = item.ToJSON()
+	}
+	fmt.Println(sortItemsJSON)
+
 	request := IndexSearchRequest{
 		Dsl: dsl{
 			From:           0,
 			Size:           2,
 			Query:          boolQuery.ToJSON(),
 			TrackTotalHits: true,
+			Sort:           sortItemsJSON,
 		},
 		SuppressLogs:           true,
 		ShowSearchScore:        false,
@@ -644,6 +646,7 @@ func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
 		ExcludeClassifications: false,
 	}
 	fmt.Println(request)
+
 	iterator := NewIndexSearchIterator(pageSize, request)
 
 	for iterator.HasMoreResults() {

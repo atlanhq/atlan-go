@@ -86,7 +86,7 @@ func (fs *FluentSearch) MinSome(minSomes int) *FluentSearch {
 
 // Sort adds a SortItem to the Sorts slice.
 func (fs *FluentSearch) Sort(field string, order SortOrder) *FluentSearch {
-	fs.Sorts = append(fs.Sorts, SortItem{Field: field, Order: &order})
+	fs.Sorts = append(fs.Sorts, SortItem{Field: field, Order: order})
 	return fs
 }
 
@@ -195,7 +195,12 @@ func (fs *FluentSearch) ToRequest() *IndexSearchRequest {
 
 	// Add Sorts to Dsl.Sort
 	if len(fs.Sorts) > 0 {
-		request.Dsl.Sort = fs.Sorts
+		sortItems := fs.Sorts // Assuming fs is an instance of FluentSearch
+		sortItemsJSON := make([]map[string]interface{}, len(sortItems))
+		for i, item := range sortItems {
+			sortItemsJSON[i] = item.ToJSON()
+		}
+		request.Dsl.Sort = sortItemsJSON
 	}
 
 	return request
