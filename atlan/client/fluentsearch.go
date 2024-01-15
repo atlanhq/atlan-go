@@ -145,11 +145,13 @@ func (fs *FluentSearch) Execute() ([]*IndexSearchResponse, error) {
 func (fs *FluentSearch) ToRequest() *IndexSearchRequest {
 	// Create a new IndexSearchRequest and set its properties based on FluentSearch
 	request := &IndexSearchRequest{
+		SearchRequest: SearchRequest{
+			Attributes: fs.IncludesOnResults,
+		},
 		Dsl: dsl{
 			From:                0,
 			Size:                fs.PageSize,
 			aggregation:         fs.Aggregations,
-			IncludesOnResults:   fs.IncludesOnResults,
 			IncludesOnRelations: fs.IncludesOnRelations,
 			TrackTotalHits:      true,
 		},
@@ -202,6 +204,7 @@ func (fs *FluentSearch) ToRequest() *IndexSearchRequest {
 		}
 		request.Dsl.Sort = sortItemsJSON
 	}
+	fmt.Println(request)
 
 	return request
 }

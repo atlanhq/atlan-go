@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	client.LoggingEnabled = false
+	client.LoggingEnabled = true
 	err := client.Init()
 	if err != nil {
 		return
@@ -34,12 +34,16 @@ func main() {
 		Where(string(client.TypeName), "AtlasGlossaryCategory").
 		Sort(string(client.Name), client.Ascending).
 		WhereNot(excludeCondition).
+		IncludeOnResults("guid").
 		Execute()
 
 	if err != nil {
 		fmt.Printf("Error executing search: %v\n", err)
 		return
 	}
+
+	println("Search results:")
+	fmt.Println(searchResult[0].Entities[0])
 
 	// Process search results
 	for _, entity := range searchResult[0].Entities {
