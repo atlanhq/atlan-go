@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	client.LoggingEnabled = true
+	client.LoggingEnabled = false
 	err := client.Init()
 	if err != nil {
 		return
@@ -22,11 +22,18 @@ func main() {
 	//}
 
 	//fmt.Printf("Response: %+v\n", response)
+	excludeCondition := &client.TermQuery{
+		Field: string(client.Name),
+		Value: "Retention",
+	}
 
 	searchResult, err := client.NewFluentSearch().
 		PageSizes(10).
 		ActiveAssets().
+		AssetType("AtlasGlossaryCategory").
 		Where(string(client.TypeName), "AtlasGlossaryCategory").
+		Sort(string(client.Name), client.Ascending).
+		WhereNot(excludeCondition).
 		Execute()
 
 	if err != nil {

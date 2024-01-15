@@ -195,7 +195,7 @@ func (fs *FluentSearch) ToRequest() *IndexSearchRequest {
 
 	// Add Sorts to Dsl.Sort
 	if len(fs.Sorts) > 0 {
-		sortItems := fs.Sorts // Assuming fs is an instance of FluentSearch
+		sortItems := fs.Sorts
 		sortItemsJSON := make([]map[string]interface{}, len(sortItems))
 		for i, item := range sortItems {
 			sortItemsJSON[i] = item.ToJSON()
