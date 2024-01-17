@@ -436,9 +436,10 @@ type IndexSearchIterator struct {
 }
 
 type SearchRequest struct {
-	Attributes []string `json:"attributes,omitempty"`
-	Offset     int      `json:"from,omitempty"`
-	Size       int      `json:"size,omitempty"`
+	Attributes          []string `json:"attributes,omitempty"`
+	Offset              int      `json:"from,omitempty"`
+	Size                int      `json:"size,omitempty"`
+	RelationsAttributes []string `json:"relationsAttributes,omitempty"`
 }
 
 func NewIndexSearchIterator(pageSize int, initialRequest IndexSearchRequest) *IndexSearchIterator {

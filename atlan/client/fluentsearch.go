@@ -146,14 +146,14 @@ func (fs *FluentSearch) ToRequest() *IndexSearchRequest {
 	// Create a new IndexSearchRequest and set its properties based on FluentSearch
 	request := &IndexSearchRequest{
 		SearchRequest: SearchRequest{
-			Attributes: fs.IncludesOnResults,
+			Attributes:          fs.IncludesOnResults,
+			RelationsAttributes: fs.IncludesOnRelations,
 		},
 		Dsl: dsl{
-			From:                0,
-			Size:                fs.PageSize,
-			aggregation:         fs.Aggregations,
-			IncludesOnRelations: fs.IncludesOnRelations,
-			TrackTotalHits:      true,
+			From:           0,
+			Size:           fs.PageSize,
+			aggregation:    fs.Aggregations,
+			TrackTotalHits: true,
 		},
 	}
 
