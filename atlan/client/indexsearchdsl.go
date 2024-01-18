@@ -631,7 +631,6 @@ func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
 	for i, item := range sortItems {
 		sortItemsJSON[i] = item.ToJSON()
 	}
-	fmt.Println(sortItemsJSON)
 
 	request := IndexSearchRequest{
 		Dsl: dsl{
@@ -646,7 +645,6 @@ func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
 		ExcludeMeanings:        false,
 		ExcludeClassifications: false,
 	}
-	fmt.Println(request)
 
 	iterator := NewIndexSearchIterator(pageSize, request)
 

@@ -141,6 +141,25 @@ func (fs *FluentSearch) Execute() ([]*IndexSearchResponse, error) {
 	return responses, nil
 }
 
+// Sort by GUID by default only if not already specified by the developer
+func (fs *FluentSearch) SortByGuidDefault() *FluentSearch {
+	// Check if "guid" is already in the list of sort criteria
+	guidAlreadySorted := false
+	for _, item := range fs.Sorts {
+		if item.Field == string(GUID) {
+			guidAlreadySorted = true
+			break
+		}
+	}
+
+	// If "guid" is not already in the list, add it as the final sort criteria
+	if !guidAlreadySorted {
+		fs.Sort(string(GUID), Ascending)
+	}
+
+	return fs
+}
+
 // ToRequest converts FluentSearch to IndexSearchRequest.
 func (fs *FluentSearch) ToRequest() *IndexSearchRequest {
 	// Create a new IndexSearchRequest and set its properties based on FluentSearch
@@ -197,6 +216,7 @@ func (fs *FluentSearch) ToRequest() *IndexSearchRequest {
 
 	// Add Sorts to Dsl.Sort
 	if len(fs.Sorts) > 0 {
+		fs.SortByGuidDefault()
 		sortItems := fs.Sorts
 		sortItemsJSON := make([]map[string]interface{}, len(sortItems))
 		for i, item := range sortItems {
@@ -204,7 +224,6 @@ func (fs *FluentSearch) ToRequest() *IndexSearchRequest {
 		}
 		request.Dsl.Sort = sortItemsJSON
 	}
-	fmt.Println(request)
 
 	return request
 }
