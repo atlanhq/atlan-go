@@ -24,7 +24,7 @@ func TestCallAPI(t *testing.T) {
 	defer mockServer.Close()
 
 	// Create an AtlanClient for testing
-	client := NewAtlanClient("test-api-key", mockServer.URL)
+	client := Context("test-api-key", mockServer.URL)
 
 	// Test GET request
 	response, err := client.CallAPI("/test", http.MethodGet, nil, nil)

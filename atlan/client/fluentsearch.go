@@ -59,8 +59,9 @@ func NewFluentSearch() *FluentSearch {
 }
 
 // Where adds a TermQuery to the Wheres slice.
-func (fs *FluentSearch) Where(field string, value string) *FluentSearch {
-	fs.Wheres = append(fs.Wheres, &TermQuery{Field: field, Value: value})
+func (fs *FluentSearch) Where(queries ...Query) *FluentSearch {
+	boolQuery := &BoolQuery{Filter: queries}
+	fs.Wheres = append(fs.Wheres, boolQuery)
 	return fs
 }
 

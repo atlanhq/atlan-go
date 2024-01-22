@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -19,6 +18,7 @@ type AtlanClient struct {
 	loggingEnabled bool
 	requestParams  map[string]interface{}
 	logger         *log.Logger
+	SearchAssets
 }
 
 var LoggingEnabled = true
@@ -38,7 +38,7 @@ func Init() error {
 	}
 
 	var err error
-	DefaultAtlanClient, err = NewAtlanClient(apiKey, baseURL)
+	DefaultAtlanClient, err = Context(apiKey, baseURL)
 	if err != nil {
 		return err
 	}
@@ -47,15 +47,15 @@ func Init() error {
 	return nil
 }
 
-// NewAtlanClient creates a new AtlanClient instance.
-func NewAtlanClient(apiKey, baseURL string) (*AtlanClient, error) {
+// Context creates a new AtlanClient instance.
+func Context(apiKey, baseURL string) (*AtlanClient, error) {
 	client := &http.Client{}
 	logger := log.New(os.Stdout, "AtlanClient: ", log.LstdFlags|log.Lshortfile)
 
 	if LoggingEnabled {
 		logger = log.New(os.Stdout, "AtlanClient: ", log.LstdFlags|log.Lshortfile)
 	} else {
-		logger = log.New(ioutil.Discard, "", 0) // Logger that discards all log output
+		logger = log.New(io.Discard, "", 0) // Logger that discards all log output
 	}
 	return &AtlanClient{
 		session: client,
@@ -70,7 +70,21 @@ func NewAtlanClient(apiKey, baseURL string) (*AtlanClient, error) {
 		},
 		logger:         logger,
 		loggingEnabled: LoggingEnabled,
+		SearchAssets: SearchAssets{
+			Glossary: NewGlossary(),
+			Table:    NewTable(),
+			// Add other methods
+		},
 	}, nil
+}
+
+func NewContext() *AtlanClient {
+	err := Init()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to initialize AtlanClient: %v", err))
+	}
+
+	return DefaultAtlanClient
 }
 
 // CallAPI makes a generic API call.
