@@ -9,10 +9,6 @@ import (
 func main() {
 
 	client.LoggingEnabled = true
-	err := client.Init()
-	if err != nil {
-		return
-	}
 
 	//response, err := client.FindGlossaryByName("Manhattan Project")
 	//response, err := client.FindCategoryByName("Oak Ridge", "DDwycTZ007zZYxRajRVDK")
@@ -24,17 +20,26 @@ func main() {
 	//fmt.Printf("Response: %+v\n", response)
 	excludeCondition := &client.TermQuery{
 		Field: string(client.Name),
-		Value: "Retention",
+		Value: "Concepts",
 	}
+
+	ctx := client.NewContext()
+	//query := ctx.Glossary.TypeName.Eq("AtlasGlossary", nil)
 
 	searchResult, err := client.NewFluentSearch().
 		PageSizes(10).
 		ActiveAssets().
-		AssetType("AtlasGlossaryCategory").
-		Where(string(client.TypeName), "AtlasGlossaryCategory").
+		AssetType("AtlasGlossary").
+		//Where(&client.TermQuery{
+		//	Field: string(client.TypeName),
+		//	Value: "AtlasGlossary",
+		//}).
+		Where(ctx.Glossary.Name.StartsWith("M", nil)).
 		Sort(string(client.Name), client.Ascending).
+		//Sort(string(client.GUID), client.Ascending).
 		WhereNot(excludeCondition).
 		IncludeOnResults("guid").
+		IncludeOnRelations("terms").
 		Execute()
 
 	if err != nil {

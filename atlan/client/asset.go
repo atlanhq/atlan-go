@@ -99,7 +99,7 @@ func NewGlossary() *AtlasGlossary {
 				QualifiedName:       NewKeywordTextField("qualifiedName", "qualifiedName", "qualifiedName.text"),
 			},
 			DislayName: NewKeywordTextField("displayName", "displayName.keyword", "displayName"),
-			Name:       NewKeywordTextStemmedField("name", "name.keyword", "name"),
+			Name:       NewKeywordTextStemmedField("name", "name.keyword", "name", "name"),
 		},
 	}
 }
