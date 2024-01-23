@@ -216,6 +216,39 @@ func (nf *NumericField) Between(minimum, maximum *interface{}) Query {
 	}
 }
 
+type InternalKeywordTextField struct {
+	*KeywordTextField
+	InternalFieldName string
+}
+
+func NewInternalKeywordTextField(atlanFieldName, keywordFieldName, textFieldName, internalFieldName string) *InternalKeywordTextField {
+	keywordTextField := NewKeywordTextField(atlanFieldName, keywordFieldName, textFieldName)
+	return &InternalKeywordTextField{
+		KeywordTextField:  keywordTextField,
+		InternalFieldName: internalFieldName,
+	}
+}
+
+type KeywordTextStemmedField struct {
+	*KeywordTextField
+	StemmedFieldName string
+}
+
+func NewKeywordTextStemmedField(atlanFieldName, keywordFieldName, textFieldName, stemmedFieldName string) *KeywordTextStemmedField {
+	keywordTextField := NewKeywordTextField(atlanFieldName, keywordFieldName, textFieldName)
+	return &KeywordTextStemmedField{
+		KeywordTextField: keywordTextField,
+		StemmedFieldName: stemmedFieldName,
+	}
+}
+
+func (ktsf *KeywordTextStemmedField) MatchStemmed(value string) Query {
+	return &MatchQuery{
+		Field: ktsf.StemmedFieldName,
+		Query: value,
+	}
+}
+
 /*
 func (nf *NumericField) Avg() Aggregation {
 	return Aggregation{
