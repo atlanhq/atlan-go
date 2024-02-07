@@ -186,6 +186,15 @@ func (ac *AtlanClient) logAPICall(method, path string) {
 func (ac *AtlanClient) logHTTPStatus(response *http.Response) {
 	if response != nil {
 		ac.logger.Printf("HTTP Status: %s\n", response.Status)
+		if response.StatusCode < 200 || response.StatusCode >= 300 {
+			// Read the response body for the error message
+			bodyBytes, err := io.ReadAll(response.Body)
+			if err != nil {
+				ac.logger.Printf("Error reading response body: %v\n", err)
+			} else {
+				ac.logger.Printf("Error: %s\n", string(bodyBytes))
+			}
+		}
 	}
 }
 
