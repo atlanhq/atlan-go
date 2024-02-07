@@ -3,6 +3,7 @@ package client
 import (
 	"atlan-go/atlan/model"
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -64,7 +65,7 @@ func (g *AtlasGlossary) Create(name string, icon string) {
 		Attributes: model.GlossaryAttributes{
 			Name:          name,
 			QualifiedName: name,
-			AssetIcon:     "PhBookOpenText",
+			AssetIcon:     icon,
 		},
 	}
 	if icon != "" {
@@ -72,6 +73,23 @@ func (g *AtlasGlossary) Create(name string, icon string) {
 	}
 
 	g.Entities = append(g.Entities, entity)
+}
+
+func (g *AtlasGlossary) CreateForModification(name string, qualifiedName string, glossary_guid string) error {
+	if name == "" || qualifiedName == "" || glossary_guid == "" {
+		return errors.New("name, qualified_name, and glossary_guid are required fields")
+	}
+
+	entity := model.Glossary{
+		TypeName: "AtlasGlossary",
+		Attributes: model.GlossaryAttributes{
+			Name:          name,
+			QualifiedName: qualifiedName,
+		},
+		Guid: glossary_guid,
+	}
+	g.Entities = append(g.Entities, entity)
+	return nil
 }
 
 func (g *AtlasGlossary) MarshalJSON() ([]byte, error) {
