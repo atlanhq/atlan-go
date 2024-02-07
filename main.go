@@ -18,43 +18,59 @@ func main() {
 	//}
 
 	//fmt.Printf("Response: %+v\n", response)
-	excludeCondition := &client.TermQuery{
-		Field: string(client.Name),
-		Value: "Concepts",
-	}
+	//excludeCondition := &client.TermQuery{
+	//	Field: string(client.Name),
+	//	Value: "Concepts",
+	//}
 
-	ctx := client.NewContext()
+	//ctx := client.NewContext()
+	client.Init()
+
+	g := &client.AtlasGlossary{}  // create a new Glossary instance
+	g.Create("TestGlossary4", "") // initialize the Glossary
+	response, err := g.Save()
+	fmt.Println("Resp1:", response)
+	if err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		for _, entity := range response.MutatedEntities.CREATE {
+			fmt.Println("Response:", entity)
+			fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
+		}
+	}
 	//query := ctx.Glossary.TypeName.Eq("AtlasGlossary", nil)
 
-	searchResult, err := client.NewFluentSearch().
-		PageSizes(10).
-		ActiveAssets().
-		AssetType("AtlasGlossary").
-		//Where(&client.TermQuery{
-		//	Field: string(client.TypeName),
-		//	Value: "AtlasGlossary",
-		//}).
-		Where(ctx.Glossary.Name.StartsWith("M", nil)).
-		Sort(string(client.Name), client.Ascending).
-		//Sort(string(client.GUID), client.Ascending).
-		WhereNot(excludeCondition).
-		IncludeOnResults("guid").
-		IncludeOnRelations("terms").
-		Execute()
+	/*
+		searchResult, err := client.NewFluentSearch().
+			PageSizes(10).
+			ActiveAssets().
+			AssetType("AtlasGlossary").
+			//Where(&client.TermQuery{
+			//	Field: string(client.TypeName),
+			//	Value: "AtlasGlossary",
+			//}).
+			Where(ctx.Glossary.Name.Eq("Metrics", nil)).
+			//Where(ctx.Glossary.Name.StartsWith("M", nil)).
+			Sort(string(client.Name), client.Ascending).
+			//Sort(string(client.GUID), client.Ascending).
+			WhereNot(excludeCondition).
+			IncludeOnResults("guid").
+			IncludeOnRelations("terms").
+			Execute()
 
-	if err != nil {
-		fmt.Printf("Error executing search: %v\n", err)
-		return
-	}
+		if err != nil {
+			fmt.Printf("Error executing search: %v\n", err)
+			return
+		}
 
-	println("Search results:")
-	fmt.Println(searchResult[0].Entities[0])
+		println("Search results:")
+		fmt.Println(searchResult[0].Entities[0])
 
-	// Process search results
-	for _, entity := range searchResult[0].Entities {
-		fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
-	}
-
+		// Process search results
+		for _, entity := range searchResult[0].Entities {
+			fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
+		}
+	*/
 	//glossaryGuid := "c1620acb-e89d-4bb2-8bee-3f56be6439b5"
 	//glossaryGuidterm := "1ee6a1e5-7afa-4b31-a736-af1f656ae0c3"
 

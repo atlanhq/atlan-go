@@ -2,6 +2,7 @@ package client
 
 import (
 	"atlan-go/atlan/model"
+	"encoding/json"
 	"fmt"
 )
 
@@ -55,4 +56,68 @@ func GetGlossaryTermByGuid(glossaryGuid string) (*model.GlossaryTerm, error) {
 	}
 
 	return gt, nil
+}
+
+func (g *AtlasGlossary) Create(name string, icon string) {
+	entity := model.Glossary{
+		TypeName: "AtlasGlossary",
+		Attributes: model.GlossaryAttributes{
+			Name:          name,
+			QualifiedName: name,
+			AssetIcon:     "PhBookOpenText",
+		},
+	}
+	if icon != "" {
+		entity.Attributes.AssetIcon = icon
+	}
+
+	g.Entities = append(g.Entities, entity)
+}
+
+func (g *AtlasGlossary) MarshalJSON() ([]byte, error) {
+	// Filter out entities to only include those with non-empty attributes
+	filteredEntities := make([]model.Glossary, 0)
+	for _, entity := range g.Entities {
+		if entity.Attributes.Name != "" || entity.Attributes.QualifiedName != "" || entity.Attributes.AssetIcon != "" {
+			filteredEntities = append(filteredEntities, entity)
+		}
+	}
+
+	type Alias AtlasGlossary
+
+	customJSON := &struct {
+		Entities []model.Glossary `json:"entities"`
+	}{
+		Entities: filteredEntities,
+	}
+
+	return json.MarshalIndent(customJSON, "", "  ")
+}
+
+func (g *AtlasGlossary) Save() (*model.AssetMutationResponse, error) {
+	glossaryJSON, err := g.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(string(glossaryJSON))
+
+	var requestObj interface{}
+	err = json.Unmarshal(glossaryJSON, &requestObj)
+	if err != nil {
+		return nil, err
+	}
+
+	api := &CREATE_ENTITIES
+	resp, err := DefaultAtlanClient.CallAPI(api, nil, requestObj)
+
+	fmt.Println("Response:", string(resp)) // Print the response for debugging
+
+	var response model.AssetMutationResponse
+	err = json.Unmarshal(resp, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }

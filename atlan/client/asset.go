@@ -1,32 +1,12 @@
 package client
 
+import "atlan-go/atlan/model"
+
 type SearchAssets struct {
 	Glossary *AtlasGlossary
 	Table    *AtlasTable
 	// Add other assets here
 }
-
-/*
-type Context struct {
-	SearchAssets
-}
-
-func NewContext() *Context {
-	err := Init()
-	if err != nil {
-		panic(fmt.Sprintf("Failed to initialize AtlanClient: %v", err))
-	}
-
-	return &Context{
-		SearchAssets: SearchAssets{
-			Glossary: NewGlossary(),
-			Table:    NewTable(),
-			// Initialize other assets here
-		},
-	}
-}
-
-*/
 
 type Attributes struct {
 	TypeName            *KeywordTextField
@@ -68,6 +48,7 @@ type Asset struct {
 
 type AtlasGlossary struct {
 	Asset
+	Entities []model.Glossary `json:"entities"`
 }
 
 type AtlasTable struct {
@@ -81,7 +62,7 @@ func NewTable() *AtlasTable {
 		},
 	}
 }
-func NewGlossary() *AtlasGlossary {
+func NewSearchGlossary() *AtlasGlossary {
 	return &AtlasGlossary{
 		Asset: Asset{
 			Attributes: &Attributes{

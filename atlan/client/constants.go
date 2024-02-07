@@ -12,7 +12,8 @@ const (
 	GET_BY_GUID_TEMPLATE = TYPES_API + "{path_type}/guid/{guid}"
 
 	// Entities API
-	ENTITY_API = "entity/"
+	ENTITY_API      = "entity/"
+	ENTITY_BULK_API = "entity/bulk/"
 )
 
 type API struct {
@@ -96,6 +97,20 @@ var (
 
 	INDEX_SEARCH = API{
 		Path:     "search/indexsearch/",
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: AtlasEndpoint,
+	}
+
+	CREATE_ENTITY = API{
+		Path:     ENTITY_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: AtlasEndpoint,
+	}
+
+	CREATE_ENTITIES = API{
+		Path:     ENTITY_BULK_API,
 		Method:   http.MethodPost,
 		Status:   http.StatusOK,
 		Endpoint: AtlasEndpoint,

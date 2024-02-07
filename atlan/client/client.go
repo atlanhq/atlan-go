@@ -71,7 +71,7 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 		logger:         logger,
 		loggingEnabled: LoggingEnabled,
 		SearchAssets: SearchAssets{
-			Glossary: NewGlossary(),
+			Glossary: NewSearchGlossary(),
 			Table:    NewTable(),
 			// Add other methods
 		},
@@ -102,7 +102,7 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 			return nil, fmt.Errorf("error marshaling request object: %v", err)
 		}
 		params["data"] = bytes.NewBuffer(requestJSON)
-		// ac.logger.Printf("Request JSON: %s\n", string(requestJSON))
+		//ac.logger.Printf("Request JSON: %s\n", string(requestJSON))
 
 	}
 

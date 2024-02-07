@@ -1,18 +1,20 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type Glossary struct {
-	TypeName     string             `json:"typeName"`
-	Attributes   GlossaryAttributes `json:"attributes"`
-	Guid         string             `json:"guid"`
-	IsIncomplete bool               `json:"isIncomplete"`
-	Status       string             `json:"status"`
-	CreatedBy    string             `json:"createdBy"`
-	UpdatedBy    string             `json:"updatedBy"`
-	CreateTime   int64              `json:"createTime"`
-	UpdateTime   int64              `json:"updateTime"`
-	Version      int                `json:"version"`
+	TypeName     string             `json:"typeName,omitempty"`
+	Attributes   GlossaryAttributes `json:"attributes,omitempty"`
+	Guid         string             `json:"guid,omitempty"`
+	IsIncomplete bool               `json:"isIncomplete,omitempty"`
+	Status       string             `json:"status,omitempty"`
+	CreatedBy    string             `json:"createdBy,omitempty"`
+	UpdatedBy    string             `json:"updatedBy,omitempty"`
+	CreateTime   int64              `json:"createTime,omitempty"`
+	UpdateTime   int64              `json:"updateTime,omitempty"`
+	Version      int                `json:"version,omitempty"`
 	Terms        []struct {
 		Guid                   string `json:"guid"`
 		TypeName               string `json:"typeName"`
@@ -24,101 +26,104 @@ type Glossary struct {
 		RelationshipAttributes struct {
 			TypeName string `json:"typeName"`
 		} `json:"relationshipAttributes"`
-	} `json:"terms"`
+	} `json:"terms,omitempty"`
 	RelationshipAttributes struct {
-		SchemaRegistrySubjects []interface{} `json:"schemaRegistrySubjects"`
-		McMonitors             []interface{} `json:"mcMonitors"`
-		OutputPortDataProducts []interface{} `json:"outputPortDataProducts"`
-		Files                  []interface{} `json:"files"`
-		McIncidents            []interface{} `json:"mcIncidents"`
-		Links                  []interface{} `json:"links"`
-		Categories             []interface{} `json:"categories"`
-		Metrics                []interface{} `json:"metrics"`
-		Readme                 interface{}   `json:"readme"`
-		Meanings               []interface{} `json:"meanings"`
-		SodaChecks             []interface{} `json:"sodaChecks"`
-	} `json:"relationshipAttributes"`
-	Labels []interface{} `json:"labels"`
+		SchemaRegistrySubjects []interface{} `json:"schemaRegistrySubjects,omitempty"`
+		McMonitors             []interface{} `json:"mcMonitors,omitempty"`
+		OutputPortDataProducts []interface{} `json:"outputPortDataProducts,omitempty"`
+		Files                  []interface{} `json:"files,omitempty"`
+		McIncidents            []interface{} `json:"mcIncidents,omitempty"`
+		Links                  []interface{} `json:"links,omitempty"`
+		Categories             []interface{} `json:"categories,omitempty"`
+		Metrics                []interface{} `json:"metrics,omitempty"`
+		Readme                 interface{}   `json:"readme,omitempty"`
+		Meanings               []interface{} `json:"meanings,omitempty"`
+		SodaChecks             []interface{} `json:"sodaChecks,omitempty"`
+	} `json:"relationshipAttributes,omitempty"`
+	Labels []interface{} `json:"labels,omitempty"`
 }
 
 type GlossaryAttributes struct {
-	PopularityScore                           float64       `json:"popularityScore"`
-	AssetDbtJobLastRunQueuedDuration          interface{}   `json:"assetDbtJobLastRunQueuedDuration"`
-	AssetMcMonitorNames                       []string      `json:"assetMcMonitorNames"`
-	Usage                                     interface{}   `json:"usage"`
-	HasLineage                                bool          `json:"__hasLineage"`
-	AssetDbtTestStatus                        interface{}   `json:"assetDbtTestStatus"`
-	LastSyncRun                               interface{}   `json:"lastSyncRun"`
-	AssetSodaLastSyncRunAt                    int           `json:"assetSodaLastSyncRunAt"`
-	StarredCount                              int           `json:"starredCount"`
-	LastRowChangedAt                          int           `json:"lastRowChangedAt"`
-	SourceReadRecentUserList                  []interface{} `json:"sourceReadRecentUserList"`
-	AssetMcIncidentQualifiedNames             []interface{} `json:"assetMcIncidentQualifiedNames"`
-	AssetMcIncidentTypes                      []interface{} `json:"assetMcIncidentTypes"`
-	AssetSodaLastScanAt                       int           `json:"assetSodaLastScanAt"`
-	SourceUpdatedAt                           int           `json:"sourceUpdatedAt"`
-	AssetDbtJobLastRunArtifactsSaved          bool          `json:"assetDbtJobLastRunArtifactsSaved"`
-	StarredDetailsList                        []interface{} `json:"starredDetailsList"`
-	AssetDbtJobLastRunQueuedDurationHumanized interface{}   `json:"assetDbtJobLastRunQueuedDurationHumanized"`
-	AssetDbtJobStatus                         interface{}   `json:"assetDbtJobStatus"`
-	AssetDbtJobLastRunArtifactS3Path          interface{}   `json:"assetDbtJobLastRunArtifactS3Path"`
-	CertificateStatusMessage                  interface{}   `json:"certificateStatusMessage"`
-	SourceCreatedAt                           int           `json:"sourceCreatedAt"`
-	AssetDbtJobLastRunDequedAt                int           `json:"assetDbtJobLastRunDequedAt"`
-	AssetDbtTags                              []interface{} `json:"assetDbtTags"`
-	SourceReadSlowQueryRecordList             []interface{} `json:"sourceReadSlowQueryRecordList"`
-	AssetDbtAccountName                       interface{}   `json:"assetDbtAccountName"`
-	SourceQueryComputeCostList                []interface{} `json:"sourceQueryComputeCostList"`
-	AssetDbtJobLastRunOwnerThreadId           interface{}   `json:"assetDbtJobLastRunOwnerThreadId"`
-	AssetDbtJobLastRunNotificationsSent       bool          `json:"assetDbtJobLastRunNotificationsSent"`
-	AssetDbtEnvironmentDbtVersion             interface{}   `json:"assetDbtEnvironmentDbtVersion"`
-	AssetDbtMeta                              interface{}   `json:"assetDbtMeta"`
-	AssetMcMonitorTypes                       []interface{} `json:"assetMcMonitorTypes"`
-	GlossaryType                              interface{}   `json:"glossaryType"`
-	AssetDbtJobLastRunTotalDuration           interface{}   `json:"assetDbtJobLastRunTotalDuration"`
-	AssetSodaCheckCount                       int           `json:"assetSodaCheckCount"`
-	Examples                                  []interface{} `json:"examples"`
-	SourceLastReadAt                          int           `json:"sourceLastReadAt"`
-	AssetDbtJobLastRunTotalDurationHumanized  interface{}   `json:"assetDbtJobLastRunTotalDurationHumanized"`
-	SubType                                   interface{}   `json:"subType"`
-	AssetMcIncidentSeverities                 []interface{} `json:"assetMcIncidentSeverities"`
-	ConnectionName                            interface{}   `json:"connectionName"`
-	AssetDbtSourceFreshnessCriteria           interface{}   `json:"assetDbtSourceFreshnessCriteria"`
-	Metrics                                   []interface{} `json:"metrics"`
-	AdditionalAttributes                      interface{}   `json:"additionalAttributes"`
-	AssetSodaCheckStatuses                    interface{}   `json:"assetSodaCheckStatuses"`
-	CertificateStatus                         string        `json:"certificateStatus"`
-	AssetDbtJobLastRunExecutedByThreadId      interface{}   `json:"assetDbtJobLastRunExecutedByThreadId"`
-	ReplicatedFrom                            interface{}   `json:"replicatedFrom"`
-	AssetDbtJobLastRunHasSourcesGenerated     bool          `json:"assetDbtJobLastRunHasSourcesGenerated"`
-	DisplayName                               interface{}   `json:"displayName"`
-	SourceCostUnit                            interface{}   `json:"sourceCostUnit"`
-	AssetDbtUniqueId                          interface{}   `json:"assetDbtUniqueId"`
-	AssetSodaDQStatus                         interface{}   `json:"assetSodaDQStatus"`
-	TermType                                  interface{}   `json:"termType"`
-	AssetDbtJobLastRunHasDocsGenerated        bool          `json:"assetDbtJobLastRunHasDocsGenerated"`
-	AssetTags                                 []interface{} `json:"assetTags"`
-	AssetDbtSemanticLayerProxyUrl             interface{}   `json:"assetDbtSemanticLayerProxyUrl"`
-	CertificateUpdatedBy                      string        `json:"certificateUpdatedBy"`
-	AssetMcMonitorQualifiedNames              []interface{} `json:"assetMcMonitorQualifiedNames"`
-	AssetDbtJobLastRunStartedAt               int           `json:"assetDbtJobLastRunStartedAt"`
-	AnnouncementType                          interface{}   `json:"announcementType"`
-	ViewerUsers                               []interface{} `json:"viewerUsers"`
-	ViewScore                                 float64       `json:"viewScore"`
-	SourceOwners                              interface{}   `json:"sourceOwners"`
-	UserDescription                           string        `json:"userDescription"`
-	AdminGroups                               []interface{} `json:"adminGroups"`
-	AssetSodaSourceURL                        interface{}   `json:"assetSodaSourceURL"`
-	AssetDbtJobLastRunCreatedAt               int           `json:"assetDbtJobLastRunCreatedAt"`
-	AssetDbtJobNextRun                        int           `json:"assetDbtJobNextRun"`
-	AssetCoverImage                           interface{}   `json:"assetCoverImage"`
-	Abbreviation                              interface{}   `json:"abbreviation"`
-	SourceReadPopularQueryRecordList          []interface{} `json:"sourceReadPopularQueryRecordList"`
-	SourceTotalCost                           float64       `json:"sourceTotalCost"`
-	TenantId                                  interface{}   `json:"tenantId"`
-	AnnouncementMessage                       interface{}   `json:"announcementMessage"`
-	SourceEmbedURL                            interface{}   `json:"sourceEmbedURL"`
-	AssetDbtJobLastRunUrl                     interface{}   `json:"assetDbtJobLastRunUrl"`
+	PopularityScore                           float64       `json:"popularityScore,omitempty"`
+	AssetDbtJobLastRunQueuedDuration          interface{}   `json:"assetDbtJobLastRunQueuedDuration,omitempty"`
+	AssetMcMonitorNames                       []string      `json:"assetMcMonitorNames,omitempty"`
+	Usage                                     interface{}   `json:"usage,omitempty"`
+	HasLineage                                bool          `json:"__hasLineage,omitempty"`
+	AssetDbtTestStatus                        interface{}   `json:"assetDbtTestStatus,omitempty"`
+	LastSyncRun                               interface{}   `json:"lastSyncRun,omitempty"`
+	AssetSodaLastSyncRunAt                    int           `json:"assetSodaLastSyncRunAt,omitempty"`
+	StarredCount                              int           `json:"starredCount,omitempty"`
+	LastRowChangedAt                          int           `json:"lastRowChangedAt,omitempty"`
+	SourceReadRecentUserList                  []interface{} `json:"sourceReadRecentUserList,omitempty"`
+	AssetMcIncidentQualifiedNames             []interface{} `json:"assetMcIncidentQualifiedNames,omitempty"`
+	AssetMcIncidentTypes                      []interface{} `json:"assetMcIncidentTypes,omitempty"`
+	AssetSodaLastScanAt                       int           `json:"assetSodaLastScanAt,omitempty"`
+	SourceUpdatedAt                           int           `json:"sourceUpdatedAt,omitempty"`
+	AssetDbtJobLastRunArtifactsSaved          bool          `json:"assetDbtJobLastRunArtifactsSaved,omitempty"`
+	StarredDetailsList                        []interface{} `json:"starredDetailsList,omitempty"`
+	AssetDbtJobLastRunQueuedDurationHumanized interface{}   `json:"assetDbtJobLastRunQueuedDurationHumanized,omitempty"`
+	AssetDbtJobStatus                         interface{}   `json:"assetDbtJobStatus,omitempty"`
+	AssetDbtJobLastRunArtifactS3Path          interface{}   `json:"assetDbtJobLastRunArtifactS3Path,omitempty"`
+	CertificateStatusMessage                  interface{}   `json:"certificateStatusMessage,omitempty"`
+	SourceCreatedAt                           int           `json:"sourceCreatedAt,omitempty"`
+	AssetDbtJobLastRunDequedAt                int           `json:"assetDbtJobLastRunDequedAt,omitempty"`
+	AssetDbtTags                              []interface{} `json:"assetDbtTags,omitempty"`
+	SourceReadSlowQueryRecordList             []interface{} `json:"sourceReadSlowQueryRecordList,omitempty"`
+	AssetDbtAccountName                       interface{}   `json:"assetDbtAccountName,omitempty"`
+	SourceQueryComputeCostList                []interface{} `json:"sourceQueryComputeCostList,omitempty"`
+	AssetDbtJobLastRunOwnerThreadId           interface{}   `json:"assetDbtJobLastRunOwnerThreadId,omitempty"`
+	AssetDbtJobLastRunNotificationsSent       bool          `json:"assetDbtJobLastRunNotificationsSent,omitempty"`
+	AssetDbtEnvironmentDbtVersion             interface{}   `json:"assetDbtEnvironmentDbtVersion,omitempty"`
+	AssetDbtMeta                              interface{}   `json:"assetDbtMeta,omitempty"`
+	AssetMcMonitorTypes                       []interface{} `json:"assetMcMonitorTypes,omitempty"`
+	GlossaryType                              interface{}   `json:"glossaryType,omitempty"`
+	AssetDbtJobLastRunTotalDuration           interface{}   `json:"assetDbtJobLastRunTotalDuration,omitempty"`
+	AssetSodaCheckCount                       int           `json:"assetSodaCheckCount,omitempty"`
+	Examples                                  []interface{} `json:"examples,omitempty"`
+	SourceLastReadAt                          int           `json:"sourceLastReadAt,omitempty"`
+	AssetDbtJobLastRunTotalDurationHumanized  interface{}   `json:"assetDbtJobLastRunTotalDurationHumanized,omitempty"`
+	SubType                                   interface{}   `json:"subType,omitempty"`
+	AssetMcIncidentSeverities                 []interface{} `json:"assetMcIncidentSeverities,omitempty"`
+	ConnectionName                            interface{}   `json:"connectionName,omitempty"`
+	AssetDbtSourceFreshnessCriteria           interface{}   `json:"assetDbtSourceFreshnessCriteria,omitempty"`
+	Metrics                                   []interface{} `json:"metrics,omitempty"`
+	AdditionalAttributes                      interface{}   `json:"additionalAttributes,omitempty"`
+	AssetSodaCheckStatuses                    interface{}   `json:"assetSodaCheckStatuses,omitempty"`
+	CertificateStatus                         string        `json:"certificateStatus,omitempty"`
+	AssetDbtJobLastRunExecutedByThreadId      interface{}   `json:"assetDbtJobLastRunExecutedByThreadId,omitempty"`
+	ReplicatedFrom                            interface{}   `json:"replicatedFrom,omitempty"`
+	AssetDbtJobLastRunHasSourcesGenerated     bool          `json:"assetDbtJobLastRunHasSourcesGenerated,omitempty"`
+	DisplayName                               interface{}   `json:"displayName,omitempty"`
+	SourceCostUnit                            interface{}   `json:"sourceCostUnit,omitempty"`
+	AssetDbtUniqueId                          interface{}   `json:"assetDbtUniqueId,omitempty"`
+	AssetSodaDQStatus                         interface{}   `json:"assetSodaDQStatus,omitempty"`
+	TermType                                  interface{}   `json:"termType,omitempty"`
+	AssetDbtJobLastRunHasDocsGenerated        bool          `json:"assetDbtJobLastRunHasDocsGenerated,omitempty"`
+	AssetTags                                 []interface{} `json:"assetTags,omitempty"`
+	AssetDbtSemanticLayerProxyUrl             interface{}   `json:"assetDbtSemanticLayerProxyUrl,omitempty"`
+	CertificateUpdatedBy                      string        `json:"certificateUpdatedBy,omitempty"`
+	AssetMcMonitorQualifiedNames              []interface{} `json:"assetMcMonitorQualifiedNames,omitempty"`
+	AssetDbtJobLastRunStartedAt               int           `json:"assetDbtJobLastRunStartedAt,omitempty"`
+	AnnouncementType                          interface{}   `json:"announcementType,omitempty"`
+	ViewerUsers                               []interface{} `json:"viewerUsers,omitempty"`
+	ViewScore                                 float64       `json:"viewScore,omitempty"`
+	SourceOwners                              interface{}   `json:"sourceOwners,omitempty"`
+	UserDescription                           string        `json:"userDescription,omitempty"`
+	AdminGroups                               []interface{} `json:"adminGroups,omitempty"`
+	AssetSodaSourceURL                        interface{}   `json:"assetSodaSourceURL,omitempty"`
+	AssetDbtJobLastRunCreatedAt               int           `json:"assetDbtJobLastRunCreatedAt,omitempty"`
+	AssetDbtJobNextRun                        int           `json:"assetDbtJobNextRun,omitempty"`
+	AssetCoverImage                           interface{}   `json:"assetCoverImage,omitempty"`
+	Abbreviation                              interface{}   `json:"abbreviation,omitempty"`
+	SourceReadPopularQueryRecordList          []interface{} `json:"sourceReadPopularQueryRecordList,omitempty"`
+	SourceTotalCost                           float64       `json:"sourceTotalCost,omitempty"`
+	TenantId                                  interface{}   `json:"tenantId,omitempty"`
+	AnnouncementMessage                       interface{}   `json:"announcementMessage,omitempty"`
+	SourceEmbedURL                            interface{}   `json:"sourceEmbedURL,omitempty"`
+	AssetDbtJobLastRunUrl                     interface{}   `json:"assetDbtJobLastRunUrl,omitempty"`
+	Name                                      string        `json:"name,omitempty"`
+	QualifiedName                             string        `json:"qualifiedName,omitempty"`
+	AssetIcon                                 string        `json:"assetIcon,omitempty"`
 }
 
 type GlossaryTerm struct {
