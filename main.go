@@ -3,7 +3,6 @@ package main
 
 import (
 	"atlan-go/atlan/client"
-	"fmt"
 )
 
 func main() {
@@ -26,18 +25,39 @@ func main() {
 	//ctx := client.NewContext()
 	client.Init()
 
-	g := &client.AtlasGlossary{}  // create a new Glossary instance
-	g.Create("TestGlossary4", "") // initialize the Glossary
-	response, err := g.Save()
-	fmt.Println("Resp1:", response)
-	if err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		for _, entity := range response.MutatedEntities.CREATE {
-			fmt.Println("Response:", entity)
-			fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
+	//g := &client.AtlasGlossary{} // create a new Glossary instance
+
+	/*
+		g.Create("TestGlossary6", "") // initialize the Glossary
+		response, err := g.Save()
+		fmt.Println("Resp1:", response)
+		if err != nil {
+			fmt.Println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.CREATE {
+				fmt.Println("Response:", entity)
+				fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
+			}
 		}
-	}
+	*/
+	// Modify an existing Glossary
+	/*
+		g.CreateForModification("TestGlossary7", "CBtveYe0Avp5iwU8q3M7Y", "e63cf857-c788-4197-a60e-397b24e749ee")
+		g.Entities[0].Attributes.DisplayName = "Testing"
+		response, err := g.Save()
+		if err != nil {
+			println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.UPDATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+		}
+	*/
+
+	// Deleting an asset
+	//client.DeleteByGuid([]string{"024f11b6-a9fa-4f45-84f5-f734c47c4743", "b280b09b-5c28-45c4-a899-d8535fb651eb", "8679e70a-513e-4e2e-9861-4f5559206f36"})
+	client.DeleteByGuid([]string{"dbe090bd-1549-4cce-98dd-6542138963f1"})
 	//query := ctx.Glossary.TypeName.Eq("AtlasGlossary", nil)
 
 	/*

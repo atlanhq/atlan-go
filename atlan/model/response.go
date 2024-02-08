@@ -1,6 +1,9 @@
 package model
 
-import "reflect"
+import (
+	"encoding/json"
+	"reflect"
+)
 
 type Asset struct {
 	TypeName            string `json:"typeName"`
@@ -88,6 +91,66 @@ type Attributes struct {
 	SourceReadUserCount                   int
 	ViewerGroups                          []interface{}
 	AssetDbtJobLastRun                    int64 `json:"assetDbtJobLastRun"`
+}
+
+func (a *Asset) UnmarshalJSON(data []byte) error {
+	var temp struct {
+		Entity struct {
+			TypeName               string     `json:"typeName"`
+			Attributes             Attributes `json:"attributes"`
+			Guid                   string     `json:"guid"`
+			IsIncomplete           bool       `json:"isIncomplete"`
+			Status                 string     `json:"status"`
+			CreatedBy              string     `json:"createdBy"`
+			UpdatedBy              string     `json:"updatedBy"`
+			CreateTime             int64      `json:"createTime"`
+			UpdateTime             int64      `json:"updateTime"`
+			Version                int        `json:"version"`
+			RelationshipAttributes struct {
+				SchemaRegistrySubjects []interface{} `json:"schemaRegistrySubjects"`
+				McMonitors             []interface{} `json:"mcMonitors"`
+				Terms                  []struct {
+					Guid                   string `json:"guid"`
+					TypeName               string `json:"typeName"`
+					EntityStatus           string `json:"entityStatus"`
+					DisplayText            string `json:"displayText"`
+					RelationshipType       string `json:"relationshipType"`
+					RelationshipGuid       string `json:"relationshipGuid"`
+					RelationshipStatus     string `json:"relationshipStatus"`
+					RelationshipAttributes struct {
+						TypeName string `json:"typeName"`
+					} `json:"relationshipAttributes"`
+				} `json:"terms"`
+				OutputPortDataProducts []interface{} `json:"outputPortDataProducts"`
+				Files                  []interface{} `json:"files"`
+				McIncidents            []interface{} `json:"mcIncidents"`
+				Links                  []interface{} `json:"links"`
+				Categories             []interface{} `json:"categories"`
+				Metrics                []interface{} `json:"metrics"`
+				Readme                 interface{}   `json:"readme"`
+				Meanings               []interface{} `json:"meanings"`
+				SodaChecks             []interface{} `json:"sodaChecks"`
+			} `json:"relationshipAttributes"`
+			Labels []interface{} `json:"labels"`
+		} `json:"entity"`
+	}
+
+	if err := json.Unmarshal(data, &temp); err != nil {
+		return err
+	}
+
+	// Copy fields
+	a.TypeName = temp.Entity.TypeName
+	a.Attributes = temp.Entity.Attributes
+	a.Guid = temp.Entity.Guid
+	a.IsIncomplete = temp.Entity.IsIncomplete
+	a.Status = temp.Entity.Status
+	a.CreatedBy = temp.Entity.CreatedBy
+	a.UpdatedBy = temp.Entity.UpdatedBy
+	a.CreateTime = temp.Entity.CreateTime
+	a.UpdateTime = temp.Entity.UpdateTime
+
+	return nil
 }
 
 type MutatedEntities struct {

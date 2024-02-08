@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 // AtlanClient defines the Atlan API client structure.
@@ -133,17 +134,30 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 func (ac *AtlanClient) makeRequest(method, path string, params map[string]interface{}) (*http.Response, error) {
 	var req *http.Request
 	var err error
-
 	switch method {
 	case http.MethodGet:
 		req, err = http.NewRequest(method, path, nil)
-	case http.MethodPost, http.MethodPut, http.MethodDelete:
+	case http.MethodPost, http.MethodPut:
 		body, ok := params["data"].(io.Reader)
 		if !ok {
 			return nil, fmt.Errorf("missing or invalid 'data' parameter for POST/PUT/DELETE request")
 		}
 		req, err = http.NewRequest(method, path, body)
 		req.Header.Set("Content-Type", "application/json")
+	case http.MethodDelete:
+		// DELETE requests may not always have a body.
+		var body io.Reader
+		if data, ok := params["data"]; ok {
+			body, ok = data.(io.Reader)
+			if !ok {
+				return nil, fmt.Errorf("invalid 'data' parameter for DELETE request")
+			}
+		}
+		req, err = http.NewRequest(method, path, body)
+
+		if body != nil {
+			req.Header.Set("Content-Type", "application/json")
+		}
 
 	default:
 		return nil, fmt.Errorf("unsupported HTTP method: %s", method)
@@ -164,11 +178,27 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 	// Set query parameters
 	queryParams, ok := params["params"].(map[string]string)
 	if ok {
-		query := req.URL.Query()
+		// This implementation can be improved, not doing so since requires significant changes to codebase
+		var query string
 		for key, value := range queryParams {
-			query.Add(key, value)
+			// Check if the key is "guid" and value contains commas
+			if key == "guid" && strings.Contains(value, ",") {
+				// Split the value by commas
+				guids := strings.Split(value, ",")
+				for _, guid := range guids {
+					// Append each guid to the query string with &guid=
+					query += "&guid=" + guid
+				}
+			} else {
+				// For other keys, add them normally
+				query += "&" + key + "=" + value
+			}
 		}
-		req.URL.RawQuery = query.Encode()
+		// Remove the leading "&" from the query string
+		if len(query) > 0 {
+			query = query[1:]
+		}
+		req.URL.RawQuery = query
 	}
 
 	return ac.session.Do(req)

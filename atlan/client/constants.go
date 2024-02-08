@@ -115,4 +115,13 @@ var (
 		Status:   http.StatusOK,
 		Endpoint: AtlasEndpoint,
 	}
+
+	DELETE_ENTITIES_BY_GUIDS = API{
+		Path:     ENTITY_BULK_API,
+		Method:   http.MethodDelete,
+		Status:   http.StatusOK,
+		Endpoint: AtlasEndpoint,
+	}
+
+	PURGE_ENTITIES_BY_GUIDS = API{}
 )

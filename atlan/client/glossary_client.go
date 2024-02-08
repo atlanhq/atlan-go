@@ -5,6 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+)
+
+const (
+	MaxRetries    = 5
+	RetryInterval = time.Second * 5
 )
 
 // GlossaryClient defines the client for interacting with the model API.
@@ -90,6 +97,79 @@ func (g *AtlasGlossary) CreateForModification(name string, qualifiedName string,
 	}
 	g.Entities = append(g.Entities, entity)
 	return nil
+}
+
+func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
+	if len(guids) == 0 {
+		return nil, fmt.Errorf("no GUIDs provided for deletion")
+	}
+
+	for _, guid := range guids {
+		asset, err := RetrieveMinimal(guid)
+		if err != nil {
+			return nil, fmt.Errorf("error retrieving asset: %v", err)
+		}
+
+		// Assuming the asset has a CanBeArchived field that indicates if it can be archived
+		if asset.TypeName == "AtlasGlossaryCategory" {
+			return nil, fmt.Errorf("asset %s of type %s cannot be archived", guid, asset.TypeName)
+		}
+	}
+
+	api := &DELETE_ENTITIES_BY_GUIDS
+
+	// Construct the query parameters
+	queryParams := make(map[string]string)
+	queryParams["deleteType"] = "SOFT"
+
+	// Convert the GUIDs slice to a comma-separated string
+	guidString := strings.Join(guids, ",")
+
+	// Add the comma-separated string of GUIDs to the query parameters
+	queryParams["guid"] = guidString
+
+	fmt.Println("Query Params:", queryParams)
+	// Call the API
+	resp, err := DefaultAtlanClient.CallAPI(api, queryParams, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Unmarshal the response into the AssetMutationResponse struct
+	var response model.AssetMutationResponse
+	err = json.Unmarshal(resp, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling response: %v", err)
+	}
+
+	// Wait until each asset is deleted
+	for _, guid := range guids {
+		err = WaitTillDeleted(guid)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &response, nil
+}
+
+func WaitTillDeleted(guid string) error {
+	for i := 0; i < MaxRetries; i++ {
+		asset, err := RetrieveMinimal(guid)
+		if err != nil {
+			return fmt.Errorf("error retrieving asset: %v", err)
+		}
+
+		if asset.Status == "DELETED" {
+			return nil
+		}
+
+		// If the asset is not deleted, wait for a while before retrying
+		time.Sleep(RetryInterval)
+	}
+
+	// If the asset is still not deleted after all retries, return an error
+	return errors.New("retry limit overrun waiting for asset to be deleted")
 }
 
 func (g *AtlasGlossary) MarshalJSON() ([]byte, error) {
