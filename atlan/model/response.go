@@ -6,21 +6,39 @@ import (
 )
 
 type Asset struct {
-	TypeName            string `json:"typeName"`
-	Attributes          Attributes
-	Guid                string `json:"guid"`
-	Status              string
-	DisplayText         string
-	ClassificationNames []string `json:"classificationNames"`
-	Classifications     []string
-	MeaningNames        []string `json:"meaningNames"`
-	Meanings            []string
-	IsIncomplete        bool `json:"isIncomplete"`
-	Labels              []string
-	CreatedBy           string `json:"createdBy"`
-	UpdatedBy           string `json:"updatedBy"`
-	CreateTime          int64  `json:"createTime"`
-	UpdateTime          int64  `json:"updateTime"`
+	TypeName            string     `json:"typeName"`
+	Attributes          Attributes `json:"attributes"`
+	Guid                string     `json:"guid"`
+	Status              string     `json:"status"`
+	DisplayText         string     `json:"displayText"`
+	ClassificationNames []string   `json:"classificationNames"`
+	MeaningNames        []string   `json:"meaningNames"`
+	Meanings            []string   `json:"meanings"`
+	IsIncomplete        bool       `json:"isIncomplete"`
+	Labels              []string   `json:"labels"`
+	CreatedBy           string     `json:"createdBy"`
+	UpdatedBy           string     `json:"updatedBy"`
+	CreateTime          int64      `json:"createTime"`
+	UpdateTime          int64      `json:"updateTime"`
+}
+
+// Add Mutated Assets for Respomse in Creation, Updation and Deletion
+// Unmarshal on Assets changed the unmarshalling for the whole sdk asset structure
+type MutatedAssets struct {
+	TypeName            string     `json:"typeName"`
+	Attributes          Attributes `json:"attributes"`
+	Guid                string     `json:"guid"`
+	Status              string     `json:"status"`
+	DisplayText         string     `json:"displayText"`
+	ClassificationNames []string   `json:"classificationNames"`
+	MeaningNames        []string   `json:"meaningNames"`
+	Meanings            []string   `json:"meanings"`
+	IsIncomplete        bool       `json:"isIncomplete"`
+	Labels              []string   `json:"labels"`
+	CreatedBy           string     `json:"createdBy"`
+	UpdatedBy           string     `json:"updatedBy"`
+	CreateTime          int64      `json:"createTime"`
+	UpdateTime          int64      `json:"updateTime"`
 }
 
 type Attributes struct {
@@ -94,6 +112,8 @@ type Attributes struct {
 }
 
 // Unmarshalling for Assets from JSON
+// Used in RetrieveMinimal Function
+
 func (a *Asset) UnmarshalJSON(data []byte) error {
 	var temp struct {
 		Entity struct {
@@ -155,21 +175,21 @@ func (a *Asset) UnmarshalJSON(data []byte) error {
 }
 
 type MutatedEntities struct {
-	UPDATE         []*Asset `json:"UPDATE"`
-	CREATE         []*Asset `json:"CREATE"`
-	DELETE         []*Asset `json:"DELETE"`
-	PARTIAL_UPDATE []*Asset `json:"PARTIAL_UPDATE"`
+	UPDATE         []*MutatedAssets `json:"UPDATE"`
+	CREATE         []*MutatedAssets `json:"CREATE"`
+	DELETE         []*MutatedAssets `json:"DELETE"`
+	PARTIAL_UPDATE []*MutatedAssets `json:"PARTIAL_UPDATE"`
 }
 
 type AssetMutationResponse struct {
-	GuidAssignments        map[string]string `json:"guidAssignments"`
+	GuidAssignments        map[string]string `json:"guidAssignments,omitempty"`
 	MutatedEntities        *MutatedEntities  `json:"mutatedEntities"`
-	PartialUpdatedEntities []*Asset          `json:"partialUpdatedEntities"`
+	PartialUpdatedEntities []*MutatedAssets  `json:"partialUpdatedEntities,omitempty"`
 }
 
-func (amr *AssetMutationResponse) AssetsUpdated(assetType reflect.Type) []*Asset {
+func (amr *AssetMutationResponse) AssetsUpdated(assetType reflect.Type) []*MutatedAssets {
 	if amr.MutatedEntities != nil && amr.MutatedEntities.UPDATE != nil {
-		var assets []*Asset
+		var assets []*MutatedAssets
 		for _, asset := range amr.MutatedEntities.UPDATE {
 			if reflect.TypeOf(asset).Elem() == assetType {
 				assets = append(assets, asset)
@@ -177,11 +197,11 @@ func (amr *AssetMutationResponse) AssetsUpdated(assetType reflect.Type) []*Asset
 		}
 		return assets
 	}
-	return []*Asset{}
+	return []*MutatedAssets{}
 }
-func (amr *AssetMutationResponse) AssetsCreated(assetType reflect.Type) []*Asset {
+func (amr *AssetMutationResponse) AssetsCreated(assetType reflect.Type) []*MutatedAssets {
 	if amr.MutatedEntities != nil && amr.MutatedEntities.CREATE != nil {
-		var assets []*Asset
+		var assets []*MutatedAssets
 		for _, asset := range amr.MutatedEntities.CREATE {
 			if reflect.TypeOf(asset).Elem() == assetType {
 				assets = append(assets, asset)
@@ -189,12 +209,12 @@ func (amr *AssetMutationResponse) AssetsCreated(assetType reflect.Type) []*Asset
 		}
 		return assets
 	}
-	return []*Asset{}
+	return []*MutatedAssets{}
 }
 
-func (amr *AssetMutationResponse) AssetsDeleted(assetType reflect.Type) []*Asset {
+func (amr *AssetMutationResponse) AssetsDeleted(assetType reflect.Type) []*MutatedAssets {
 	if amr.MutatedEntities != nil && amr.MutatedEntities.DELETE != nil {
-		var assets []*Asset
+		var assets []*MutatedAssets
 		for _, asset := range amr.MutatedEntities.DELETE {
 			if reflect.TypeOf(asset).Elem() == assetType {
 				assets = append(assets, asset)
@@ -202,12 +222,12 @@ func (amr *AssetMutationResponse) AssetsDeleted(assetType reflect.Type) []*Asset
 		}
 		return assets
 	}
-	return []*Asset{}
+	return []*MutatedAssets{}
 }
 
-func (amr *AssetMutationResponse) AssetsPartiallyUpdated(assetType reflect.Type) []*Asset {
+func (amr *AssetMutationResponse) AssetsPartiallyUpdated(assetType reflect.Type) []*MutatedAssets {
 	if amr.MutatedEntities != nil && amr.MutatedEntities.PARTIAL_UPDATE != nil {
-		var assets []*Asset
+		var assets []*MutatedAssets
 		for _, asset := range amr.MutatedEntities.PARTIAL_UPDATE {
 			if reflect.TypeOf(asset).Elem() == assetType {
 				assets = append(assets, asset)
@@ -215,5 +235,5 @@ func (amr *AssetMutationResponse) AssetsPartiallyUpdated(assetType reflect.Type)
 		}
 		return assets
 	}
-	return []*Asset{}
+	return []*MutatedAssets{}
 }
