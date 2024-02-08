@@ -99,6 +99,39 @@ func (g *AtlasGlossary) CreateForModification(name string, qualifiedName string,
 	return nil
 }
 
+func PurgeByGuid(guids []string) (*model.AssetMutationResponse, error) {
+	if len(guids) == 0 {
+		return nil, fmt.Errorf("no GUIDs provided for deletion")
+	}
+
+	api := &DELETE_ENTITIES_BY_GUIDS
+
+	// Construct the query parameters
+	queryParams := make(map[string]string)
+	queryParams["deleteType"] = "HARD"
+
+	// Convert the GUIDs slice to a comma-separated string
+	guidString := strings.Join(guids, ",")
+
+	// Add the comma-separated string of GUIDs to the query parameters
+	queryParams["guid"] = guidString
+
+	// Call the API
+	resp, err := DefaultAtlanClient.CallAPI(api, queryParams, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Unmarshal the response into the AssetMutationResponse struct
+	var response model.AssetMutationResponse
+	err = json.Unmarshal(resp, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling response: %v", err)
+	}
+
+	return &response, nil
+}
+
 func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	if len(guids) == 0 {
 		return nil, fmt.Errorf("no GUIDs provided for deletion")
@@ -208,8 +241,6 @@ func (g *AtlasGlossary) Save() (*model.AssetMutationResponse, error) {
 
 	api := &CREATE_ENTITIES
 	resp, err := DefaultAtlanClient.CallAPI(api, nil, requestObj)
-
-	fmt.Println("Response:", string(resp)) // Print the response for debugging
 
 	var response model.AssetMutationResponse
 	err = json.Unmarshal(resp, &response)

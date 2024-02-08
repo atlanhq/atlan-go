@@ -93,6 +93,7 @@ type Attributes struct {
 	AssetDbtJobLastRun                    int64 `json:"assetDbtJobLastRun"`
 }
 
+// Unmarshalling for Assets from JSON
 func (a *Asset) UnmarshalJSON(data []byte) error {
 	var temp struct {
 		Entity struct {
