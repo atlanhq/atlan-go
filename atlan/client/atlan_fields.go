@@ -1,5 +1,6 @@
 package client
 
+// Interface for all AtlanField queries
 type AtlanField interface {
 	GetAtlanFieldName() string
 }
@@ -16,6 +17,7 @@ func (rf *RelationField) GetAtlanFieldName() string {
 	return rf.AtlanFieldName
 }
 
+// SearchableField represents a field that can be searched on depending upon the type of search
 type SearchableField struct {
 	AtlanFieldName    string
 	ElasticFieldName  string
@@ -30,6 +32,8 @@ func NewSearchableField(atlanFieldName, elasticFieldName string) *SearchableFiel
 	}
 }
 
+// Getter Methods for SearchableField
+
 func (sf *SearchableField) GetAtlanFieldName() string {
 	return sf.AtlanFieldName
 }
@@ -42,10 +46,13 @@ func (sf *SearchableField) GetInternalFieldName() string {
 	return sf.InternalFieldName
 }
 
+// HasAnyValue Returns a query that will only match assets that have some non-null, non-empty value
+// (no matter what actual value) for the field.
 func (sf *SearchableField) HasAnyValue() Query {
 	return &Exists{sf.ElasticFieldName}
 }
 
+// Order Returns a condition to sort results by the field, in the specified order.
 func (sf *SearchableField) Order(order SortOrder) SortItem {
 	return SortItem{
 		Field:      sf.ElasticFieldName,
@@ -54,11 +61,14 @@ func (sf *SearchableField) Order(order SortOrder) SortItem {
 	}
 }
 
+// BooleanField Represents any field in Atlan that can be searched only by truthiness.
 type BooleanField struct {
 	*SearchableField
 	BooleanFieldName string
 }
 
+// NewBooleanField Returns a query that will match all assets whose field has a value that exactly equals
+// the provided boolean value.
 func NewBooleanField(atlanFieldName, booleanFieldName string) *BooleanField {
 	searchableField := NewSearchableField(atlanFieldName, booleanFieldName)
 	return &BooleanField{
@@ -78,6 +88,7 @@ func (bf *BooleanField) Eq(value bool) Query {
 	}
 }
 
+// KeywordField Represents any field in Atlan that can be searched only by keyword (no text-analyzed fuzziness).
 type KeywordField struct {
 	*SearchableField
 	KeywordFieldName string
@@ -95,6 +106,8 @@ func (kf *KeywordField) GetKeywordFieldName() string {
 	return kf.KeywordFieldName
 }
 
+// StartsWith Returns a query that will match all assets whose field has a value that starts with
+// the provided value. Note that this can also be a case-insensitive match.
 func (kf *KeywordTextField) StartsWith(value string, caseInsensitive *bool) Query {
 	return &PrefixQuery{
 		Field:           kf.KeywordFieldName,
@@ -103,6 +116,8 @@ func (kf *KeywordTextField) StartsWith(value string, caseInsensitive *bool) Quer
 	}
 }
 
+// Eq Returns a query that will match all assets whose field has a value that exactly matches
+// the provided string value.
 func (kf *KeywordTextField) Eq(value string, caseInsensitive *bool) Query {
 	return &TermQuery{
 		Field: kf.KeywordFieldName,
@@ -110,6 +125,8 @@ func (kf *KeywordTextField) Eq(value string, caseInsensitive *bool) Query {
 	}
 }
 
+// Within Returns a query that will match all assets whose field has a value that exactly matches
+// at least one of the provided string values.
 func (kf *KeywordField) Within(values []string) Query {
 	return &Terms{
 		Field:  kf.KeywordFieldName,
@@ -117,6 +134,7 @@ func (kf *KeywordField) Within(values []string) Query {
 	}
 }
 
+// KeywordTextField Represents any field in Atlan that can be searched by keyword or text-based search operations.
 type KeywordTextField struct {
 	*SearchableField
 	KeywordFieldName string
@@ -132,6 +150,7 @@ func NewKeywordTextField(atlanFieldName, keywordFieldName string, textfieldname 
 	}
 }
 
+// TextField Represents any field in Atlan that can only be searched using text-related search operations.
 type TextField struct {
 	*SearchableField
 	TextFieldName string
@@ -145,10 +164,14 @@ func NewTextField(atlanFieldName, textFieldName string) *TextField {
 	}
 }
 
+// GetTextFieldName Returns the name of the text field index for this attribute in Elastic.
 func (tf *TextField) GetTextFieldName() string {
 	return tf.TextFieldName
 }
 
+// Match Returns a query that will textually match the provided value against the field. This
+// analyzes the provided value according to the same analysis carried out on the field
+// (for example, tokenization, stemming, and so on).
 func (tf *TextField) Match(value string) Query {
 	return &MatchQuery{
 		Field: tf.TextFieldName,
@@ -156,6 +179,7 @@ func (tf *TextField) Match(value string) Query {
 	}
 }
 
+// NumericField Represents any field in Atlan that can be searched using only numeric search operations.
 type NumericField struct {
 	*SearchableField
 	NumericFieldName string
@@ -169,10 +193,13 @@ func NewNumericField(atlanFieldName, numericFieldName string) *NumericField {
 	}
 }
 
+// GetNumericFieldName Returns the name of the numeric field index for this attribute in Elastic.
 func (nf *NumericField) GetNumericFieldName() string {
 	return nf.NumericFieldName
 }
 
+// Eq Returns a query that will match all assets whose field has a value that exactly
+// matches the provided numeric value.
 func (nf *NumericField) Eq(value interface{}) Query {
 	return &TermQuery{
 		Field: nf.NumericFieldName,
@@ -180,6 +207,8 @@ func (nf *NumericField) Eq(value interface{}) Query {
 	}
 }
 
+// Gt Returns a query that will match all assets whose field has a value that is strictly
+// greater than the provided numeric value.
 func (nf *NumericField) Gt(value *interface{}) Query {
 	return &RangeQuery{
 		Field: nf.NumericFieldName,
@@ -187,6 +216,8 @@ func (nf *NumericField) Gt(value *interface{}) Query {
 	}
 }
 
+// Gte Returns a query that will match all assets whose field has a value that is greater
+// than or equal to the provided numeric value.
 func (nf *NumericField) Gte(value *interface{}) Query {
 	return &RangeQuery{
 		Field: nf.NumericFieldName,
@@ -194,6 +225,8 @@ func (nf *NumericField) Gte(value *interface{}) Query {
 	}
 }
 
+// Lt Returns a query that will match all assets whose field has a value that is strictly
+// less than the provided numeric value.
 func (nf *NumericField) Lt(value *interface{}) Query {
 	return &RangeQuery{
 		Field: nf.NumericFieldName,
@@ -201,6 +234,8 @@ func (nf *NumericField) Lt(value *interface{}) Query {
 	}
 }
 
+// Lte Returns a query that will match all assets whose field has a value that is less
+// than or equal to the provided numeric value.
 func (nf *NumericField) Lte(value *interface{}) Query {
 	return &RangeQuery{
 		Field: nf.NumericFieldName,
@@ -208,6 +243,8 @@ func (nf *NumericField) Lte(value *interface{}) Query {
 	}
 }
 
+// Between Returns a query that will match all assets whose field has a value between the minimum and
+// maximum specified values, inclusive.
 func (nf *NumericField) Between(minimum, maximum *interface{}) Query {
 	return &RangeQuery{
 		Field: nf.NumericFieldName,
@@ -216,6 +253,8 @@ func (nf *NumericField) Between(minimum, maximum *interface{}) Query {
 	}
 }
 
+// InternalKeywordTextField Represents any field in Atlan that can be searched by keyword or text-based search operations, and can also
+// be searched against a special internal field directly within Atlan
 type InternalKeywordTextField struct {
 	*KeywordTextField
 	InternalFieldName string
@@ -229,6 +268,8 @@ func NewInternalKeywordTextField(atlanFieldName, keywordFieldName, textFieldName
 	}
 }
 
+// KeywordTextStemmedField Represents any field in Atlan that can be searched by keyword or text-based search operations,
+// including a stemmed variation of the text analyzers.
 type KeywordTextStemmedField struct {
 	*KeywordTextField
 	StemmedFieldName string
@@ -242,6 +283,8 @@ func NewKeywordTextStemmedField(atlanFieldName, keywordFieldName, textFieldName,
 	}
 }
 
+// MatchStemmed Returns a query that will textually match the provided value against the field. This
+// analyzes the provided value according to the same analysis carried out on the field
 func (ktsf *KeywordTextStemmedField) MatchStemmed(value string) Query {
 	return &MatchQuery{
 		Field: ktsf.StemmedFieldName,
@@ -250,6 +293,8 @@ func (ktsf *KeywordTextStemmedField) MatchStemmed(value string) Query {
 }
 
 /*
+// Needs to Implement Custom Metadata and Aggregations
+
 func (nf *NumericField) Avg() Aggregation {
 	return Aggregation{
 		Root: map[string]interface{}{

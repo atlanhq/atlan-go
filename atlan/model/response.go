@@ -175,16 +175,32 @@ func (a *Asset) UnmarshalJSON(data []byte) error {
 }
 
 type MutatedEntities struct {
-	UPDATE         []*MutatedAssets `json:"UPDATE"`
-	CREATE         []*MutatedAssets `json:"CREATE"`
-	DELETE         []*MutatedAssets `json:"DELETE"`
+	//Assets that were assets_updated. The detailed properties of the returned asset will vary based on
+	//the type of asset, but listed in the example are the common set of properties across assets.
+	UPDATE []*MutatedAssets `json:"UPDATE"`
+
+	// Assets that were created. The detailed properties of the returned asset will vary based on the
+	// type of asset, but listed in the example are the common set of properties across assets.
+	CREATE []*MutatedAssets `json:"CREATE"`
+
+	// Assets that were deleted. The detailed properties of the returned asset will vary based on the
+	// type of asset, but listed in the example are the common set of properties across assets.
+	DELETE []*MutatedAssets `json:"DELETE"`
+
+	// Assets that were partially updated. The detailed properties of the returned asset will
+	// vary based on the type of asset, but listed in the example are the common set of properties across assets.
 	PARTIAL_UPDATE []*MutatedAssets `json:"PARTIAL_UPDATE"`
 }
 
 type AssetMutationResponse struct {
-	GuidAssignments        map[string]string `json:"guidAssignments,omitempty"`
-	MutatedEntities        *MutatedEntities  `json:"mutatedEntities"`
-	PartialUpdatedEntities []*MutatedAssets  `json:"partialUpdatedEntities,omitempty"`
+	// Map of assigned unique identifiers for the changed assets.
+	GuidAssignments map[string]string `json:"guidAssignments,omitempty"`
+
+	// Assets that were changed.
+	MutatedEntities *MutatedEntities `json:"mutatedEntities"`
+
+	// Assets that were partially updated.
+	PartialUpdatedEntities []*MutatedAssets `json:"partialUpdatedEntities,omitempty"`
 }
 
 func (amr *AssetMutationResponse) AssetsUpdated(assetType reflect.Type) []*MutatedAssets {

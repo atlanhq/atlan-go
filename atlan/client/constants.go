@@ -16,6 +16,7 @@ const (
 	ENTITY_BULK_API = "entity/bulk/"
 )
 
+// API defines the structure of an API call.
 type API struct {
 	Path     string
 	Method   string
@@ -31,6 +32,7 @@ var AtlasEndpoint = Endpoint{
 	Atlas: "/api/meta/",
 }
 
+// API calls for Atlas
 var (
 	GET_TYPEDEF_BY_NAME = API{
 		Path:     TYPEDEF_BY_NAME,
@@ -122,6 +124,4 @@ var (
 		Status:   http.StatusOK,
 		Endpoint: AtlasEndpoint,
 	}
-
-	PURGE_ENTITIES_BY_GUIDS = API{}
 )

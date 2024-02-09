@@ -24,6 +24,7 @@ func NewGlossaryClient(ac *AtlanClient) *GlossaryClient {
 	return &GlossaryClient{client: ac}
 }
 
+// GetGlossaryByGuid retrieves a glossary by its GUID.
 func GetGlossaryByGuid(glossaryGuid string) (*model.Glossary, error) {
 	if DefaultAtlanClient == nil {
 		return nil, fmt.Errorf("default AtlanClient not initialized")
@@ -45,6 +46,7 @@ func GetGlossaryByGuid(glossaryGuid string) (*model.Glossary, error) {
 	return g, nil
 }
 
+// GetGlossaryTermByGuid retrieves a glossary term by its GUID.
 func GetGlossaryTermByGuid(glossaryGuid string) (*model.GlossaryTerm, error) {
 	if DefaultAtlanClient == nil {
 		return nil, fmt.Errorf("default AtlanClient not initialized")
@@ -66,6 +68,7 @@ func GetGlossaryTermByGuid(glossaryGuid string) (*model.GlossaryTerm, error) {
 	return gt, nil
 }
 
+// Create a new glossary asset.
 func (g *AtlasGlossary) Create(name string, icon string) {
 	entity := model.Glossary{
 		TypeName: "AtlasGlossary",
@@ -82,6 +85,7 @@ func (g *AtlasGlossary) Create(name string, icon string) {
 	g.Entities = append(g.Entities, entity)
 }
 
+// CreateForModification modifies a  glossary asset.
 func (g *AtlasGlossary) CreateForModification(name string, qualifiedName string, glossary_guid string) error {
 	if name == "" || qualifiedName == "" || glossary_guid == "" {
 		return errors.New("name, qualified_name, and glossary_guid are required fields")
@@ -99,6 +103,7 @@ func (g *AtlasGlossary) CreateForModification(name string, qualifiedName string,
 	return nil
 }
 
+// PurgeByGuid HARD deletes assets by their GUIDs.
 func PurgeByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	if len(guids) == 0 {
 		return nil, fmt.Errorf("no GUIDs provided for deletion")
@@ -132,6 +137,7 @@ func PurgeByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	return &response, nil
 }
 
+// DeleteByGuid SOFT deletes assets by their GUIDs.
 func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	if len(guids) == 0 {
 		return nil, fmt.Errorf("no GUIDs provided for deletion")
@@ -186,6 +192,7 @@ func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	return &response, nil
 }
 
+// WaitTillDeleted waits for an asset to be deleted.
 func WaitTillDeleted(guid string) error {
 	for i := 0; i < MaxRetries; i++ {
 		asset, err := RetrieveMinimal(guid)
@@ -205,6 +212,7 @@ func WaitTillDeleted(guid string) error {
 	return errors.New("retry limit overrun waiting for asset to be deleted")
 }
 
+// MarshalJSON filters out entities to only include those with non-empty attributes.
 func (g *AtlasGlossary) MarshalJSON() ([]byte, error) {
 	// Filter out entities to only include those with non-empty attributes
 	filteredEntities := make([]model.Glossary, 0)
@@ -225,6 +233,7 @@ func (g *AtlasGlossary) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent(customJSON, "", "  ")
 }
 
+// Save saves the glossary to the Atlas server.
 func (g *AtlasGlossary) Save() (*model.AssetMutationResponse, error) {
 	glossaryJSON, err := g.MarshalJSON()
 	if err != nil {

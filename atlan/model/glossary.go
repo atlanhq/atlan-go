@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 )
 
+// Glossary represents a glossary in Atlan.
 type Glossary struct {
 	TypeName     string             `json:"typeName,omitempty"`
 	Attributes   GlossaryAttributes `json:"attributes,omitempty"`
@@ -43,6 +44,7 @@ type Glossary struct {
 	Labels []interface{} `json:"labels,omitempty"`
 }
 
+// GlossaryAttributes represents the attributes of a glossary in Atlan.
 type GlossaryAttributes struct {
 	PopularityScore                           float64       `json:"popularityScore,omitempty"`
 	AssetDbtJobLastRunQueuedDuration          interface{}   `json:"assetDbtJobLastRunQueuedDuration,omitempty"`
@@ -126,6 +128,7 @@ type GlossaryAttributes struct {
 	AssetIcon                                 string        `json:"assetIcon,omitempty"`
 }
 
+// GlossaryTerm represents a term in a glossary in Atlan.
 type GlossaryTerm struct {
 	TypeName               string             `json:"typeName"`
 	Attributes             GlossaryAttributes `json:"attributes"`
@@ -178,6 +181,7 @@ type GlossaryTerm struct {
 	Labels []interface{} `json:"labels"`
 }
 
+// AtlanTag represents a tag in Atlan.
 type AtlanTag struct {
 	TypeName                          string `json:"typeName"`
 	EntityGuid                        string `json:"entityGuid"`
@@ -187,6 +191,7 @@ type AtlanTag struct {
 	RestrictPropagationThroughLineage bool   `json:"restrictPropagationThroughLineage"`
 }
 
+// UnmarshalJSON unmarshals the JSON data into a Glossary object.
 func (g *Glossary) UnmarshalJSON(data []byte) error {
 	var temp struct {
 		Entity struct {
@@ -260,6 +265,7 @@ func FromJSON(data []byte) (*Glossary, error) {
 	return &glossaryResponse, err
 }
 
+// UnmarshalJSON unmarshals the JSON data into a GlossaryTerm object.
 func (gt *GlossaryTerm) UnmarshalJSON(data []byte) error {
 	var temp struct {
 		Entity struct {

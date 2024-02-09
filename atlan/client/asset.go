@@ -6,6 +6,7 @@ import (
 	"fmt"
 )
 
+// Struct to represent assets for searching
 type SearchAssets struct {
 	Glossary *AtlasGlossary
 	Table    *AtlasTable
@@ -50,6 +51,7 @@ type Asset struct {
 	ConnectionName           *KeywordTextField
 }
 
+// AtlasGlossary represents the AtlasGlossary asset
 type AtlasGlossary struct {
 	Asset
 	Entities []model.Glossary `json:"entities"`
@@ -59,13 +61,16 @@ type AtlasTable struct {
 	Attributes
 }
 
-func NewTable() *AtlasTable {
+// NewSearchTable returns a new AtlasTable object for Searching
+func NewSearchTable() *AtlasTable {
 	return &AtlasTable{
 		Attributes: Attributes{
 			TypeName: NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
 		},
 	}
 }
+
+// NewSearchGlossary returns a new AtlasGlossary object for Searching
 func NewSearchGlossary() *AtlasGlossary {
 	return &AtlasGlossary{
 		Asset: Asset{
@@ -120,11 +125,3 @@ func RetrieveMinimal(guid string) (*model.Asset, error) {
 	api.Path = originalPath // Reset the api.Path to its original value
 	return &assetresponse, nil
 }
-
-/*
-	glossary := NewGlossary()
-    query := glossary.TypeName.StartsWith("H", nil)
-	searchResult, err := client.NewFluentSearch().
-		PageSizes(10).
-where(query).
-*/

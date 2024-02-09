@@ -10,6 +10,7 @@ import (
 type LiteralState string
 type SortOrder string
 
+// Constants for the Atlas search DSL
 const (
 	ConnectorName                              = "connectorName"
 	Categories                                 = "__categories"
@@ -54,11 +55,13 @@ type Query interface {
 	ToJSON() map[string]interface{}
 }
 
+// TermQuery represents a term query in the Atlas search DSL.
 type TermQuery struct {
 	Field string
 	Value interface{}
 }
 
+// BoolQuery represents a boolean query in the Atlas search DSL.
 type BoolQuery struct {
 	Must               []Query
 	Should             []Query
@@ -69,6 +72,7 @@ type BoolQuery struct {
 	MinimumShouldMatch *int
 }
 
+// MatchAll represents a match_all query in the Atlas search DSL.
 type MatchAll struct {
 	Boost *float64
 }
@@ -79,6 +83,7 @@ type Exists struct {
 	Field string
 }
 
+// NestedQuery represents a nested query in the Atlas search DSL.
 type NestedQuery struct {
 	Path           string
 	Query          Query
@@ -160,6 +165,7 @@ type SortItem struct {
 	NestedPath *string
 }
 
+// ToJSON returns the JSON representation of the TermQuery.
 func (t *TermQuery) ToJSON() map[string]interface{} {
 	return map[string]interface{}{
 		"term": map[string]interface{}{
@@ -170,6 +176,7 @@ func (t *TermQuery) ToJSON() map[string]interface{} {
 	}
 }
 
+// ToJSON returns the JSON representation of the BoolQuery.
 func (b *BoolQuery) ToJSON() map[string]interface{} {
 	boolQuery := make(map[string]interface{})
 	if len(b.Must) > 0 {
@@ -209,6 +216,7 @@ func (b *BoolQuery) ToJSON() map[string]interface{} {
 	return map[string]interface{}{"bool": boolQuery}
 }
 
+// ToJSON returns the JSON representation of the MatchAll query.
 func (m *MatchAll) ToJSON() map[string]interface{} {
 	query := make(map[string]interface{})
 	if m.Boost != nil {
@@ -219,12 +227,14 @@ func (m *MatchAll) ToJSON() map[string]interface{} {
 	}
 }
 
+// ToJSON returns the JSON representation of the MatchNone query.
 func (m *MatchNone) ToJSON() map[string]interface{} {
 	return map[string]interface{}{
 		"match_none": map[string]interface{}{},
 	}
 }
 
+// ToJSON returns the JSON representation of the Exists query.
 func (e *Exists) ToJSON() map[string]interface{} {
 	return map[string]interface{}{
 		"exists": map[string]interface{}{
@@ -233,6 +243,7 @@ func (e *Exists) ToJSON() map[string]interface{} {
 	}
 }
 
+// ToJSON returns the JSON representation of the NestedQuery.
 func (n *NestedQuery) ToJSON() map[string]interface{} {
 	query := map[string]interface{}{
 		"path":  n.Path,
@@ -249,6 +260,7 @@ func (n *NestedQuery) ToJSON() map[string]interface{} {
 	}
 }
 
+// ToJSON returns the JSON representation of the Terms query.
 func (t *Terms) ToJSON() map[string]interface{} {
 	query := map[string]interface{}{
 		"terms": map[string]interface{}{
@@ -261,6 +273,7 @@ func (t *Terms) ToJSON() map[string]interface{} {
 	return query
 }
 
+// ToJSON returns the JSON representation of the PrefixQuery.
 func (p *PrefixQuery) ToJSON() map[string]interface{} {
 	prefixQuery := map[string]interface{}{
 		"value": p.Value,
@@ -278,6 +291,7 @@ func (p *PrefixQuery) ToJSON() map[string]interface{} {
 	}
 }
 
+// ToJSON returns the JSON representation of the RangeQuery.
 func (r *RangeQuery) ToJSON() map[string]interface{} {
 	rangeQuery := make(map[string]interface{})
 	if r.Gt != nil {
@@ -311,6 +325,7 @@ func (r *RangeQuery) ToJSON() map[string]interface{} {
 	}
 }
 
+// ToJSON returns the JSON representation of the WildcardQuery.
 func (w *WildcardQuery) ToJSON() map[string]interface{} {
 	wildcardQuery := map[string]interface{}{
 		"value": w.Value,
@@ -328,6 +343,7 @@ func (w *WildcardQuery) ToJSON() map[string]interface{} {
 	}
 }
 
+// ToJSON returns the JSON representation of the RegexpQuery.
 func (r *RegexpQuery) ToJSON() map[string]interface{} {
 	regexpQuery := map[string]interface{}{
 		"value": r.Value,
@@ -348,6 +364,7 @@ func (r *RegexpQuery) ToJSON() map[string]interface{} {
 	}
 }
 
+// ToJSON returns the JSON representation of the FuzzyQuery.
 func (f *FuzzyQuery) ToJSON() map[string]interface{} {
 	fuzzyQuery := map[string]interface{}{
 		"value": f.Value,
@@ -374,6 +391,7 @@ func (f *FuzzyQuery) ToJSON() map[string]interface{} {
 	}
 }
 
+// ToJSON returns the JSON representation of the MatchQuery.
 func (m *MatchQuery) ToJSON() map[string]interface{} {
 	matchQuery := map[string]interface{}{
 		"query": m.Query,
@@ -418,6 +436,7 @@ func (m *MatchQuery) ToJSON() map[string]interface{} {
 	}
 }
 
+// ToJSON returns the JSON representation of the SortItem.
 func (s *SortItem) ToJSON() map[string]interface{} {
 	sortField := map[string]interface{}{"order": string(s.Order)}
 	if s.NestedPath != nil {
@@ -426,6 +445,7 @@ func (s *SortItem) ToJSON() map[string]interface{} {
 	return map[string]interface{}{s.Field: sortField}
 }
 
+// IndexSearchIterator is an iterator for paginated Atlas search results.
 type IndexSearchIterator struct {
 	request        IndexSearchRequest
 	currentPage    int
@@ -434,6 +454,7 @@ type IndexSearchIterator struct {
 	hasMoreResults bool
 }
 
+// SearchRequest represents a search request in the Atlas search DSL.
 type SearchRequest struct {
 	Attributes          []string `json:"attributes,omitempty"`
 	Offset              int      `json:"from,omitempty"`
@@ -451,6 +472,7 @@ func NewIndexSearchIterator(pageSize int, initialRequest IndexSearchRequest) *In
 	}
 }
 
+// NextPage returns the next page of search results.
 func (it *IndexSearchIterator) NextPage() (*IndexSearchResponse, error) {
 	if !it.hasMoreResults {
 		return nil, fmt.Errorf("no more results available")
@@ -471,10 +493,12 @@ func (it *IndexSearchIterator) NextPage() (*IndexSearchResponse, error) {
 	return response, nil
 }
 
+// CurrentPage returns the current page number.
 func (it *IndexSearchIterator) CurrentPage() int {
 	return it.currentPage
 }
 
+// IteratePages returns all pages of search results.
 func (it *IndexSearchIterator) IteratePages() ([]*IndexSearchResponse, error) {
 	if !it.hasMoreResults {
 		return nil, fmt.Errorf("no more results available")
@@ -535,10 +559,12 @@ func (it *IndexSearchIterator) IteratePages() ([]*IndexSearchResponse, error) {
 	return responses, nil
 }
 
+// HasMoreResults returns whether there are more results available.
 func (it *IndexSearchIterator) HasMoreResults() bool {
 	return it.hasMoreResults
 }
 
+// IndexSearchRequest represents a search request in the Atlas search DSL.
 type IndexSearchRequest struct {
 	SearchRequest
 	Dsl                    dsl      `json:"dsl"`
@@ -549,6 +575,7 @@ type IndexSearchRequest struct {
 	ExcludeClassifications bool     `json:"excludeClassifications"`
 }
 
+// dsl represents the DSL for the Atlas search request.
 type dsl struct {
 	From                int                      `json:"from"`
 	Size                int                      `json:"size"`
@@ -561,6 +588,7 @@ type dsl struct {
 	IncludesOnRelations []string                 `json:"includesOnRelations,omitempty"`
 }
 
+// IndexSearchResponse represents a search response in the Atlas search DSL.
 type IndexSearchResponse struct {
 	QueryType        string           `json:"queryType"`
 	SearchParameters SearchParameters `json:"searchParameters"`
@@ -568,6 +596,7 @@ type IndexSearchResponse struct {
 	ApproximateCount int64            `json:"approximateCount"`
 }
 
+// SearchParameters represents the search parameters in the Atlas search response.
 type SearchParameters struct {
 	ShowSearchScore       bool                   `json:"showSearchScore"`
 	SuppressLogs          bool                   `json:"suppressLogs"`
@@ -580,6 +609,7 @@ type SearchParameters struct {
 	Query                 string                 `json:"query"`
 }
 
+// Entity represents an entity in the Atlas search response.
 type Entity struct {
 	TypeName            string                 `json:"typeName"`
 	Attributes          map[string]interface{} `json:"attributes"`
@@ -598,6 +628,7 @@ type Entity struct {
 	UpdateTime          int64                  `json:"updateTime"`
 }
 
+// Call the search API
 func search(request IndexSearchRequest) (*IndexSearchResponse, error) {
 	// Define the API endpoint and method
 	api := &INDEX_SEARCH
@@ -618,6 +649,7 @@ func search(request IndexSearchRequest) (*IndexSearchResponse, error) {
 	return &response, nil
 }
 
+// FindGlossaryByName searches for a glossary by name.
 func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
 	boolQuery, err := WithActiveGlossary(glossaryName)
 	if err != nil {
@@ -670,6 +702,7 @@ func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
 	return nil, nil
 }
 
+// FindCategoryByName searches for a category by name.
 func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*IndexSearchResponse, error) {
 	boolQuery, err := WithActiveCategory(categoryName, glossaryQualifiedName)
 	if err != nil {
@@ -716,6 +749,7 @@ func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*Ind
 
 // Methods
 
+// WithActiveGlossary returns a query for an active glossary by name.
 func WithActiveGlossary(name string) (*BoolQuery, error) {
 	q1, err := WithState("ACTIVE")
 	if err != nil {
@@ -729,6 +763,7 @@ func WithActiveGlossary(name string) (*BoolQuery, error) {
 	}, nil
 }
 
+// WithActiveCategory returns a query for an active category by name.
 func WithActiveCategory(name string, glossaryqualifiedname string) (*BoolQuery, error) {
 	q1, err := WithState("ACTIVE")
 	if err != nil {
@@ -744,6 +779,7 @@ func WithActiveCategory(name string, glossaryqualifiedname string) (*BoolQuery, 
 
 // Helper Functions
 
+// WithState returns a query for an entity with a specific state.
 func WithState(value string) (*TermQuery, error) {
 	if value != string(Active) && value != string(Deleted) && value != string(Purged) {
 		return nil, errors.New("invalid state")
@@ -754,6 +790,7 @@ func WithState(value string) (*TermQuery, error) {
 	}, nil
 }
 
+// WithTypeName returns a query for an entity with a specific type name.
 func WithTypeName(value string) *TermQuery {
 	return &TermQuery{
 		Field: string(TypeName),
@@ -761,6 +798,7 @@ func WithTypeName(value string) *TermQuery {
 	}
 }
 
+// WithName returns a query for an entity with a specific name.
 func WithName(value string) *TermQuery {
 	return &TermQuery{
 		Field: string(Name),
@@ -768,6 +806,7 @@ func WithName(value string) *TermQuery {
 	}
 }
 
+// WithGlossary returns a query for an entity with a specific glossary.
 func WithGlossary(value string) *TermQuery {
 	return &TermQuery{
 		Field: string(Glossary),

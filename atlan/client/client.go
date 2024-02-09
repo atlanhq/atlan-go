@@ -73,7 +73,7 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 		loggingEnabled: LoggingEnabled,
 		SearchAssets: SearchAssets{
 			Glossary: NewSearchGlossary(),
-			Table:    NewTable(),
+			Table:    NewSearchTable(),
 			// Add other methods
 		},
 	}, nil
@@ -131,6 +131,7 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 	return responseJSON, nil
 }
 
+// makeRequest makes an HTTP request.
 func (ac *AtlanClient) makeRequest(method, path string, params map[string]interface{}) (*http.Response, error) {
 	var req *http.Request
 	var err error

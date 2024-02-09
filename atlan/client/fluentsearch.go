@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// FluentSearch is a struct that represents a fluent search query.
 type FluentSearch struct {
 	Wheres              []Query
 	WhereNots           []Query
@@ -19,6 +20,7 @@ type FluentSearch struct {
 type Aggregation struct {
 }
 
+// ActiveAssets Returns a query that will only match assets that are active in Atlan.
 func (fs *FluentSearch) ActiveAssets() *FluentSearch {
 	activeAssetsCondition := &TermQuery{
 		Field: string(State),
@@ -27,6 +29,8 @@ func (fs *FluentSearch) ActiveAssets() *FluentSearch {
 	fs.Wheres = append(fs.Wheres, activeAssetsCondition)
 	return fs
 }
+
+// ArchivedAssets Returns a query that will only match assets that are archived (soft-deleted) in Atlan.
 func (fs *FluentSearch) ArchivedAssets() *FluentSearch {
 	archivedAssetsCondition := &TermQuery{
 		Field: string(State),
@@ -36,6 +40,7 @@ func (fs *FluentSearch) ArchivedAssets() *FluentSearch {
 	return fs
 }
 
+// AssetType Returns a query that will only match assets of the type provided.
 func (fs *FluentSearch) AssetType(of string) *FluentSearch {
 	assetTypeCondition := &TermQuery{
 		Field: string(TypeName),
@@ -45,6 +50,7 @@ func (fs *FluentSearch) AssetType(of string) *FluentSearch {
 	return fs
 }
 
+// AssetTypes Returns a query that will only match assets that are one of the types provided.
 func (fs *FluentSearch) AssetTypes(oneOf []string) *FluentSearch {
 	assetTypesCondition := &TermQuery{
 		Field: string(TypeName),
