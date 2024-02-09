@@ -36,6 +36,7 @@ var (
 	mu     sync.Mutex
 )
 
+// GetCache returns the AtlanTagCache for the default AtlanClient.
 func GetCache() *AtlanTagCache {
 	client := DefaultAtlanClient
 	cacheKey := client.apiKey

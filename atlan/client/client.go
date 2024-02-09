@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 // AtlanClient defines the Atlan API client structure.
@@ -19,6 +19,7 @@ type AtlanClient struct {
 	loggingEnabled bool
 	requestParams  map[string]interface{}
 	logger         *log.Logger
+	SearchAssets
 }
 
 var LoggingEnabled = true
@@ -38,7 +39,7 @@ func Init() error {
 	}
 
 	var err error
-	DefaultAtlanClient, err = NewAtlanClient(apiKey, baseURL)
+	DefaultAtlanClient, err = Context(apiKey, baseURL)
 	if err != nil {
 		return err
 	}
@@ -47,15 +48,15 @@ func Init() error {
 	return nil
 }
 
-// NewAtlanClient creates a new AtlanClient instance.
-func NewAtlanClient(apiKey, baseURL string) (*AtlanClient, error) {
+// Context creates a new AtlanClient instance.
+func Context(apiKey, baseURL string) (*AtlanClient, error) {
 	client := &http.Client{}
 	logger := log.New(os.Stdout, "AtlanClient: ", log.LstdFlags|log.Lshortfile)
 
 	if LoggingEnabled {
 		logger = log.New(os.Stdout, "AtlanClient: ", log.LstdFlags|log.Lshortfile)
 	} else {
-		logger = log.New(ioutil.Discard, "", 0) // Logger that discards all log output
+		logger = log.New(io.Discard, "", 0) // Logger that discards all log output
 	}
 	return &AtlanClient{
 		session: client,
@@ -70,7 +71,21 @@ func NewAtlanClient(apiKey, baseURL string) (*AtlanClient, error) {
 		},
 		logger:         logger,
 		loggingEnabled: LoggingEnabled,
+		SearchAssets: SearchAssets{
+			Glossary: NewSearchGlossary(),
+			Table:    NewSearchTable(),
+			// Add other methods
+		},
 	}, nil
+}
+
+func NewContext() *AtlanClient {
+	err := Init()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to initialize AtlanClient: %v", err))
+	}
+
+	return DefaultAtlanClient
 }
 
 // CallAPI makes a generic API call.
@@ -88,6 +103,8 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 			return nil, fmt.Errorf("error marshaling request object: %v", err)
 		}
 		params["data"] = bytes.NewBuffer(requestJSON)
+		//ac.logger.Printf("Request JSON: %s\n", string(requestJSON))
+
 	}
 
 	ac.logAPICall(api.Method, path)
@@ -114,20 +131,35 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 	return responseJSON, nil
 }
 
+// makeRequest makes an HTTP request.
 func (ac *AtlanClient) makeRequest(method, path string, params map[string]interface{}) (*http.Response, error) {
 	var req *http.Request
 	var err error
-
 	switch method {
 	case http.MethodGet:
 		req, err = http.NewRequest(method, path, nil)
-	case http.MethodPost, http.MethodPut, http.MethodDelete:
+	case http.MethodPost, http.MethodPut:
 		body, ok := params["data"].(io.Reader)
 		if !ok {
 			return nil, fmt.Errorf("missing or invalid 'data' parameter for POST/PUT/DELETE request")
 		}
-
 		req, err = http.NewRequest(method, path, body)
+		req.Header.Set("Content-Type", "application/json")
+	case http.MethodDelete:
+		// DELETE requests may not always have a body.
+		var body io.Reader
+		if data, ok := params["data"]; ok {
+			body, ok = data.(io.Reader)
+			if !ok {
+				return nil, fmt.Errorf("invalid 'data' parameter for DELETE request")
+			}
+		}
+		req, err = http.NewRequest(method, path, body)
+
+		if body != nil {
+			req.Header.Set("Content-Type", "application/json")
+		}
+
 	default:
 		return nil, fmt.Errorf("unsupported HTTP method: %s", method)
 	}
@@ -147,11 +179,27 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 	// Set query parameters
 	queryParams, ok := params["params"].(map[string]string)
 	if ok {
-		query := req.URL.Query()
+		// This implementation can be improved, not doing so since requires significant changes to codebase
+		var query string
 		for key, value := range queryParams {
-			query.Add(key, value)
+			// Check if the key is "guid" and value contains commas
+			if key == "guid" && strings.Contains(value, ",") {
+				// Split the value by commas
+				guids := strings.Split(value, ",")
+				for _, guid := range guids {
+					// Append each guid to the query string with &guid=
+					query += "&guid=" + guid
+				}
+			} else {
+				// For other keys, add them normally
+				query += "&" + key + "=" + value
+			}
 		}
-		req.URL.RawQuery = query.Encode()
+		// Remove the leading "&" from the query string
+		if len(query) > 0 {
+			query = query[1:]
+		}
+		req.URL.RawQuery = query
 	}
 
 	return ac.session.Do(req)
@@ -169,6 +217,15 @@ func (ac *AtlanClient) logAPICall(method, path string) {
 func (ac *AtlanClient) logHTTPStatus(response *http.Response) {
 	if response != nil {
 		ac.logger.Printf("HTTP Status: %s\n", response.Status)
+		if response.StatusCode < 200 || response.StatusCode >= 300 {
+			// Read the response body for the error message
+			bodyBytes, err := io.ReadAll(response.Body)
+			if err != nil {
+				ac.logger.Printf("Error reading response body: %v\n", err)
+			} else {
+				ac.logger.Printf("Error: %s\n", string(bodyBytes))
+			}
+		}
 	}
 }
 

@@ -1,0 +1,815 @@
+package client
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"sync"
+)
+
+type LiteralState string
+type SortOrder string
+
+// Constants for the Atlas search DSL
+const (
+	ConnectorName                              = "connectorName"
+	Categories                                 = "__categories"
+	CreateTimeAsTimestamp                      = "__timestamp"
+	CreatedBy                                  = "__createdBy"
+	Glossary                                   = "__glossary"
+	GUID                                       = "__guid"
+	HasLineage                                 = "__hasLineage"
+	Meanings                                   = "__meanings"
+	ModifiedBy                                 = "__modifiedBy"
+	Name                                       = "name.keyword"
+	OwnerGroups                                = "ownerGroups"
+	OwnerUsers                                 = "ownerUsers"
+	ParentCategory                             = "__parentCategory"
+	PopularityScore                            = "popularityScore"
+	QualifiedName                              = "qualifiedName"
+	State                                      = "__state"
+	SuperTypeNames                             = "__superTypeNames.keyword"
+	TypeName                                   = "__typeName.keyword"
+	UpdateTimeAsTimestamp                      = "__modificationTimestamp"
+	CertificateStatus                          = "certificateStatus"
+	ClassificationNames                        = "__classificationNames"
+	ClassificationsText                        = "__classificationsText"
+	CreateTimeAsDate                           = "__timestamp.date"
+	Description                                = "description"
+	MeaningsText                               = "__meaningsText"
+	PropagatedClassificationNames              = "__propagatedClassificationNames"
+	PropagatedTraitNames                       = "__propagatedTraitNames"
+	SuperTypeNamesText                         = "__superTypeNames"
+	TraitNames                                 = "__traitNames"
+	UpdateTimeAsDate                           = "__modificationTimestamp.date"
+	UserDescription                            = "userDescription"
+	Active                        LiteralState = "ACTIVE"
+	Deleted                       LiteralState = "DELETED"
+	Purged                        LiteralState = "PURGED"
+	Ascending                     SortOrder    = "asc"
+	Descending                    SortOrder    = "desc"
+)
+
+// Query is an interface that represents the base query behavior.
+type Query interface {
+	ToJSON() map[string]interface{}
+}
+
+// TermQuery represents a term query in the Atlas search DSL.
+type TermQuery struct {
+	Field string
+	Value interface{}
+}
+
+// BoolQuery represents a boolean query in the Atlas search DSL.
+type BoolQuery struct {
+	Must               []Query
+	Should             []Query
+	MustNot            []Query
+	Filter             []Query
+	TypeName           string
+	Boost              *float64
+	MinimumShouldMatch *int
+}
+
+// MatchAll represents a match_all query in the Atlas search DSL.
+type MatchAll struct {
+	Boost *float64
+}
+
+type MatchNone struct{}
+
+type Exists struct {
+	Field string
+}
+
+// NestedQuery represents a nested query in the Atlas search DSL.
+type NestedQuery struct {
+	Path           string
+	Query          Query
+	ScoreMode      string
+	IgnoreUnmapped bool
+}
+
+type Terms struct {
+	Field  string
+	Values []string
+	Boost  *float64
+}
+
+type PrefixQuery struct {
+	Field           string
+	Value           interface{}
+	Boost           *float64
+	CaseInsensitive *bool
+	TypeName        string
+}
+
+type RangeQuery struct {
+	Field    string
+	Gt       *interface{}
+	Gte      *interface{}
+	Lt       *interface{}
+	Lte      *interface{}
+	Boost    *float64
+	Format   *string
+	Relation *string
+	TimeZone *string
+	TypeName string
+}
+
+type WildcardQuery struct {
+	Field           string
+	Value           string
+	Boost           *float64
+	CaseInsensitive *bool
+}
+
+type RegexpQuery struct {
+	Field                 string
+	Value                 string
+	Boost                 *float64
+	CaseInsensitive       *bool
+	MaxDeterminizedStates *int
+}
+
+type FuzzyQuery struct {
+	Field          string
+	Value          string
+	Fuzziness      *string
+	MaxExpansions  *int
+	PrefixLength   *int
+	Transpositions *bool
+	Rewrite        *string
+}
+
+type MatchQuery struct {
+	Field                           string
+	Query                           string
+	Analyzer                        *string
+	AutoGenerateSynonymsPhraseQuery *bool
+	Fuzziness                       *string
+	FuzzyTranspositions             *bool
+	FuzzyRewrite                    *string
+	Lenient                         *bool
+	Operator                        *string
+	MinimumShouldMatch              *int
+	ZeroTermsQuery                  *string
+	MaxExpansions                   *int
+	PrefixLength                    *int
+}
+
+type SortItem struct {
+	Field      string
+	Order      SortOrder
+	NestedPath *string
+}
+
+// ToJSON returns the JSON representation of the TermQuery.
+func (t *TermQuery) ToJSON() map[string]interface{} {
+	return map[string]interface{}{
+		"term": map[string]interface{}{
+			t.Field: map[string]interface{}{
+				"value": t.Value,
+			},
+		},
+	}
+}
+
+// ToJSON returns the JSON representation of the BoolQuery.
+func (b *BoolQuery) ToJSON() map[string]interface{} {
+	boolQuery := make(map[string]interface{})
+	if len(b.Must) > 0 {
+		mustClauses := make([]map[string]interface{}, len(b.Must))
+		for i, q := range b.Must {
+			mustClauses[i] = q.ToJSON()
+		}
+		boolQuery["must"] = mustClauses
+	}
+	if len(b.Should) > 0 {
+		shouldClauses := make([]map[string]interface{}, len(b.Should))
+		for i, q := range b.Should {
+			shouldClauses[i] = q.ToJSON()
+		}
+		boolQuery["should"] = shouldClauses
+	}
+	if len(b.MustNot) > 0 {
+		mustNotClauses := make([]map[string]interface{}, len(b.MustNot))
+		for i, q := range b.MustNot {
+			mustNotClauses[i] = q.ToJSON()
+		}
+		boolQuery["must_not"] = mustNotClauses
+	}
+	if len(b.Filter) > 0 {
+		filterClauses := make([]map[string]interface{}, len(b.Filter))
+		for i, q := range b.Filter {
+			filterClauses[i] = q.ToJSON()
+		}
+		boolQuery["filter"] = filterClauses
+	}
+	if b.Boost != nil {
+		boolQuery["boost"] = *b.Boost
+	}
+	if b.MinimumShouldMatch != nil {
+		boolQuery["minimum_should_match"] = *b.MinimumShouldMatch
+	}
+	return map[string]interface{}{"bool": boolQuery}
+}
+
+// ToJSON returns the JSON representation of the MatchAll query.
+func (m *MatchAll) ToJSON() map[string]interface{} {
+	query := make(map[string]interface{})
+	if m.Boost != nil {
+		query["boost"] = *m.Boost
+	}
+	return map[string]interface{}{
+		"match_all": query,
+	}
+}
+
+// ToJSON returns the JSON representation of the MatchNone query.
+func (m *MatchNone) ToJSON() map[string]interface{} {
+	return map[string]interface{}{
+		"match_none": map[string]interface{}{},
+	}
+}
+
+// ToJSON returns the JSON representation of the Exists query.
+func (e *Exists) ToJSON() map[string]interface{} {
+	return map[string]interface{}{
+		"exists": map[string]interface{}{
+			"field": e.Field,
+		},
+	}
+}
+
+// ToJSON returns the JSON representation of the NestedQuery.
+func (n *NestedQuery) ToJSON() map[string]interface{} {
+	query := map[string]interface{}{
+		"path":  n.Path,
+		"query": n.Query.ToJSON(),
+	}
+	if n.ScoreMode != "" {
+		query["score_mode"] = n.ScoreMode
+	}
+	if n.IgnoreUnmapped {
+		query["ignore_unmapped"] = n.IgnoreUnmapped
+	}
+	return map[string]interface{}{
+		"nested": query,
+	}
+}
+
+// ToJSON returns the JSON representation of the Terms query.
+func (t *Terms) ToJSON() map[string]interface{} {
+	query := map[string]interface{}{
+		"terms": map[string]interface{}{
+			t.Field: t.Values,
+		},
+	}
+	if t.Boost != nil {
+		query["terms"].(map[string]interface{})["boost"] = *t.Boost
+	}
+	return query
+}
+
+// ToJSON returns the JSON representation of the PrefixQuery.
+func (p *PrefixQuery) ToJSON() map[string]interface{} {
+	prefixQuery := map[string]interface{}{
+		"value": p.Value,
+	}
+	if p.Boost != nil {
+		prefixQuery["boost"] = *p.Boost
+	}
+	if p.CaseInsensitive != nil {
+		prefixQuery["case_insensitive"] = *p.CaseInsensitive
+	}
+	return map[string]interface{}{
+		"prefix": map[string]interface{}{
+			p.Field: prefixQuery,
+		},
+	}
+}
+
+// ToJSON returns the JSON representation of the RangeQuery.
+func (r *RangeQuery) ToJSON() map[string]interface{} {
+	rangeQuery := make(map[string]interface{})
+	if r.Gt != nil {
+		rangeQuery["gt"] = *r.Gt
+	}
+	if r.Gte != nil {
+		rangeQuery["gte"] = *r.Gte
+	}
+	if r.Lt != nil {
+		rangeQuery["lt"] = *r.Lt
+	}
+	if r.Lte != nil {
+		rangeQuery["lte"] = *r.Lte
+	}
+	if r.Boost != nil {
+		rangeQuery["boost"] = *r.Boost
+	}
+	if r.Format != nil {
+		rangeQuery["format"] = *r.Format
+	}
+	if r.Relation != nil {
+		rangeQuery["relation"] = *r.Relation
+	}
+	if r.TimeZone != nil {
+		rangeQuery["time_zone"] = *r.TimeZone
+	}
+	return map[string]interface{}{
+		"range": map[string]interface{}{
+			r.Field: rangeQuery,
+		},
+	}
+}
+
+// ToJSON returns the JSON representation of the WildcardQuery.
+func (w *WildcardQuery) ToJSON() map[string]interface{} {
+	wildcardQuery := map[string]interface{}{
+		"value": w.Value,
+	}
+	if w.Boost != nil {
+		wildcardQuery["boost"] = *w.Boost
+	}
+	if w.CaseInsensitive != nil {
+		wildcardQuery["case_insensitive"] = *w.CaseInsensitive
+	}
+	return map[string]interface{}{
+		"wildcard": map[string]interface{}{
+			w.Field: wildcardQuery,
+		},
+	}
+}
+
+// ToJSON returns the JSON representation of the RegexpQuery.
+func (r *RegexpQuery) ToJSON() map[string]interface{} {
+	regexpQuery := map[string]interface{}{
+		"value": r.Value,
+	}
+	if r.Boost != nil {
+		regexpQuery["boost"] = *r.Boost
+	}
+	if r.CaseInsensitive != nil {
+		regexpQuery["case_insensitive"] = *r.CaseInsensitive
+	}
+	if r.MaxDeterminizedStates != nil {
+		regexpQuery["max_determinized_states"] = *r.MaxDeterminizedStates
+	}
+	return map[string]interface{}{
+		"regexp": map[string]interface{}{
+			r.Field: regexpQuery,
+		},
+	}
+}
+
+// ToJSON returns the JSON representation of the FuzzyQuery.
+func (f *FuzzyQuery) ToJSON() map[string]interface{} {
+	fuzzyQuery := map[string]interface{}{
+		"value": f.Value,
+	}
+	if f.Fuzziness != nil {
+		fuzzyQuery["fuzziness"] = *f.Fuzziness
+	}
+	if f.MaxExpansions != nil {
+		fuzzyQuery["max_expansions"] = *f.MaxExpansions
+	}
+	if f.PrefixLength != nil {
+		fuzzyQuery["prefix_length"] = *f.PrefixLength
+	}
+	if f.Transpositions != nil {
+		fuzzyQuery["transpositions"] = *f.Transpositions
+	}
+	if f.Rewrite != nil {
+		fuzzyQuery["rewrite"] = *f.Rewrite
+	}
+	return map[string]interface{}{
+		"fuzzy": map[string]interface{}{
+			f.Field: fuzzyQuery,
+		},
+	}
+}
+
+// ToJSON returns the JSON representation of the MatchQuery.
+func (m *MatchQuery) ToJSON() map[string]interface{} {
+	matchQuery := map[string]interface{}{
+		"query": m.Query,
+	}
+	if m.Analyzer != nil {
+		matchQuery["analyzer"] = *m.Analyzer
+	}
+	if m.AutoGenerateSynonymsPhraseQuery != nil {
+		matchQuery["auto_generate_synonyms_phrase_query"] = *m.AutoGenerateSynonymsPhraseQuery
+	}
+	if m.Fuzziness != nil {
+		matchQuery["fuzziness"] = *m.Fuzziness
+	}
+	if m.FuzzyTranspositions != nil {
+		matchQuery["fuzzy_transpositions"] = *m.FuzzyTranspositions
+	}
+	if m.FuzzyRewrite != nil {
+		matchQuery["fuzzy_rewrite"] = *m.FuzzyRewrite
+	}
+	if m.Lenient != nil {
+		matchQuery["lenient"] = *m.Lenient
+	}
+	if m.Operator != nil {
+		matchQuery["operator"] = *m.Operator
+	}
+	if m.MinimumShouldMatch != nil {
+		matchQuery["minimum_should_match"] = *m.MinimumShouldMatch
+	}
+	if m.ZeroTermsQuery != nil {
+		matchQuery["zero_terms_query"] = *m.ZeroTermsQuery
+	}
+	if m.MaxExpansions != nil {
+		matchQuery["max_expansions"] = *m.MaxExpansions
+	}
+	if m.PrefixLength != nil {
+		matchQuery["prefix_length"] = *m.PrefixLength
+	}
+	return map[string]interface{}{
+		"match": map[string]interface{}{
+			m.Field: matchQuery,
+		},
+	}
+}
+
+// ToJSON returns the JSON representation of the SortItem.
+func (s *SortItem) ToJSON() map[string]interface{} {
+	sortField := map[string]interface{}{"order": string(s.Order)}
+	if s.NestedPath != nil {
+		sortField["nested"] = map[string]interface{}{"path": *s.NestedPath}
+	}
+	return map[string]interface{}{s.Field: sortField}
+}
+
+// IndexSearchIterator is an iterator for paginated Atlas search results.
+type IndexSearchIterator struct {
+	request        IndexSearchRequest
+	currentPage    int
+	pageSize       int
+	totalResults   int64
+	hasMoreResults bool
+}
+
+// SearchRequest represents a search request in the Atlas search DSL.
+type SearchRequest struct {
+	Attributes          []string `json:"attributes,omitempty"`
+	Offset              int      `json:"from,omitempty"`
+	Size                int      `json:"size,omitempty"`
+	RelationsAttributes []string `json:"relationsAttributes,omitempty"`
+}
+
+func NewIndexSearchIterator(pageSize int, initialRequest IndexSearchRequest) *IndexSearchIterator {
+	return &IndexSearchIterator{
+		request:        initialRequest,
+		currentPage:    0,
+		pageSize:       pageSize,
+		totalResults:   0,
+		hasMoreResults: true,
+	}
+}
+
+// NextPage returns the next page of search results.
+func (it *IndexSearchIterator) NextPage() (*IndexSearchResponse, error) {
+	if !it.hasMoreResults {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	it.request.Dsl.From = it.currentPage * it.pageSize
+	it.request.Dsl.Size = it.pageSize
+
+	response, err := search(it.request)
+	if err != nil {
+		return nil, err
+	}
+
+	it.totalResults = response.ApproximateCount
+	it.hasMoreResults = int64(it.request.Dsl.From+it.pageSize) < it.totalResults
+	it.currentPage++
+
+	return response, nil
+}
+
+// CurrentPage returns the current page number.
+func (it *IndexSearchIterator) CurrentPage() int {
+	return it.currentPage
+}
+
+// IteratePages returns all pages of search results.
+func (it *IndexSearchIterator) IteratePages() ([]*IndexSearchResponse, error) {
+	if !it.hasMoreResults {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	// Perform an initial search to get the approximateCount
+	it.request.Dsl.From = 0
+	it.request.Dsl.Size = it.pageSize
+	response, err := search(it.request)
+	if err != nil {
+		return nil, err
+	}
+	it.totalResults = response.ApproximateCount
+	it.hasMoreResults = it.totalResults > 0
+	if !it.hasMoreResults {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	// If approximateCount is 1, return the response immediately
+	if it.totalResults == 1 {
+		return []*IndexSearchResponse{response}, nil
+	}
+
+	// Num of pages to fetch
+	numPageGroups := int((it.totalResults + int64(it.pageSize) - 1) / int64(it.pageSize))
+	var wg sync.WaitGroup
+	responses := make([]*IndexSearchResponse, numPageGroups)
+	errors := make([]error, numPageGroups)
+
+	// Fetch all pages in parallel
+	for i := 0; i < numPageGroups; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			it.request.Dsl.From = i * it.pageSize
+			it.request.Dsl.Size = it.pageSize
+			response, err := search(it.request)
+			if err != nil {
+				errors[i] = err
+				return
+			}
+			responses[i] = response
+		}(i)
+	}
+
+	wg.Wait()
+
+	for _, err := range errors {
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Update the iterator state
+	it.hasMoreResults = int64(it.request.Dsl.From+it.pageSize) < it.totalResults
+	it.currentPage++
+
+	return responses, nil
+}
+
+// HasMoreResults returns whether there are more results available.
+func (it *IndexSearchIterator) HasMoreResults() bool {
+	return it.hasMoreResults
+}
+
+// IndexSearchRequest represents a search request in the Atlas search DSL.
+type IndexSearchRequest struct {
+	SearchRequest
+	Dsl                    dsl      `json:"dsl"`
+	RelationAttributes     []string `json:"relationAttributes,omitempty"`
+	SuppressLogs           bool     `json:"suppressLogs"`
+	ShowSearchScore        bool     `json:"showSearchScore"`
+	ExcludeMeanings        bool     `json:"excludeMeanings"`
+	ExcludeClassifications bool     `json:"excludeClassifications"`
+}
+
+// dsl represents the DSL for the Atlas search request.
+type dsl struct {
+	From                int                      `json:"from"`
+	Size                int                      `json:"size"`
+	aggregation         map[string]interface{}   `json:"aggregation,omitempty"`
+	Query               map[string]interface{}   `json:"query"`
+	TrackTotalHits      bool                     `json:"track_total_hits"`
+	PostFilter          *Query                   `json:"post_filter,omitempty"`
+	Sort                []map[string]interface{} `json:"sort,omitempty"`
+	IncludesOnResults   []string                 `json:"includesOnResults,omitempty"`
+	IncludesOnRelations []string                 `json:"includesOnRelations,omitempty"`
+}
+
+// IndexSearchResponse represents a search response in the Atlas search DSL.
+type IndexSearchResponse struct {
+	QueryType        string           `json:"queryType"`
+	SearchParameters SearchParameters `json:"searchParameters"`
+	Entities         []Entity         `json:"entities"`
+	ApproximateCount int64            `json:"approximateCount"`
+}
+
+// SearchParameters represents the search parameters in the Atlas search response.
+type SearchParameters struct {
+	ShowSearchScore       bool                   `json:"showSearchScore"`
+	SuppressLogs          bool                   `json:"suppressLogs"`
+	ExcludeMeanings       bool                   `json:"excludeMeanings"`
+	ExcludeAtlanTags      bool                   `json:"excludeClassifications"`
+	AllowDeletedRelations bool                   `json:"allowDeletedRelations"`
+	SaveSearchLog         bool                   `json:"saveSearchLog"`
+	RequestMetadata       map[string]interface{} `json:"requestMetadata"`
+	Dsl                   dsl                    `json:"dsl"`
+	Query                 string                 `json:"query"`
+}
+
+// Entity represents an entity in the Atlas search response.
+type Entity struct {
+	TypeName            string                 `json:"typeName"`
+	Attributes          map[string]interface{} `json:"attributes"`
+	Guid                string                 `json:"guid"`
+	Status              string                 `json:"status"`
+	DisplayText         string                 `json:"displayText"`
+	ClassificationNames []string               `json:"classificationNames"`
+	Tags                []interface{}          `json:"classifications"`
+	MeaningNames        []interface{}          `json:"meaningNames"`
+	Meanings            []interface{}          `json:"meanings"`
+	IsIncomplete        bool                   `json:"isIncomplete"`
+	Labels              []interface{}          `json:"labels"`
+	CreatedBy           string                 `json:"createdBy"`
+	UpdatedBy           string                 `json:"updatedBy"`
+	CreateTime          int64                  `json:"createTime"`
+	UpdateTime          int64                  `json:"updateTime"`
+}
+
+// Call the search API
+func search(request IndexSearchRequest) (*IndexSearchResponse, error) {
+	// Define the API endpoint and method
+	api := &INDEX_SEARCH
+
+	// Call the API
+	responseBytes, err := DefaultAtlanClient.CallAPI(api, nil, &request)
+	if err != nil {
+		return nil, fmt.Errorf("error calling API: %v", err)
+	}
+
+	// Unmarshal the response
+	var response IndexSearchResponse
+	err = json.Unmarshal(responseBytes, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling response: %v", err)
+	}
+
+	return &response, nil
+}
+
+// FindGlossaryByName searches for a glossary by name.
+func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
+	boolQuery, err := WithActiveGlossary(glossaryName)
+	if err != nil {
+		return nil, err
+	}
+	pageSize := 1
+
+	sortItems := []SortItem{{Field: string(ModifiedBy), Order: Ascending}}
+	sortItemsJSON := make([]map[string]interface{}, len(sortItems))
+	for i, item := range sortItems {
+		sortItemsJSON[i] = item.ToJSON()
+	}
+
+	request := IndexSearchRequest{
+		Dsl: dsl{
+			From:           0,
+			Size:           2,
+			Query:          boolQuery.ToJSON(),
+			TrackTotalHits: true,
+			Sort:           sortItemsJSON,
+		},
+		SuppressLogs:           true,
+		ShowSearchScore:        false,
+		ExcludeMeanings:        false,
+		ExcludeClassifications: false,
+	}
+
+	iterator := NewIndexSearchIterator(pageSize, request)
+
+	for iterator.HasMoreResults() {
+		responses, err := iterator.IteratePages()
+		if err != nil {
+			return nil, fmt.Errorf("error executing search: %v", err)
+		}
+		for _, response := range responses {
+			for _, entity := range response.Entities {
+				if entity.TypeName == "AtlasGlossary" {
+					return response, nil
+				}
+			}
+		}
+	}
+	// Call the search function
+	//response, err := search(request)
+	//if err != nil {
+	//	return nil, fmt.Errorf("error executing search: %v", err)
+	//}
+
+	// return response, nil
+	return nil, nil
+}
+
+// FindCategoryByName searches for a category by name.
+func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*IndexSearchResponse, error) {
+	boolQuery, err := WithActiveCategory(categoryName, glossaryQualifiedName)
+	if err != nil {
+		return nil, err
+	}
+	pageSize := 1
+
+	request := IndexSearchRequest{
+		Dsl: dsl{
+			From:           0,
+			Size:           2,
+			Query:          boolQuery.ToJSON(),
+			TrackTotalHits: true,
+		},
+		SuppressLogs:           true,
+		ShowSearchScore:        false,
+		ExcludeMeanings:        false,
+		ExcludeClassifications: false,
+	}
+
+	iterator := NewIndexSearchIterator(pageSize, request)
+
+	for iterator.HasMoreResults() {
+		response, err := iterator.NextPage()
+		if err != nil {
+			return nil, fmt.Errorf("error executing search: %v", err)
+		}
+		fmt.Println("Current Page: ", iterator.CurrentPage())
+		for _, entity := range response.Entities {
+			if entity.TypeName == "AtlasGlossaryCategory" {
+				return response, err
+			}
+		}
+	}
+	// Call the search function
+	//response, err := search(request)
+	//if err != nil {
+	//	return nil, fmt.Errorf("error executing search: %v", err)
+	//}
+
+	// return response, nil
+	return nil, nil
+}
+
+// Methods
+
+// WithActiveGlossary returns a query for an active glossary by name.
+func WithActiveGlossary(name string) (*BoolQuery, error) {
+	q1, err := WithState("ACTIVE")
+	if err != nil {
+		return nil, err
+	}
+	q2 := WithTypeName("AtlasGlossary")
+	q3 := WithName(name)
+
+	return &BoolQuery{
+		Filter: []Query{q1, q2, q3},
+	}, nil
+}
+
+// WithActiveCategory returns a query for an active category by name.
+func WithActiveCategory(name string, glossaryqualifiedname string) (*BoolQuery, error) {
+	q1, err := WithState("ACTIVE")
+	if err != nil {
+		return nil, err
+	}
+	q2 := WithTypeName("AtlasGlossaryCategory")
+	q3 := WithName(name)
+	q4 := WithGlossary(glossaryqualifiedname)
+	return &BoolQuery{
+		Filter: []Query{q1, q2, q3, q4},
+	}, nil
+}
+
+// Helper Functions
+
+// WithState returns a query for an entity with a specific state.
+func WithState(value string) (*TermQuery, error) {
+	if value != string(Active) && value != string(Deleted) && value != string(Purged) {
+		return nil, errors.New("invalid state")
+	}
+	return &TermQuery{
+		Field: string(State),
+		Value: value,
+	}, nil
+}
+
+// WithTypeName returns a query for an entity with a specific type name.
+func WithTypeName(value string) *TermQuery {
+	return &TermQuery{
+		Field: string(TypeName),
+		Value: value,
+	}
+}
+
+// WithName returns a query for an entity with a specific name.
+func WithName(value string) *TermQuery {
+	return &TermQuery{
+		Field: string(Name),
+		Value: value,
+	}
+}
+
+// WithGlossary returns a query for an entity with a specific glossary.
+func WithGlossary(value string) *TermQuery {
+	return &TermQuery{
+		Field: string(Glossary),
+		Value: value,
+	}
+}

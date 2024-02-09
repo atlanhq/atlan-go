@@ -12,9 +12,11 @@ const (
 	GET_BY_GUID_TEMPLATE = TYPES_API + "{path_type}/guid/{guid}"
 
 	// Entities API
-	ENTITY_API = "entity/"
+	ENTITY_API      = "entity/"
+	ENTITY_BULK_API = "entity/bulk/"
 )
 
+// API defines the structure of an API call.
 type API struct {
 	Path     string
 	Method   string
@@ -30,6 +32,7 @@ var AtlasEndpoint = Endpoint{
 	Atlas: "/api/meta/",
 }
 
+// API calls for Atlas
 var (
 	GET_TYPEDEF_BY_NAME = API{
 		Path:     TYPEDEF_BY_NAME,
@@ -90,6 +93,34 @@ var (
 	GET_ENTITY_BY_GUID = API{
 		Path:     ENTITY_API + "guid/",
 		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: AtlasEndpoint,
+	}
+
+	INDEX_SEARCH = API{
+		Path:     "search/indexsearch/",
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: AtlasEndpoint,
+	}
+
+	CREATE_ENTITY = API{
+		Path:     ENTITY_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: AtlasEndpoint,
+	}
+
+	CREATE_ENTITIES = API{
+		Path:     ENTITY_BULK_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: AtlasEndpoint,
+	}
+
+	DELETE_ENTITIES_BY_GUIDS = API{
+		Path:     ENTITY_BULK_API,
+		Method:   http.MethodDelete,
 		Status:   http.StatusOK,
 		Endpoint: AtlasEndpoint,
 	}
