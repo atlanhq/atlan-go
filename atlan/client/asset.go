@@ -54,6 +54,7 @@ type Asset struct {
 // AtlasGlossary represents the AtlasGlossary asset
 type AtlasGlossary struct {
 	Asset
+	AtlanObject
 	Entities []model.Glossary `json:"entities"`
 }
 

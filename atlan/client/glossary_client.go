@@ -233,17 +233,21 @@ func (g *AtlasGlossary) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent(customJSON, "", "  ")
 }
 
+type AtlanObject interface {
+	MarshalJSON() ([]byte, error)
+}
+
 // Save saves the glossary to the Atlas server.
-func (g *AtlasGlossary) Save() (*model.AssetMutationResponse, error) {
-	glossaryJSON, err := g.MarshalJSON()
+func Save(asset AtlanObject) (*model.AssetMutationResponse, error) {
+	assetJSON, err := asset.MarshalJSON()
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(string(glossaryJSON))
+	fmt.Println(string(assetJSON))
 
 	var requestObj interface{}
-	err = json.Unmarshal(glossaryJSON, &requestObj)
+	err = json.Unmarshal(assetJSON, &requestObj)
 	if err != nil {
 		return nil, err
 	}
