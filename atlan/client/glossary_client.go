@@ -68,8 +68,8 @@ func GetGlossaryTermByGuid(glossaryGuid string) (*model.GlossaryTerm, error) {
 	return gt, nil
 }
 
-// Create a new glossary asset.
-func (g *AtlasGlossary) Create(name string, icon string) {
+// Creator a new glossary asset in memory.
+func (g *AtlasGlossary) Creator(name string, icon string) {
 	entity := model.Glossary{
 		TypeName: "AtlasGlossary",
 		Attributes: model.GlossaryAttributes{
@@ -85,8 +85,8 @@ func (g *AtlasGlossary) Create(name string, icon string) {
 	g.Entities = append(g.Entities, entity)
 }
 
-// CreateForModification modifies a  glossary asset.
-func (g *AtlasGlossary) CreateForModification(name string, qualifiedName string, glossary_guid string) error {
+// Updater modifies a  glossary asset in memory.
+func (g *AtlasGlossary) Updater(name string, qualifiedName string, glossary_guid string) error {
 	if name == "" || qualifiedName == "" || glossary_guid == "" {
 		return errors.New("name, qualified_name, and glossary_guid are required fields")
 	}
@@ -237,7 +237,7 @@ type AtlanObject interface {
 	MarshalJSON() ([]byte, error)
 }
 
-// Save saves the glossary to the Atlas server.
+// Save saves the asset in memory to the Atlas server.
 func Save(asset AtlanObject) (*model.AssetMutationResponse, error) {
 	assetJSON, err := asset.MarshalJSON()
 	if err != nil {
