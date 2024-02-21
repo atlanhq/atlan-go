@@ -1,54 +1,9 @@
-package client
+// Contains the search model for the Atlas search DSL.
 
-import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"sync"
-)
+package model
 
 type LiteralState string
 type SortOrder string
-
-// Constants for the Atlas search DSL
-const (
-	ConnectorName                              = "connectorName"
-	Categories                                 = "__categories"
-	CreateTimeAsTimestamp                      = "__timestamp"
-	CreatedBy                                  = "__createdBy"
-	Glossary                                   = "__glossary"
-	GUID                                       = "__guid"
-	HasLineage                                 = "__hasLineage"
-	Meanings                                   = "__meanings"
-	ModifiedBy                                 = "__modifiedBy"
-	Name                                       = "name.keyword"
-	OwnerGroups                                = "ownerGroups"
-	OwnerUsers                                 = "ownerUsers"
-	ParentCategory                             = "__parentCategory"
-	PopularityScore                            = "popularityScore"
-	QualifiedName                              = "qualifiedName"
-	State                                      = "__state"
-	SuperTypeNames                             = "__superTypeNames.keyword"
-	TypeName                                   = "__typeName.keyword"
-	UpdateTimeAsTimestamp                      = "__modificationTimestamp"
-	CertificateStatus                          = "certificateStatus"
-	ClassificationNames                        = "__classificationNames"
-	ClassificationsText                        = "__classificationsText"
-	CreateTimeAsDate                           = "__timestamp.date"
-	Description                                = "description"
-	MeaningsText                               = "__meaningsText"
-	PropagatedClassificationNames              = "__propagatedClassificationNames"
-	PropagatedTraitNames                       = "__propagatedTraitNames"
-	SuperTypeNamesText                         = "__superTypeNames"
-	TraitNames                                 = "__traitNames"
-	UpdateTimeAsDate                           = "__modificationTimestamp.date"
-	UserDescription                            = "userDescription"
-	Active                        LiteralState = "ACTIVE"
-	Deleted                       LiteralState = "DELETED"
-	Purged                        LiteralState = "PURGED"
-	Ascending                     SortOrder    = "asc"
-	Descending                    SortOrder    = "desc"
-)
 
 // Query is an interface that represents the base query behavior.
 type Query interface {
@@ -445,15 +400,6 @@ func (s *SortItem) ToJSON() map[string]interface{} {
 	return map[string]interface{}{s.Field: sortField}
 }
 
-// IndexSearchIterator is an iterator for paginated Atlas search results.
-type IndexSearchIterator struct {
-	request        IndexSearchRequest
-	currentPage    int
-	pageSize       int
-	totalResults   int64
-	hasMoreResults bool
-}
-
 // SearchRequest represents a search request in the Atlas search DSL.
 type SearchRequest struct {
 	Attributes          []string `json:"attributes,omitempty"`
@@ -462,112 +408,10 @@ type SearchRequest struct {
 	RelationsAttributes []string `json:"relationsAttributes,omitempty"`
 }
 
-func NewIndexSearchIterator(pageSize int, initialRequest IndexSearchRequest) *IndexSearchIterator {
-	return &IndexSearchIterator{
-		request:        initialRequest,
-		currentPage:    0,
-		pageSize:       pageSize,
-		totalResults:   0,
-		hasMoreResults: true,
-	}
-}
-
-// NextPage returns the next page of search results.
-func (it *IndexSearchIterator) NextPage() (*IndexSearchResponse, error) {
-	if !it.hasMoreResults {
-		return nil, fmt.Errorf("no more results available")
-	}
-
-	it.request.Dsl.From = it.currentPage * it.pageSize
-	it.request.Dsl.Size = it.pageSize
-
-	response, err := search(it.request)
-	if err != nil {
-		return nil, err
-	}
-
-	it.totalResults = response.ApproximateCount
-	it.hasMoreResults = int64(it.request.Dsl.From+it.pageSize) < it.totalResults
-	it.currentPage++
-
-	return response, nil
-}
-
-// CurrentPage returns the current page number.
-func (it *IndexSearchIterator) CurrentPage() int {
-	return it.currentPage
-}
-
-// IteratePages returns all pages of search results.
-func (it *IndexSearchIterator) IteratePages() ([]*IndexSearchResponse, error) {
-	if !it.hasMoreResults {
-		return nil, fmt.Errorf("no more results available")
-	}
-
-	// Perform an initial search to get the approximateCount
-	it.request.Dsl.From = 0
-	it.request.Dsl.Size = it.pageSize
-	response, err := search(it.request)
-	if err != nil {
-		return nil, err
-	}
-	it.totalResults = response.ApproximateCount
-	it.hasMoreResults = it.totalResults > 0
-	if !it.hasMoreResults {
-		return nil, fmt.Errorf("no more results available")
-	}
-
-	// If approximateCount is 1, return the response immediately
-	if it.totalResults == 1 {
-		return []*IndexSearchResponse{response}, nil
-	}
-
-	// Num of pages to fetch
-	numPageGroups := int((it.totalResults + int64(it.pageSize) - 1) / int64(it.pageSize))
-	var wg sync.WaitGroup
-	responses := make([]*IndexSearchResponse, numPageGroups)
-	errors := make([]error, numPageGroups)
-
-	// Fetch all pages in parallel
-	for i := 0; i < numPageGroups; i++ {
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-			it.request.Dsl.From = i * it.pageSize
-			it.request.Dsl.Size = it.pageSize
-			response, err := search(it.request)
-			if err != nil {
-				errors[i] = err
-				return
-			}
-			responses[i] = response
-		}(i)
-	}
-
-	wg.Wait()
-
-	for _, err := range errors {
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Update the iterator state
-	it.hasMoreResults = int64(it.request.Dsl.From+it.pageSize) < it.totalResults
-	it.currentPage++
-
-	return responses, nil
-}
-
-// HasMoreResults returns whether there are more results available.
-func (it *IndexSearchIterator) HasMoreResults() bool {
-	return it.hasMoreResults
-}
-
 // IndexSearchRequest represents a search request in the Atlas search DSL.
 type IndexSearchRequest struct {
 	SearchRequest
-	Dsl                    dsl      `json:"dsl"`
+	Dsl                    Dsl      `json:"dsl"`
 	RelationAttributes     []string `json:"relationAttributes,omitempty"`
 	SuppressLogs           bool     `json:"suppressLogs"`
 	ShowSearchScore        bool     `json:"showSearchScore"`
@@ -575,11 +419,11 @@ type IndexSearchRequest struct {
 	ExcludeClassifications bool     `json:"excludeClassifications"`
 }
 
-// dsl represents the DSL for the Atlas search request.
-type dsl struct {
+// Dsl represents the DSL for the Atlas search request.
+type Dsl struct {
 	From                int                      `json:"from"`
 	Size                int                      `json:"size"`
-	aggregation         map[string]interface{}   `json:"aggregation,omitempty"`
+	Aggregation         map[string]interface{}   `json:"aggregation,omitempty"`
 	Query               map[string]interface{}   `json:"query"`
 	TrackTotalHits      bool                     `json:"track_total_hits"`
 	PostFilter          *Query                   `json:"post_filter,omitempty"`
@@ -605,7 +449,7 @@ type SearchParameters struct {
 	AllowDeletedRelations bool                   `json:"allowDeletedRelations"`
 	SaveSearchLog         bool                   `json:"saveSearchLog"`
 	RequestMetadata       map[string]interface{} `json:"requestMetadata"`
-	Dsl                   dsl                    `json:"dsl"`
+	Dsl                   Dsl                    `json:"dsl"`
 	Query                 string                 `json:"query"`
 }
 
@@ -626,190 +470,4 @@ type Entity struct {
 	UpdatedBy           string                 `json:"updatedBy"`
 	CreateTime          int64                  `json:"createTime"`
 	UpdateTime          int64                  `json:"updateTime"`
-}
-
-// Call the search API
-func search(request IndexSearchRequest) (*IndexSearchResponse, error) {
-	// Define the API endpoint and method
-	api := &INDEX_SEARCH
-
-	// Call the API
-	responseBytes, err := DefaultAtlanClient.CallAPI(api, nil, &request)
-	if err != nil {
-		return nil, fmt.Errorf("error calling API: %v", err)
-	}
-
-	// Unmarshal the response
-	var response IndexSearchResponse
-	err = json.Unmarshal(responseBytes, &response)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling response: %v", err)
-	}
-
-	return &response, nil
-}
-
-// FindGlossaryByName searches for a glossary by name.
-func FindGlossaryByName(glossaryName string) (*IndexSearchResponse, error) {
-	boolQuery, err := WithActiveGlossary(glossaryName)
-	if err != nil {
-		return nil, err
-	}
-	pageSize := 1
-
-	sortItems := []SortItem{{Field: string(ModifiedBy), Order: Ascending}}
-	sortItemsJSON := make([]map[string]interface{}, len(sortItems))
-	for i, item := range sortItems {
-		sortItemsJSON[i] = item.ToJSON()
-	}
-
-	request := IndexSearchRequest{
-		Dsl: dsl{
-			From:           0,
-			Size:           2,
-			Query:          boolQuery.ToJSON(),
-			TrackTotalHits: true,
-			Sort:           sortItemsJSON,
-		},
-		SuppressLogs:           true,
-		ShowSearchScore:        false,
-		ExcludeMeanings:        false,
-		ExcludeClassifications: false,
-	}
-
-	iterator := NewIndexSearchIterator(pageSize, request)
-
-	for iterator.HasMoreResults() {
-		responses, err := iterator.IteratePages()
-		if err != nil {
-			return nil, fmt.Errorf("error executing search: %v", err)
-		}
-		for _, response := range responses {
-			for _, entity := range response.Entities {
-				if entity.TypeName == "AtlasGlossary" {
-					return response, nil
-				}
-			}
-		}
-	}
-	// Call the search function
-	//response, err := search(request)
-	//if err != nil {
-	//	return nil, fmt.Errorf("error executing search: %v", err)
-	//}
-
-	// return response, nil
-	return nil, nil
-}
-
-// FindCategoryByName searches for a category by name.
-func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*IndexSearchResponse, error) {
-	boolQuery, err := WithActiveCategory(categoryName, glossaryQualifiedName)
-	if err != nil {
-		return nil, err
-	}
-	pageSize := 1
-
-	request := IndexSearchRequest{
-		Dsl: dsl{
-			From:           0,
-			Size:           2,
-			Query:          boolQuery.ToJSON(),
-			TrackTotalHits: true,
-		},
-		SuppressLogs:           true,
-		ShowSearchScore:        false,
-		ExcludeMeanings:        false,
-		ExcludeClassifications: false,
-	}
-
-	iterator := NewIndexSearchIterator(pageSize, request)
-
-	for iterator.HasMoreResults() {
-		response, err := iterator.NextPage()
-		if err != nil {
-			return nil, fmt.Errorf("error executing search: %v", err)
-		}
-		fmt.Println("Current Page: ", iterator.CurrentPage())
-		for _, entity := range response.Entities {
-			if entity.TypeName == "AtlasGlossaryCategory" {
-				return response, err
-			}
-		}
-	}
-	// Call the search function
-	//response, err := search(request)
-	//if err != nil {
-	//	return nil, fmt.Errorf("error executing search: %v", err)
-	//}
-
-	// return response, nil
-	return nil, nil
-}
-
-// Methods
-
-// WithActiveGlossary returns a query for an active glossary by name.
-func WithActiveGlossary(name string) (*BoolQuery, error) {
-	q1, err := WithState("ACTIVE")
-	if err != nil {
-		return nil, err
-	}
-	q2 := WithTypeName("AtlasGlossary")
-	q3 := WithName(name)
-
-	return &BoolQuery{
-		Filter: []Query{q1, q2, q3},
-	}, nil
-}
-
-// WithActiveCategory returns a query for an active category by name.
-func WithActiveCategory(name string, glossaryqualifiedname string) (*BoolQuery, error) {
-	q1, err := WithState("ACTIVE")
-	if err != nil {
-		return nil, err
-	}
-	q2 := WithTypeName("AtlasGlossaryCategory")
-	q3 := WithName(name)
-	q4 := WithGlossary(glossaryqualifiedname)
-	return &BoolQuery{
-		Filter: []Query{q1, q2, q3, q4},
-	}, nil
-}
-
-// Helper Functions
-
-// WithState returns a query for an entity with a specific state.
-func WithState(value string) (*TermQuery, error) {
-	if value != string(Active) && value != string(Deleted) && value != string(Purged) {
-		return nil, errors.New("invalid state")
-	}
-	return &TermQuery{
-		Field: string(State),
-		Value: value,
-	}, nil
-}
-
-// WithTypeName returns a query for an entity with a specific type name.
-func WithTypeName(value string) *TermQuery {
-	return &TermQuery{
-		Field: string(TypeName),
-		Value: value,
-	}
-}
-
-// WithName returns a query for an entity with a specific name.
-func WithName(value string) *TermQuery {
-	return &TermQuery{
-		Field: string(Name),
-		Value: value,
-	}
-}
-
-// WithGlossary returns a query for an entity with a specific glossary.
-func WithGlossary(value string) *TermQuery {
-	return &TermQuery{
-		Field: string(Glossary),
-		Value: value,
-	}
 }

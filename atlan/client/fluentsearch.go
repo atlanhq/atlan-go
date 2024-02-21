@@ -1,16 +1,17 @@
 package client
 
 import (
+	"atlan-go/atlan/model"
 	"fmt"
 )
 
 // FluentSearch is a struct that represents a fluent search query.
 type FluentSearch struct {
-	Wheres              []Query
-	WhereNots           []Query
-	WhereSomes          []Query
+	Wheres              []model.Query
+	WhereNots           []model.Query
+	WhereSomes          []model.Query
 	MinSomes            *int
-	Sorts               []SortItem
+	Sorts               []model.SortItem
 	PageSize            int
 	Aggregations        map[string]interface{}
 	IncludesOnResults   []string
@@ -22,8 +23,8 @@ type Aggregation struct {
 
 // ActiveAssets Returns a query that will only match assets that are active in Atlan.
 func (fs *FluentSearch) ActiveAssets() *FluentSearch {
-	activeAssetsCondition := &TermQuery{
-		Field: string(State),
+	activeAssetsCondition := &model.TermQuery{
+		Field: STATE,
 		Value: "ACTIVE",
 	}
 	fs.Wheres = append(fs.Wheres, activeAssetsCondition)
@@ -32,8 +33,8 @@ func (fs *FluentSearch) ActiveAssets() *FluentSearch {
 
 // ArchivedAssets Returns a query that will only match assets that are archived (soft-deleted) in Atlan.
 func (fs *FluentSearch) ArchivedAssets() *FluentSearch {
-	archivedAssetsCondition := &TermQuery{
-		Field: string(State),
+	archivedAssetsCondition := &model.TermQuery{
+		Field: STATE,
 		Value: "Deleted",
 	}
 	fs.Wheres = append(fs.Wheres, archivedAssetsCondition)
@@ -42,8 +43,8 @@ func (fs *FluentSearch) ArchivedAssets() *FluentSearch {
 
 // AssetType Returns a query that will only match assets of the type provided.
 func (fs *FluentSearch) AssetType(of string) *FluentSearch {
-	assetTypeCondition := &TermQuery{
-		Field: string(TypeName),
+	assetTypeCondition := &model.TermQuery{
+		Field: TYPE_NAME,
 		Value: of,
 	}
 	fs.Wheres = append(fs.Wheres, assetTypeCondition)
@@ -52,8 +53,8 @@ func (fs *FluentSearch) AssetType(of string) *FluentSearch {
 
 // AssetTypes Returns a query that will only match assets that are one of the types provided.
 func (fs *FluentSearch) AssetTypes(oneOf []string) *FluentSearch {
-	assetTypesCondition := &TermQuery{
-		Field: string(TypeName),
+	assetTypesCondition := &model.TermQuery{
+		Field: TYPE_NAME,
 		Value: oneOf,
 	}
 	fs.Wheres = append(fs.Wheres, assetTypesCondition)
@@ -65,22 +66,22 @@ func NewFluentSearch() *FluentSearch {
 }
 
 // Where adds a TermQuery to the Wheres slice.
-func (fs *FluentSearch) Where(queries ...Query) *FluentSearch {
-	boolQuery := &BoolQuery{Filter: queries}
+func (fs *FluentSearch) Where(queries ...model.Query) *FluentSearch {
+	boolQuery := &model.BoolQuery{Filter: queries}
 	fs.Wheres = append(fs.Wheres, boolQuery)
 	return fs
 }
 
 // WhereNot adds a BoolQuery with MustNot clause to the WhereNots slice.
-func (fs *FluentSearch) WhereNot(queries ...Query) *FluentSearch {
-	boolQuery := &BoolQuery{MustNot: queries}
+func (fs *FluentSearch) WhereNot(queries ...model.Query) *FluentSearch {
+	boolQuery := &model.BoolQuery{MustNot: queries}
 	fs.WhereNots = append(fs.WhereNots, boolQuery)
 	return fs
 }
 
 // WhereSome adds a BoolQuery with Should clause to the WhereSomes slice.
-func (fs *FluentSearch) WhereSome(queries ...Query) *FluentSearch {
-	boolQuery := &BoolQuery{Should: queries}
+func (fs *FluentSearch) WhereSome(queries ...model.Query) *FluentSearch {
+	boolQuery := &model.BoolQuery{Should: queries}
 	fs.WhereSomes = append(fs.WhereSomes, boolQuery)
 	return fs
 }
@@ -92,8 +93,8 @@ func (fs *FluentSearch) MinSome(minSomes int) *FluentSearch {
 }
 
 // Sort adds a SortItem to the Sorts slice.
-func (fs *FluentSearch) Sort(field string, order SortOrder) *FluentSearch {
-	fs.Sorts = append(fs.Sorts, SortItem{Field: field, Order: order})
+func (fs *FluentSearch) Sort(field string, order model.SortOrder) *FluentSearch {
+	fs.Sorts = append(fs.Sorts, model.SortItem{Field: field, Order: order})
 	return fs
 }
 
@@ -125,12 +126,12 @@ func (fs *FluentSearch) IncludeOnRelations(fields ...string) *FluentSearch {
 }
 
 // Execute performs the search and returns the results.
-func (fs *FluentSearch) Execute() ([]*IndexSearchResponse, error) {
+func (fs *FluentSearch) Execute() ([]*model.IndexSearchResponse, error) {
 	pageSize := fs.PageSize
 	request := fs.ToRequest()
 
 	iterator := NewIndexSearchIterator(pageSize, *request)
-	responses := make([]*IndexSearchResponse, 0)
+	responses := make([]*model.IndexSearchResponse, 0)
 
 	for iterator.HasMoreResults() {
 		{
@@ -161,37 +162,37 @@ func (fs *FluentSearch) SortByGuidDefault() *FluentSearch {
 
 	// If "guid" is not already in the list, add it as the final sort criteria
 	if !guidAlreadySorted {
-		fs.Sort(string(GUID), Ascending)
+		fs.Sort(string(GUID), ASCENDING)
 	}
 
 	return fs
 }
 
 // ToRequest converts FluentSearch to IndexSearchRequest.
-func (fs *FluentSearch) ToRequest() *IndexSearchRequest {
+func (fs *FluentSearch) ToRequest() *model.IndexSearchRequest {
 	// Create a new IndexSearchRequest and set its properties based on FluentSearch
-	request := &IndexSearchRequest{
-		SearchRequest: SearchRequest{
+	request := &model.IndexSearchRequest{
+		SearchRequest: model.SearchRequest{
 			Attributes:          fs.IncludesOnResults,
 			RelationsAttributes: fs.IncludesOnRelations,
 		},
-		Dsl: dsl{
+		Dsl: model.Dsl{
 			From:           0,
 			Size:           fs.PageSize,
-			aggregation:    fs.Aggregations,
+			Aggregation:    fs.Aggregations,
 			TrackTotalHits: true,
 		},
 	}
 
 	// Add Wheres to Query
 	if len(fs.Wheres) > 0 {
-		boolQuery := &BoolQuery{Filter: fs.Wheres}
+		boolQuery := &model.BoolQuery{Filter: fs.Wheres}
 		request.Dsl.Query = boolQuery.ToJSON()
 	}
 
 	// Add WhereNots to Query
 	if len(fs.WhereNots) > 0 {
-		boolQuery := &BoolQuery{MustNot: fs.WhereNots}
+		boolQuery := &model.BoolQuery{MustNot: fs.WhereNots}
 		if request.Dsl.Query == nil {
 			request.Dsl.Query = boolQuery.ToJSON()
 		} else {
@@ -207,7 +208,7 @@ func (fs *FluentSearch) ToRequest() *IndexSearchRequest {
 
 	// Add WhereSomes to Query
 	if len(fs.WhereSomes) > 0 {
-		boolQuery := &BoolQuery{Should: fs.WhereSomes, MinimumShouldMatch: fs.MinSomes}
+		boolQuery := &model.BoolQuery{Should: fs.WhereSomes, MinimumShouldMatch: fs.MinSomes}
 		if request.Dsl.Query == nil {
 			request.Dsl.Query = boolQuery.ToJSON()
 		} else {
