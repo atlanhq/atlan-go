@@ -1,45 +1,46 @@
 package model
 
 import (
+	"atlan-go/atlan/model/assets"
 	"reflect"
 )
 
-// Add Mutated Assets for Response in Creation, Updation and Deletion
-// Unmarshal on Assets changed the unmarshalling for the whole sdk asset structure
+// Add Mutated assets for Response in Creation, Updation and Deletion
+// Unmarshal on assets changed the unmarshalling for the whole sdk asset structure
 type MutatedAssets struct {
-	TypeName            string     `json:"typeName"`
-	Attributes          Attributes `json:"attributes"`
-	Guid                string     `json:"guid"`
-	Status              string     `json:"status"`
-	DisplayText         string     `json:"displayText"`
-	ClassificationNames []string   `json:"classificationNames"`
-	MeaningNames        []string   `json:"meaningNames"`
-	Meanings            []string   `json:"meanings"`
-	IsIncomplete        bool       `json:"isIncomplete"`
-	Labels              []string   `json:"labels"`
-	CreatedBy           string     `json:"createdBy"`
-	UpdatedBy           string     `json:"updatedBy"`
-	CreateTime          int64      `json:"createTime"`
-	UpdateTime          int64      `json:"updateTime"`
+	TypeName            string            `json:"typeName"`
+	Attributes          assets.Attributes `json:"attributes"`
+	Guid                string            `json:"guid"`
+	Status              string            `json:"status"`
+	DisplayText         string            `json:"displayText"`
+	ClassificationNames []string          `json:"classificationNames"`
+	MeaningNames        []string          `json:"meaningNames"`
+	Meanings            []string          `json:"meanings"`
+	IsIncomplete        bool              `json:"isIncomplete"`
+	Labels              []string          `json:"labels"`
+	CreatedBy           string            `json:"createdBy"`
+	UpdatedBy           string            `json:"updatedBy"`
+	CreateTime          int64             `json:"createTime"`
+	UpdateTime          int64             `json:"updateTime"`
 }
 
-// Unmarshalling for Assets from JSON
+// Unmarshalling for assets from JSON
 // Used in RetrieveMinimal Function
 
 type MutatedEntities struct {
-	//Assets that were assets_updated. The detailed properties of the returned asset will vary based on
+	//assets that were assets_updated. The detailed properties of the returned asset will vary based on
 	//the type of asset, but listed in the example are the common set of properties across assets.
 	UPDATE []*MutatedAssets `json:"UPDATE"`
 
-	// Assets that were created. The detailed properties of the returned asset will vary based on the
+	// assets that were created. The detailed properties of the returned asset will vary based on the
 	// type of asset, but listed in the example are the common set of properties across assets.
 	CREATE []*MutatedAssets `json:"CREATE"`
 
-	// Assets that were deleted. The detailed properties of the returned asset will vary based on the
+	// assets that were deleted. The detailed properties of the returned asset will vary based on the
 	// type of asset, but listed in the example are the common set of properties across assets.
 	DELETE []*MutatedAssets `json:"DELETE"`
 
-	// Assets that were partially updated. The detailed properties of the returned asset will
+	// assets that were partially updated. The detailed properties of the returned asset will
 	// vary based on the type of asset, but listed in the example are the common set of properties across assets.
 	PARTIAL_UPDATE []*MutatedAssets `json:"PARTIAL_UPDATE"`
 }
@@ -48,10 +49,10 @@ type AssetMutationResponse struct {
 	// Map of assigned unique identifiers for the changed assets.
 	GuidAssignments map[string]string `json:"guidAssignments,omitempty"`
 
-	// Assets that were changed.
+	// assets that were changed.
 	MutatedEntities *MutatedEntities `json:"mutatedEntities"`
 
-	// Assets that were partially updated.
+	// assets that were partially updated.
 	PartialUpdatedEntities []*MutatedAssets `json:"partialUpdatedEntities,omitempty"`
 }
 

@@ -15,7 +15,7 @@ import (
 type AtlanClient struct {
 	session        *http.Client
 	host           string
-	apiKey         string
+	ApiKey         string
 	loggingEnabled bool
 	requestParams  map[string]interface{}
 	logger         *log.Logger
@@ -61,7 +61,7 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 	return &AtlanClient{
 		session: client,
 		host:    baseURL,
-		apiKey:  apiKey,
+		ApiKey:  apiKey,
 		requestParams: map[string]interface{}{
 			"headers": map[string]string{
 				"Authorization": "Bearer " + apiKey,

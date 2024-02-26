@@ -1,8 +1,108 @@
-package model
+package assets
 
 import (
 	"encoding/json"
+	"fmt"
 )
+
+type AtlasGlossary struct {
+	Asset
+	ShortDescription     string                  `json:"shortDescription"`
+	LongDescription      string                  `json:"longDescription"`
+	Language             string                  `json:"language"`
+	Usage                string                  `json:"usage"`
+	AdditionalAttributes struct{}                `json:"additionalAttributes"`
+	Terms                []AtlasGlossaryTerm     `json:"terms"`
+	Categories           []AtlasGlossaryCategory `json:"categories"`
+}
+
+type AtlasGlossaryAttributes struct {
+	Asset
+	ShortDescription     string                  `json:"shortDescription"`
+	LongDescription      string                  `json:"longDescription"`
+	Language             string                  `json:"language"`
+	Usage                string                  `json:"usage"`
+	AdditionalAttributes struct{}                `json:"additionalAttributes"`
+	Terms                []AtlasGlossaryTerm     `json:"terms"`
+	Categories           []AtlasGlossaryCategory `json:"categories"`
+}
+
+func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
+	// Define a temporary structure with the expected JSON structure.
+	var temp struct {
+		ReferredEntities map[string]interface{} `json:"referredEntities"`
+		Entity           struct {
+			TypeName               string          `json:"typeName"`
+			AttributesJSON         json.RawMessage `json:"attributes"`
+			Guid                   string          `json:"guid"`
+			IsIncomplete           bool            `json:"isIncomplete"`
+			Status                 AtlanStatus     `json:"status"`
+			CreatedBy              string          `json:"createdBy"`
+			UpdatedBy              string          `json:"updatedBy"`
+			CreateTime             int64           `json:"createTime"`
+			UpdateTime             int64           `json:"updateTime"`
+			Version                int             `json:"version"`
+			RelationshipAttributes struct {
+				SchemaRegistrySubjects []SchemaRegistrySubject `json:"schemaRegistrySubjects"`
+				McMonitors             []MCMonitor             `json:"mcMonitors"`
+				Terms                  []AtlasGlossaryTerm     `json:"terms"`
+				OutputPortDataProducts []string                `json:"outputPortDataProducts"`
+				Files                  []File                  `json:"files"`
+				McIncidents            []MCIncident            `json:"mcIncidents"`
+				Links                  []Link                  `json:"links"`
+				Categories             []AtlasGlossaryCategory `json:"categories"`
+				Metrics                []Metric                `json:"metrics"`
+				Readme                 []Readme                `json:"readme"`
+				Meanings               []Meaning               `json:"meanings"`
+				SodaChecks             []SodaCheck             `json:"sodaChecks"`
+			} `json:"relationshipAttributes"`
+			Labels []interface{} `json:"labels"`
+		} `json:"entity"`
+	}
+
+	// Unmarshal the JSON into the temporary structure
+	if err := json.Unmarshal(data, &temp); err != nil {
+		return err
+	}
+
+	// Map the fields from the temporary structure to your AtlasGlossary struct
+	ag.TypeName = temp.Entity.TypeName
+	ag.Guid = temp.Entity.Guid
+	ag.IsIncomplete = temp.Entity.IsIncomplete
+	ag.Status = temp.Entity.Status
+	ag.CreatedBy = temp.Entity.CreatedBy
+	ag.UpdatedBy = temp.Entity.UpdatedBy
+	ag.CreateTime = temp.Entity.CreateTime
+	ag.UpdateTime = temp.Entity.UpdateTime
+
+	//	ag.Asset = temp.Entity.Attributes
+
+	var asset AtlasGlossaryAttributes
+	fmt.Println("Json Attributes: ", string(temp.Entity.AttributesJSON))
+	if err := json.Unmarshal(temp.Entity.AttributesJSON, &asset); err != nil {
+		return err
+	}
+
+	fmt.Println("Asset Unmarshalled: ", asset)
+	// Map Asset fields
+	ag.Name = asset.Name
+	ag.AssetIcon = asset.AssetIcon
+
+	return nil
+}
+
+func (ag *AtlasGlossary) ToJSON() ([]byte, error) {
+	return json.MarshalIndent(ag, "", "  ")
+}
+
+func FromJSON(data []byte) (*AtlasGlossary, error) {
+	var glossaryResponse AtlasGlossary
+	//fmt.Println("data")
+	//fmt.Println(string(data))
+	err := json.Unmarshal(data, &glossaryResponse)
+
+	return &glossaryResponse, err
+}
 
 // Glossary represents a glossary in Atlan.
 type Glossary struct {
@@ -181,16 +281,7 @@ type GlossaryTerm struct {
 	Labels []interface{} `json:"labels"`
 }
 
-// AtlanTag represents a tag in Atlan.
-type AtlanTag struct {
-	TypeName                          string `json:"typeName"`
-	EntityGuid                        string `json:"entityGuid"`
-	EntityStatus                      string `json:"entityStatus"`
-	Propagate                         bool   `json:"propagate"`
-	RemovePropagationsOnEntityDelete  bool   `json:"removePropagationsOnEntityDelete"`
-	RestrictPropagationThroughLineage bool   `json:"restrictPropagationThroughLineage"`
-}
-
+/*
 // UnmarshalJSON unmarshals the JSON data into a Glossary object.
 func (g *Glossary) UnmarshalJSON(data []byte) error {
 	var temp struct {
@@ -253,17 +344,7 @@ func (g *Glossary) UnmarshalJSON(data []byte) error {
 
 	return nil
 }
-
-func (g *Glossary) ToJSON() ([]byte, error) {
-	return json.MarshalIndent(g, "", "  ")
-}
-
-func FromJSON(data []byte) (*Glossary, error) {
-	var glossaryResponse Glossary
-	err := json.Unmarshal(data, &glossaryResponse)
-
-	return &glossaryResponse, err
-}
+*/
 
 // UnmarshalJSON unmarshals the JSON data into a GlossaryTerm object.
 func (gt *GlossaryTerm) UnmarshalJSON(data []byte) error {

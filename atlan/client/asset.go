@@ -2,6 +2,7 @@ package client
 
 import (
 	"atlan-go/atlan/model"
+	Assets2 "atlan-go/atlan/model/assets"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -62,7 +63,7 @@ type AssetFields struct {
 type AtlasGlossary struct {
 	AssetFields
 	AtlanObject
-	Entities []model.Glossary `json:"entities"`
+	Entities []Assets2.Glossary `json:"entities"`
 }
 
 type AtlasTable struct {
@@ -102,10 +103,10 @@ func NewSearchGlossary() *AtlasGlossary {
 	}
 }
 
-// Methods on Assets
+// Methods on assets
 
 // RetrieveMinimal retrieves an asset by its GUID, without any of its relationships.
-func RetrieveMinimal(guid string) (*model.Asset, error) {
+func RetrieveMinimal(guid string) (*Assets2.Asset, error) {
 	if DefaultAtlanClient == nil {
 		return nil, fmt.Errorf("default AtlanClient not initialized")
 	}
@@ -126,7 +127,7 @@ func RetrieveMinimal(guid string) (*model.Asset, error) {
 	}
 
 	// Unmarshal the response into asset json structure
-	var assetresponse model.Asset
+	var assetresponse Assets2.Asset
 	err = json.Unmarshal(response, &assetresponse)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling asset response: %v", err)

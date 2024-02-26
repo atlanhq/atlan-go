@@ -3,12 +3,19 @@ package main
 
 import (
 	"atlan-go/atlan/client"
-	"fmt"
 )
 
 func main() {
 
 	client.LoggingEnabled = true
+
+	client.Init()
+
+	response, err := client.GetGlossaryByGuid("f273e814-f80e-4699-83f3-9462a153fb14")
+	if err != nil {
+		println("Error:", err)
+	}
+	print("Response:", response.AssetIcon)
 
 	//response, err := client.FindGlossaryByName("Manhattan Project")
 	//response, err := client.FindCategoryByName("Oak Ridge", "DDwycTZ007zZYxRajRVDK")
@@ -23,26 +30,29 @@ func main() {
 	//	Value: "Concepts",
 	//}
 
-	//ctx := client.NewContext()
-	client.Init()
+	// ctx := client.NewContext()
+	/*
+		client.Init()
 
-	g := &client.AtlasGlossary{} // create a new Glossary instance
+		g := &client.AtlasGlossary{} // create a new Glossary instance
 
-	g.Create("TestGlossary7", "") // initialize the Glossary
-	response, err := client.Save(g)
-	fmt.Println("Resp1:", response)
-	if err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		for _, entity := range response.MutatedEntities.CREATE {
-			fmt.Println("Response:", entity)
-			fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
+		g.Creator("TestGlossary7", "") // initialize the Glossary
+		response, err := client.Save(g)
+		fmt.Println("Resp1:", response)
+		if err != nil {
+			fmt.Println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.CREATE {
+				fmt.Println("Response:", entity)
+				fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
+			}
 		}
-	}
+
+	*/
 
 	// Modify an existing Glossary
 	/*
-		g.CreateForModification("TestGlossary7", "CBtveYe0Avp5iwU8q3M7Y", "e63cf857-c788-4197-a60e-397b24e749ee")
+		g.Updater("TestGlossary7", "CBtveYe0Avp5iwU8q3M7Y", "e63cf857-c788-4197-a60e-397b24e749ee")
 		g.Entities[0].Attributes.DisplayName = "Testing"
 		response, err := g.Save()
 		if err != nil {
@@ -69,7 +79,7 @@ func main() {
 			// Add other fields you want to print
 		}
 	*/
-	//query := ctx.Glossary.TypeName.Eq("AtlasGlossary", nil)
+	// query := ctx.Glossary.TYPENAME.Eq("AtlasGlossary", nil)
 
 	/*
 		searchResult, err := client.NewFluentSearch().
