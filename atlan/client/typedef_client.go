@@ -67,7 +67,7 @@ func RefreshCaches(typedef model.TypeDef) error {
 	case *model.AtlanTagDef:
 		atlanTagCache := NewAtlanTagCache(DefaultAtlanClient)
 		return atlanTagCache.RefreshCache()
-	case model.CustomMetadataDef:
+	case *model.CustomMetadataDef:
 		//return CustomMetadataCache.RefreshCache()
 	case model.EnumDef:
 		//return EnumCache.RefreshCache()
