@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"hash/fnv"
 	"strings"
 	"time"
 )
@@ -271,4 +272,10 @@ func Save(asset AtlanObject) (*model.AssetMutationResponse, error) {
 	}
 
 	return &response, nil
+}
+
+func generateCacheKey(baseURL, apiKey string) string {
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(fmt.Sprintf("%s/%s", baseURL, apiKey)))
+	return fmt.Sprintf("%d", h.Sum32())
 }

@@ -8,6 +8,11 @@ import (
 	"sync"
 )
 
+/*
+   Lazily-loaded cache for translating between Atlan-internal ID strings and human-readable names
+   for custom metadata (including attributes).
+*/
+
 type CustomMetadataCache struct {
 	AtlanClient     *AtlanClient
 	CacheByID       map[string]model.CustomMetadataDef
@@ -45,7 +50,7 @@ func RefreshCustomMetadataCache() {
 // GetCustomMetadataCache returns the CustomMetadataCache for the default AtlanClient.
 func GetCustomMetadataCache() *CustomMetadataCache {
 	client := DefaultAtlanClient
-	cacheKey := client.ApiKey
+	cacheKey := generateCacheKey(client.host, client.ApiKey)
 
 	mu.Lock()
 	defer mu.Unlock()
