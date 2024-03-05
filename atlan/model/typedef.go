@@ -29,6 +29,10 @@ func (a *AtlanTagDef) GetCategory() AtlanTypeCategory {
 	return a.Category
 }
 
+func (a *CustomMetadataDef) GetCategory() AtlanTypeCategory {
+	return a.Category
+}
+
 type TypeDefBase struct {
 	Category    AtlanTypeCategory `json:"category"`
 	CreateTime  int64             `json:"createTime,omitempty"`
@@ -79,6 +83,65 @@ type AttributesDefsTags struct {
 	isDefaultValueNull    bool   `json:"isDefaultValueNull"`
 }
 
+// AttributeOptions represents options for customizing an attribute.
+type AttributeOptions struct {
+	CustomMetadataVersion       string  `json:"customMetadataVersion,omitempty"`
+	Description                 *string `json:"description,omitempty"`
+	ApplicableEntityTypes       *string `json:"applicableEntityTypes,omitempty"`
+	CustomApplicableEntityTypes *string `json:"customApplicableEntityTypes,omitempty"`
+	AllowSearch                 *string `json:"allowSearch,omitempty"`
+	MaxStrLength                *string `json:"maxStrLength,omitempty"`
+	AllowFiltering              *string `json:"allowFiltering,omitempty"`
+	MultiValueSelect            *string `json:"multiValueSelect,omitempty"`
+	ShowInOverview              *string `json:"showInOverview,omitempty"`
+	IsDeprecated                *string `json:"isDeprecated,omitempty"`
+	IsEnum                      *string `json:"isEnum,omitempty"`
+	EnumType                    *string `json:"enumType,omitempty"`
+	CustomType                  *string `json:"customType,omitempty"`
+	HasTimePrecision            *string `json:"hasTimePrecision,omitempty"`
+	IsArchived                  *bool   `json:"isArchived,omitempty"`
+	ArchivedAt                  *int64  `json:"archivedAt,omitempty"` // Using int64 for timestamp
+	ArchivedBy                  *string `json:"archivedBy,omitempty"`
+	IsSoftReference             *string `json:"isSoftReference,omitempty"`
+	IsAppendOnPartialUpdate     *string `json:"isAppendOnPartialUpdate,omitempty"`
+	PrimitiveType               *string `json:"primitiveType,omitempty"`
+	ApplicableConnections       *string `json:"applicableConnections,omitempty"`
+	ApplicableGlossaries        *string `json:"applicableGlossaries,omitempty"`
+	ApplicableAssetTypes        *string `json:"assetTypesList,omitempty"`
+	ApplicableGlossaryTypes     *string `json:"glossaryTypeList,omitempty"`
+	ApplicableOtherAssetTypes   *string `json:"otherAssetTypeList,omitempty"`
+}
+
+type IndexType string
+
+type Cardinality string
+
+// AttributeDef represents the definition of an attribute.
+type AttributeDef struct {
+	IsNew                 *bool                         `json:"isNew,omitempty"`
+	Cardinality           *Cardinality                  `json:"cardinality,omitempty"`
+	Constraints           *[]map[string]interface{}     `json:"constraints,omitempty"`
+	EnumValues            *[]string                     `json:"enumValues,omitempty"`
+	Description           *string                       `json:"description,omitempty"`
+	DefaultValue          *string                       `json:"defaultValue,omitempty"`
+	DisplayName           *string                       `json:"displayName,omitempty"`
+	Name                  *string                       `json:"name,omitempty"`
+	IncludeInNotification *bool                         `json:"includeInNotification,omitempty"`
+	IndexType             *IndexType                    `json:"indexType,omitempty"`
+	IsIndexable           *bool                         `json:"isIndexable,omitempty"`
+	IsOptional            *bool                         `json:"isOptional,omitempty"`
+	IsUnique              *bool                         `json:"isUnique,omitempty"`
+	Options               *AttributeOptions             `json:"options,omitempty"`
+	SearchWeight          *float64                      `json:"searchWeight,omitempty"`
+	SkipScrubbing         *bool                         `json:"skipScrubbing,omitempty"`
+	TypeName              *string                       `json:"typeName,omitempty"`
+	ValuesMinCount        *float64                      `json:"valuesMinCount,omitempty"`
+	ValuesMaxCount        *float64                      `json:"valuesMaxCount,omitempty"`
+	IndexTypeESConfig     *map[string]string            `json:"indexTypeESConfig,omitempty"`
+	IndexTypeESFields     *map[string]map[string]string `json:"indexTypeESFields,omitempty"`
+	IsDefaultValueNull    *bool                         `json:"isDefaultValueNull,omitempty"`
+}
+
 type EnumDef struct {
 	TypeDef
 }
@@ -95,6 +158,25 @@ type RelationshipDef struct {
 	TypeDef
 }
 
+type AtlanIcon string
+
+// CustomMetadataDefOptions represents options for customizing metadata definitions.
+type CustomMetadataDefOptions struct {
+	Emoji     string        `json:"emoji,omitempty"`
+	ImageID   string        `json:"imageId,omitempty"`
+	IsLocked  bool          `json:"isLocked,omitempty"`
+	LogoType  string        `json:"logoType,omitempty"`
+	LogoURL   string        `json:"logoUrl,omitempty"`
+	IconColor AtlanTagColor `json:"iconColor,omitempty"`
+	IconName  AtlanIcon     `json:"iconName,omitempty"`
+}
+
+// CustomMetadataDef represents the definition of custom metadata.
 type CustomMetadataDef struct {
+	TypeDefBase
 	TypeDef
+	AttributeDefs []AttributeDef           `json:"attributeDefs"`
+	Category      AtlanTypeCategory        `json:"category"`
+	DisplayName   string                   `json:"displayName"`
+	Options       CustomMetadataDefOptions `json:"options,omitempty"`
 }

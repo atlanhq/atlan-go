@@ -3,6 +3,7 @@ package client
 import (
 	"atlan-go/atlan/model"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -21,7 +22,7 @@ type CustomMetadataCache struct {
 	MapNameToID     map[string]string
 	MapAttrIDToName map[string]map[string]string
 	MapAttrNameToID map[string]map[string]string
-	archivedAttrIds map[string]struct{}
+	archivedAttrIds map[string]string
 	mutex           sync.RWMutex
 }
 
@@ -35,7 +36,7 @@ func NewCustomMetadataCache(atlanClient *AtlanClient) *CustomMetadataCache {
 		MapNameToID:     make(map[string]string),
 		MapAttrIDToName: make(map[string]map[string]string),
 		MapAttrNameToID: make(map[string]map[string]string),
-		archivedAttrIds: make(map[string]struct{}),
+		archivedAttrIds: make(map[string]string),
 	}
 }
 
@@ -64,13 +65,17 @@ func GetCustomMetadataCache() *CustomMetadataCache {
 			MapNameToID:     make(map[string]string),
 			MapAttrIDToName: make(map[string]map[string]string),
 			MapAttrNameToID: make(map[string]map[string]string),
-			archivedAttrIds: make(map[string]struct{}),
+			archivedAttrIds: make(map[string]string),
 		}
 	}
 	return customMetadataCaches[cacheKey]
 }
 
-// RefreshCache refreshes the cache of custom metadata structures.
+/*
+RefreshCache refreshes the cache of custom metadata structures by requesting the full set of custom metadata structures from Atlan.
+
+:raises LogicError: if duplicate custom attributes are detected
+*/
 func (c *CustomMetadataCache) RefreshCache() error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
@@ -83,10 +88,15 @@ func (c *CustomMetadataCache) RefreshCache() error {
 	}
 
 	// Parse the response and populate the cacheByID, mapIDToName, mapNameToID accordingly
-	var customMetadataDefs []model.CustomMetadataDef
+	var customMetadataDefs model.TypeDefResponse
 	err = json.Unmarshal(response, &customMetadataDefs)
 	if err != nil {
+		fmt.Println(&response)
 		return err
+	}
+
+	if response == nil || len(customMetadataDefs.CustomMetadataDefs) == 0 {
+		return errors.New("expired API token or no custom metadata definitions found")
 	}
 
 	// Clear existing cache data
@@ -95,10 +105,10 @@ func (c *CustomMetadataCache) RefreshCache() error {
 	c.MapNameToID = make(map[string]string)
 	c.MapAttrIDToName = make(map[string]map[string]string)
 	c.MapAttrNameToID = make(map[string]map[string]string)
-	c.archivedAttrIds = make(map[string]struct{})
+	c.archivedAttrIds = make(map[string]string)
 
 	// Populate the cache with the fetched custom metadata structures and their attributes
-	for _, cmDef := range customMetadataDefs {
+	for _, cmDef := range customMetadataDefs.CustomMetadataDefs {
 		typeID := cmDef.Name
 		typeName := cmDef.DisplayName
 
@@ -111,25 +121,41 @@ func (c *CustomMetadataCache) RefreshCache() error {
 		for _, attr := range cmDef.AttributeDefs {
 			attrID := *attr.Name
 			attrName := *attr.DisplayName
+			_, existsInIDToName := c.MapAttrIDToName[typeID][attrID]
+			_, existsInNameToID := c.MapAttrNameToID[typeID][attrName]
 
-			if _, exists := c.MapAttrNameToID[typeID][attrName]; exists {
-				return err
+			// Check for duplicate attributes.
+			if existsInIDToName || existsInNameToID {
+				return fmt.Errorf("duplicate custom attributes detected: %s in %s", attrName, typeName)
+			}
+
+			if *attr.Options.IsArchived {
+				c.archivedAttrIds[attrID] = attrName
+				continue // Skip adding archived attributes to the active caches.
 			}
 
 			c.MapAttrIDToName[typeID][attrID] = attrName
 			c.MapAttrNameToID[typeID][attrName] = attrID
-
-			if *attr.Options.IsArchived {
-				c.archivedAttrIds[attrID] = struct{}{}
-			}
+			c.AttrCacheByID[attrID] = attr
 		}
 	}
 	return nil
 }
 
+/*
+GetIDForName Translate the provided human-readable custom metadata set name to its Atlan-internal ID string.
+
+:param name: human-readable name of the custom metadata set
+
+:returns: Atlan-internal ID string of the custom metadata set
+
+:raises InvalidRequestError: if no name was provided
+
+:raises NotFoundError: if the custom metadata cannot be found
+*/
 func (c *CustomMetadataCache) GetIDForName(name string) (string, error) {
-	if name = strings.TrimSpace(name); name == "" {
-		//return "", ErrMissingCMName
+	if name == "" || strings.TrimSpace(name) == "" {
+		return "", ErrMissingCMID
 	}
 
 	c.mutex.RLock()
@@ -138,7 +164,8 @@ func (c *CustomMetadataCache) GetIDForName(name string) (string, error) {
 
 	if !exists {
 		if err := c.RefreshCache(); err != nil {
-			return "", err
+			fmt.Println(err)
+			return "Error", err
 		}
 
 		c.mutex.RLock()
@@ -153,6 +180,17 @@ func (c *CustomMetadataCache) GetIDForName(name string) (string, error) {
 	return cmID, nil
 }
 
+/*
+GetNameForID Translate the provided Atlan-internal custom metadata ID string to the human-readable custom metadata set name.
+
+:param idstr: Atlan-internal ID string of the custom metadata set
+
+:returns: human-readable name of the custom metadata set
+
+:raises InvalidRequestError: if no ID was provided
+
+:raises NotFoundError: if the custom metadata cannot be found
+*/
 func (c *CustomMetadataCache) GetNameForID(idstr string) (string, error) {
 	if idstr = strings.TrimSpace(idstr); idstr == "" {
 		return "", ErrMissingCMID
@@ -179,6 +217,19 @@ func (c *CustomMetadataCache) GetNameForID(idstr string) (string, error) {
 	return cmName, nil
 }
 
+/*
+GetAllCustomAttributes Retrieve all the custom metadata attributes. The dict will be keyed by custom metadata set
+name, and the value will be a listing of all the attributes within that set (with all the details
+of each of those attributes).
+
+:param includeDeleted: if True, include the archived (deleted) custom attributes; otherwise only include active custom attributes
+
+:param forceRefresh: if True, will refresh the custom metadata cache; if False, will only refresh the cache if it is empty
+
+:returns: a dict from custom metadata set name to all details about its attributes
+
+:raises NotFoundError: if the custom metadata cannot be found
+*/
 func (c *CustomMetadataCache) GetAllCustomAttributes(includeDeleted, forceRefresh bool) (map[string][]model.AttributeDef, error) {
 	if len(c.CacheByID) == 0 || forceRefresh {
 		c.RefreshCache()
@@ -205,6 +256,18 @@ func (c *CustomMetadataCache) GetAllCustomAttributes(includeDeleted, forceRefres
 	return m, nil
 }
 
+/*
+GetAttrIDForName Translate the provided human-readable custom metadata set and attribute names to the Atlan-internal ID string
+for the attribute.
+
+:param setName: human-readable name of the custom metadata set
+
+:param attrName: human-readable name of the attribute
+
+:returns: Atlan-internal ID string for the attribute
+
+:raises NotFoundError: if the custom metadata attribute cannot be found
+*/
 func (c *CustomMetadataCache) GetAttrIDForName(setName, attrName string) (string, error) {
 	setID, err := c.GetIDForName(setName)
 	if err != nil {
@@ -212,6 +275,7 @@ func (c *CustomMetadataCache) GetAttrIDForName(setName, attrName string) (string
 	}
 	if subMap, ok := c.MapAttrNameToID[setID]; ok {
 		if attrID, ok := subMap[attrName]; ok {
+			// If found, return straight away
 			return attrID, nil
 		}
 	}
@@ -219,6 +283,7 @@ func (c *CustomMetadataCache) GetAttrIDForName(setName, attrName string) (string
 	c.RefreshCache()
 	if subMap, ok := c.MapAttrNameToID[setID]; ok {
 		if attrID, ok := subMap[attrName]; ok {
+			// If found, return straight away
 			return attrID, nil
 		}
 		return "", fmt.Errorf("attribute %s not found in set %s", attrName, setName)
@@ -226,6 +291,15 @@ func (c *CustomMetadataCache) GetAttrIDForName(setName, attrName string) (string
 	return "", fmt.Errorf("set %s not found", setName)
 }
 
+/*
+GetAttrNameForID Given the Atlan-internal ID string for the set and the Atlan-internal ID for the attribute return the
+human-readable custom metadata name for the attribute.
+
+:param setId: Atlan-internal ID string for the custom metadata set
+:param attrId: Atlan-internal ID string for the attribute
+:returns: human-readable name of the attribute
+:raises NotFoundError: if the custom metadata attribute cannot be found
+*/
 func (c *CustomMetadataCache) GetAttrNameForID(setID, attrID string) (string, error) {
 	if subMap, ok := c.MapAttrIDToName[setID]; ok {
 		if attrName, ok := subMap[attrID]; ok {
@@ -254,6 +328,15 @@ func (c *CustomMetadataCache) GetAttributesForSearchResults(setID string) []stri
 	return nil
 }
 
+/*
+GetAttributeForSearchResults Retrieve a single custom attribute name to include on search results.
+
+:param set_name: human-readable name of the custom metadata set for which to retrieve the custom metadata attribute name
+
+:param attr_name: human-readable name of the attribute
+
+:returns: the attribute name, strictly useful for inclusion in search results
+*/
 func (c *CustomMetadataCache) GetAttributeForSearchResults(setID, attrName string) string {
 	if subMap, ok := c.MapAttrNameToID[setID]; ok {
 		if attrID, ok := subMap[attrName]; ok {
@@ -263,16 +346,34 @@ func (c *CustomMetadataCache) GetAttributeForSearchResults(setID, attrName strin
 	return ""
 }
 
+/*
+GetAttributesForSearchResultsByName Retrieve the full set of custom attributes to include on search results.
+
+:param set_name: human-readable name of the custom metadata set for which to retrieve attribute names
+
+:returns: a list of the attribute names, strictly useful for inclusion in search results
+*/
 func (c *CustomMetadataCache) GetAttributesForSearchResultsByName(setName string) []string {
-	setID, _ := c.GetIDForName(setName) // Assuming this method is defined
+	setID, _ := c.GetIDForName(setName)
 	if setID == "" {
 		return nil
 	}
 	return c.GetAttributesForSearchResults(setID)
 }
 
+/*
+GetCustomMetadataDef Retrieve the full custom metadata structure definition.
+
+:param name: human-readable name of the custom metadata set
+
+:returns: the full custom metadata structure definition for that set
+
+:raises InvalidRequestError: if no name was provided
+
+:raises NotFoundError: if the custom metadata cannot be found
+*/
 func (c *CustomMetadataCache) GetCustomMetadataDef(name string) (model.CustomMetadataDef, error) {
-	baID, _ := c.GetIDForName(name) // Assuming this method is defined
+	baID, _ := c.GetIDForName(name)
 	if baID == "" {
 		//return CustomMetadataDef{}, ErrorCode.CM_NOT_FOUND_BY_NAME
 		return model.CustomMetadataDef{}, fmt.Errorf("missing custom metadata attribute id")
@@ -286,13 +387,23 @@ func (c *CustomMetadataCache) GetCustomMetadataDef(name string) (model.CustomMet
 
 }
 
+/*
+GetAttributeDef Retrieve a specific custom metadata attribute definition by its unique Atlan-internal ID string.
+
+:param attr_id: Atlan-internal ID string for the custom metadata attribute
+
+:returns: attribute definition for the custom metadata attribute
+
+:raises InvalidRequestError: if no attribute ID was provided
+
+:raises NotFoundError: if the custom metadata attribute cannot be found
+*/
 func (c *CustomMetadataCache) GetAttributeDef(attrID string) (model.AttributeDef, error) {
 	if attrID == "" {
 		//return AttributeDef{}, ErrorCode.MISSING_CM_ATTR_ID
 		return model.AttributeDef{}, fmt.Errorf("missing custom metadata attribute id")
 	}
 	if c.AttrCacheByID == nil {
-		// Assuming _refresh_cache() is defined
 		c.RefreshCache()
 	}
 	if attrDef, ok := c.AttrCacheByID[attrID]; ok {
