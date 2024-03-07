@@ -1,4 +1,4 @@
-package client
+package model
 
 // Interface for all AtlanField queries
 type AtlanField interface {

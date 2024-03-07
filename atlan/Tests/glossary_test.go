@@ -1,12 +1,13 @@
 // glossary_test.go
-package model
+package Tests
 
 import (
+	"atlan-go/atlan/model"
 	"testing"
 )
 
 func TestGlossaryJSONConversion(t *testing.T) {
-	glossaryInstance := Glossary{
+	glossaryInstance := model.Glossary{
 		Entity: struct {
 			TypeName   string `json:"typeName"`
 			Attributes struct {
@@ -53,7 +54,7 @@ func TestGlossaryJSONConversion(t *testing.T) {
 	}
 
 	// Convert JSON back to a new Glossary instance
-	newGlossary, err := FromJSON(jsonData)
+	newGlossary, err := model.FromJSON(jsonData)
 	if err != nil {
 		t.Fatalf("Error converting from JSON: %v", err)
 	}

@@ -39,14 +39,14 @@ var (
 // GetCache returns the AtlanTagCache for the default AtlanClient.
 func GetCache() *AtlanTagCache {
 	client := DefaultAtlanClient
-	cacheKey := client.apiKey
+	cacheKey := client.ApiKey
 
 	mu.Lock()
 	defer mu.Unlock()
 
 	if _, ok := caches[cacheKey]; !ok {
 		caches[cacheKey] = &AtlanTagCache{
-			atlanClient:  DefaultAtlanClient,
+			atlanClient:  client,
 			cacheByID:    make(map[string]model.AtlanTagDef),
 			mapIDToName:  make(map[string]string),
 			mapNameToID:  make(map[string]string),

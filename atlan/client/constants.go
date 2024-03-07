@@ -1,6 +1,9 @@
 package client
 
-import "net/http"
+import (
+	"atlan-go/atlan/model"
+	"net/http"
+)
 
 const (
 	// Types API
@@ -124,4 +127,49 @@ var (
 		Status:   http.StatusOK,
 		Endpoint: AtlasEndpoint,
 	}
+)
+
+// Constants for the Atlas search DSL
+const (
+	// TermAttributes Constants
+	CONNECTOR_NAME           = "connectorName"
+	CATEGORIES               = "__categories"
+	CREATE_TIME_AS_TIMESTAMP = "__timestamp"
+	CREATED_BY               = "__createdBy"
+	GLOSSARY                 = "__glossary"
+	GUID                     = "__guid"
+	HAS_LINEAGE              = "__hasLineage"
+	MEANINGS                 = "__meanings"
+	MODIFIED_BY              = "__modifiedBy"
+	NAME                     = "name.keyword"
+	OWNER_GROUPS             = "ownerGroups"
+	OWNER_USERS              = "ownerUsers"
+	PARENT_CATEGORY          = "__parentCategory"
+	POPULARITY_SCORE         = "popularityScore"
+	QUALIFIED_NAME           = "qualifiedName"
+	STATE                    = "__state"
+	SUPER_TYPE_NAMES         = "__superTypeNames.keyword"
+	TYPE_NAME                = "__typeName.keyword"
+	UPDATE_TIME_AS_TIMESTAMP = "__modificationTimestamp"
+	CERTIFICATE_STATUS       = "certificateStatus"
+
+	// TextAttributes Constants
+	CLASSIFICATION_NAMES                               = "__classificationNames"
+	CLASSIFICATIONS_TEXT                               = "__classificationsText"
+	CREATE_TIME_AS_DATE                                = "__timestamp.date"
+	DESCRIPTION                                        = "description"
+	MEANINGS_TEXT                                      = "__meaningsText"
+	NAME_TEXT                                          = "name"
+	QUALIFIED_NAME_TEXT                                = "qualifiedName.text"
+	PROPAGATED_CLASSIFICATION_NAMES                    = "__propagatedClassificationNames"
+	PROPAGATED_TRAIT_NAMES                             = "__propagatedTraitNames"
+	SUPER_TYPE_NAMES_TEXT                              = "__superTypeNames"
+	TRAIT_NAMES                                        = "__traitNames"
+	UPDATE_TIME_AS_DATE                                = "__modificationTimestamp.date"
+	USER_DESCRIPTION                                   = "userDescription"
+	ACTIVE                          model.LiteralState = "ACTIVE"
+	DELETED                         model.LiteralState = "DELETED"
+	PURGED                          model.LiteralState = "PURGED"
+	ASCENDING                       model.SortOrder    = "asc"
+	Descending                      model.SortOrder    = "desc"
 )

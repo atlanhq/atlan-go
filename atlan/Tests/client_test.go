@@ -1,6 +1,7 @@
-package client
+package Tests
 
 import (
+	client2 "atlan-go/atlan/client"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -24,7 +25,7 @@ func TestCallAPI(t *testing.T) {
 	defer mockServer.Close()
 
 	// Create an AtlanClient for testing
-	client := Context("test-api-key", mockServer.URL)
+	client := client2.Context("test-api-key", mockServer.URL)
 
 	// Test GET request
 	response, err := client.CallAPI("/test", http.MethodGet, nil, nil)

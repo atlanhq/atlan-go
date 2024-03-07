@@ -3,12 +3,19 @@ package main
 
 import (
 	"atlan-go/atlan/client"
-	"fmt"
 )
 
 func main() {
 
 	client.LoggingEnabled = true
+
+	client.Init()
+
+	response, err := client.GetGlossaryByGuid("f273e814-f80e-4699-83f3-9462a153fb14")
+	if err != nil {
+		println("Error:", err)
+	}
+	print("Response:", response.AssetIcon)
 
 	//response, err := client.FindGlossaryByName("Manhattan Project")
 	//response, err := client.FindCategoryByName("Oak Ridge", "DDwycTZ007zZYxRajRVDK")
@@ -23,14 +30,14 @@ func main() {
 	//	Value: "Concepts",
 	//}
 
-	//ctx := client.NewContext()
-	client.Init()
-
-	// g := &client.AtlasGlossary{} // create a new Glossary instance
-
+	// ctx := client.NewContext()
 	/*
-		g.Create("TestGlossary6", "") // initialize the Glossary
-		response, err := g.Save()
+		client.Init()
+
+		g := &client.AtlasGlossary{} // create a new Glossary instance
+
+		g.Creator("TestGlossary7", "") // initialize the Glossary
+		response, err := client.Save(g)
 		fmt.Println("Resp1:", response)
 		if err != nil {
 			fmt.Println("Error:", err)
@@ -40,10 +47,12 @@ func main() {
 				fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
 			}
 		}
+
 	*/
+
 	// Modify an existing Glossary
 	/*
-		g.CreateForModification("TestGlossary7", "CBtveYe0Avp5iwU8q3M7Y", "e63cf857-c788-4197-a60e-397b24e749ee")
+		g.Updater("TestGlossary7", "CBtveYe0Avp5iwU8q3M7Y", "e63cf857-c788-4197-a60e-397b24e749ee")
 		g.Entities[0].Attributes.DisplayName = "Testing"
 		response, err := g.Save()
 		if err != nil {
@@ -59,17 +68,18 @@ func main() {
 	// Deleting an asset
 	//client.DeleteByGuid([]string{"024f11b6-a9fa-4f45-84f5-f734c47c4743", "b280b09b-5c28-45c4-a899-d8535fb651eb", "8679e70a-513e-4e2e-9861-4f5559206f36"})
 	//client.DeleteByGuid([]string{"dbe090bd-1549-4cce-98dd-6542138963f1"})
-	resp, _ := client.PurgeByGuid([]string{"1d9f74c6-faa9-4840-ac9e-21723b4c63ca"})
-	for _, entity := range resp.MutatedEntities.DELETE {
-		fmt.Println("Response:", entity)
-		fmt.Println("TypeName:", entity.TypeName)
-		fmt.Println("Guid:", entity.Guid)
-		fmt.Println("Status:", entity.Status)
-		fmt.Println("DisplayText:", entity.DisplayText)
-		// Add other fields you want to print
-	}
-
-	//query := ctx.Glossary.TypeName.Eq("AtlasGlossary", nil)
+	/*
+		resp, _ := client.PurgeByGuid([]string{"1d9f74c6-faa9-4840-ac9e-21723b4c63ca"})
+		for _, entity := range resp.MutatedEntities.DELETE {
+			fmt.Println("Response:", entity)
+			fmt.Println("TypeName:", entity.TypeName)
+			fmt.Println("Guid:", entity.Guid)
+			fmt.Println("Status:", entity.Status)
+			fmt.Println("DisplayText:", entity.DisplayText)
+			// Add other fields you want to print
+		}
+	*/
+	// query := ctx.Glossary.TYPENAME.Eq("AtlasGlossary", nil)
 
 	/*
 		searchResult, err := client.NewFluentSearch().
