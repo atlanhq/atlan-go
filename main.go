@@ -3,37 +3,77 @@ package main
 
 import (
 	"atlan-go/atlan/client"
+	"fmt"
 )
 
 func main() {
 
-	client.LoggingEnabled = true
+	client.LoggingEnabled = false
 
-	client.Init()
+	client.NewContext()
+	//resp, _ := client.GetAll()
+	//fmt.Println(resp.CustomMetadataDefs[0].Category)
+	//response, _ := client.GetGlossaryByGuid("89d2d396-20ec-40cf-bd5a-2abaf338d75c")
 
-	response, err := client.GetGlossaryByGuid("f273e814-f80e-4699-83f3-9462a153fb14")
-	if err != nil {
-		println("Error:", err)
-	}
-	print("Response:", response.AssetIcon)
+	//client.GetAtlanTagCache().RefreshCache()
+	//id, _ := client.GetAtlanTagCache().GetIDForName("Hourly")
+	//fmt.Println("Print Response:", id)
 
+	client.GetCustomMetadataCache().RefreshCache()
+	id, _ := client.GetCustomMetadataCache().GetIDForName("test-go")
+	name, _ := client.GetCustomMetadataCache().GetNameForID("oac8lInkPpQmKksJdspSGX")
+	attrID, _ := client.GetCustomMetadataCache().GetAttrIDForName("test-go", "go-test")
+	attrName, _ := client.GetCustomMetadataCache().GetAttrNameForID("oac8lInkPpQmKksJdspSGX", "ZgUK7e29icy2atRDShLVH3")
+	fmt.Println("ID for name is : ", id)
+	fmt.Println("Name fo ID is:", name)
+	fmt.Printf("\nAttrID for name is: %s\n", attrID)
+	fmt.Printf("\n AttrName for ID is: %s\n", attrName)
+
+	//client.Init()
+	/*
+		response, err := client.GetGlossaryByGuid("f273e814-f80e-4699-83f3-9462a153fb14")
+		if err != nil {
+			println("Error:", err)
+		}
+		print("Response:", response.Name)
+	*/
 	//response, err := client.FindGlossaryByName("Manhattan Project")
 	//response, err := client.FindCategoryByName("Oak Ridge", "DDwycTZ007zZYxRajRVDK")
+
+	/*
+		// IndexSearch
+		boolQuery, _ := client.WithActiveGlossary("Test-go-sdk")
+
+		request := model.IndexSearchRequest{
+			Dsl: model.Dsl{
+				From:           0,
+				Size:           2,
+				Query:          boolQuery.ToJSON(),
+				TrackTotalHits: true,
+			},
+			SuppressLogs:           true,
+			ShowSearchScore:        false,
+			ExcludeMeanings:        false,
+			ExcludeClassifications: false,
+		}
+
+		response1, _ := client.Search(request)
+
+		fmt.Println("Response:", response1)
+		fmt.Println("Total Results", response1.ApproximateCount)
+	*/
 
 	//if err != nil {
 	//	fmt.Printf("Error fetching model: %v\n", err)
 	//}
 
 	//fmt.Printf("Response: %+v\n", response)
-	//excludeCondition := &client.TermQuery{
-	//	Field: string(client.Name),
-	//	Value: "Concepts",
-	//}
 
-	// ctx := client.NewContext()
+	//	ctx := client.NewContext()
+
+	// client.Init()
+
 	/*
-		client.Init()
-
 		g := &client.AtlasGlossary{} // create a new Glossary instance
 
 		g.Creator("TestGlossary7", "") // initialize the Glossary
@@ -47,14 +87,13 @@ func main() {
 				fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
 			}
 		}
-
 	*/
-
 	// Modify an existing Glossary
 	/*
+		g := &client.AtlasGlossary{}
 		g.Updater("TestGlossary7", "CBtveYe0Avp5iwU8q3M7Y", "e63cf857-c788-4197-a60e-397b24e749ee")
 		g.Entities[0].Attributes.DisplayName = "Testing"
-		response, err := g.Save()
+		response, err := client.Save(g)
 		if err != nil {
 			println("Error:", err)
 		} else {
@@ -64,7 +103,6 @@ func main() {
 			}
 		}
 	*/
-
 	// Deleting an asset
 	//client.DeleteByGuid([]string{"024f11b6-a9fa-4f45-84f5-f734c47c4743", "b280b09b-5c28-45c4-a899-d8535fb651eb", "8679e70a-513e-4e2e-9861-4f5559206f36"})
 	//client.DeleteByGuid([]string{"dbe090bd-1549-4cce-98dd-6542138963f1"})
@@ -79,20 +117,24 @@ func main() {
 			// Add other fields you want to print
 		}
 	*/
-	// query := ctx.Glossary.TYPENAME.Eq("AtlasGlossary", nil)
-
 	/*
+		//query := ctx.Glossary.TYPENAME.Eq("AtlasGlossary", nil)
+		excludeCondition := &model.TermQuery{
+			Field: client.NAME,
+			Value: "Concepts",
+		}
+
 		searchResult, err := client.NewFluentSearch().
 			PageSizes(10).
 			ActiveAssets().
 			AssetType("AtlasGlossary").
-			//Where(&client.TermQuery{
-			//	Field: string(client.TypeName),
-			//	Value: "AtlasGlossary",
-			//}).
-			Where(ctx.Glossary.Name.Eq("Metrics", nil)).
-			//Where(ctx.Glossary.Name.StartsWith("M", nil)).
-			Sort(string(client.Name), client.Ascending).
+			Where(&model.TermQuery{
+				Field: client.TYPE_NAME,
+				Value: "AtlasGlossary",
+			}).
+			Where(ctx.Glossary.NAME.Eq("Metrics", nil)).
+			Where(ctx.Glossary.NAME.StartsWith("M", nil)).
+			Sort(client.NAME, client.ASCENDING).
 			//Sort(string(client.GUID), client.Ascending).
 			WhereNot(excludeCondition).
 			IncludeOnResults("guid").

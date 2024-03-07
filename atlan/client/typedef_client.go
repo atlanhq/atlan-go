@@ -57,6 +57,7 @@ func buildTypeDefRequest(typedef model.TypeDef) (model.TypeDefResponse, error) {
 func NewTypeDefResponse(rawJSON []byte) (*model.TypeDefResponse, error) {
 	var response model.TypeDefResponse
 	if err := json.Unmarshal(rawJSON, &response); err != nil {
+		//fmt.Println(response)
 		return nil, err
 	}
 	return &response, nil

@@ -84,6 +84,7 @@ func (c *CustomMetadataCache) RefreshCache() error {
 
 	response, err := DefaultAtlanClient.CallAPI(api, nil, nil)
 	if err != nil {
+		fmt.Println("Error", err)
 		return err
 	}
 
@@ -91,7 +92,7 @@ func (c *CustomMetadataCache) RefreshCache() error {
 	var customMetadataDefs model.TypeDefResponse
 	err = json.Unmarshal(response, &customMetadataDefs)
 	if err != nil {
-		fmt.Println(&response)
+		fmt.Println("Error", err)
 		return err
 	}
 
@@ -113,8 +114,8 @@ func (c *CustomMetadataCache) RefreshCache() error {
 		typeName := cmDef.DisplayName
 
 		c.CacheByID[typeID] = cmDef
-		c.MapIDToName[typeID] = typeName
-		c.MapNameToID[typeName] = typeID
+		c.MapIDToName[typeID] = *typeName
+		c.MapNameToID[*typeName] = typeID
 		c.MapAttrIDToName[typeID] = make(map[string]string)
 		c.MapAttrNameToID[typeID] = make(map[string]string)
 
@@ -129,7 +130,7 @@ func (c *CustomMetadataCache) RefreshCache() error {
 				return fmt.Errorf("duplicate custom attributes detected: %s in %s", attrName, typeName)
 			}
 
-			if *attr.Options.IsArchived {
+			if attr.Options == nil || attr.Options.IsArchived {
 				c.archivedAttrIds[attrID] = attrName
 				continue // Skip adding archived attributes to the active caches.
 			}
@@ -246,7 +247,7 @@ func (c *CustomMetadataCache) GetAllCustomAttributes(includeDeleted, forceRefres
 			toInclude = cm.AttributeDefs
 		} else {
 			for _, attr := range cm.AttributeDefs {
-				if attr.Options == nil || !*attr.Options.IsArchived {
+				if attr.Options == nil || !attr.Options.IsArchived {
 					toInclude = append(toInclude, attr)
 				}
 			}

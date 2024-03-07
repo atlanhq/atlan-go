@@ -2,27 +2,28 @@ package model
 
 type AtlanTypeCategory string
 type AtlanTagColor string
-
-// Constants representing tag colors
-const (
-	AtlanTagColorGreen  AtlanTagColor = "Green"
-	AtlanTagColorYellow AtlanTagColor = "Yellow"
-	AtlanTagColorRed    AtlanTagColor = "Red"
-	AtlanTagColorGray   AtlanTagColor = "Gray"
-)
-
-// Constants representing type categories
-const (
-	AtlanTypeCategoryEnum           AtlanTypeCategory = "ENUM"
-	AtlanTypeCategoryStruct         AtlanTypeCategory = "STRUCT"
-	AtlanTypeCategoryClassification AtlanTypeCategory = "CLASSIFICATION"
-	AtlanTypeCategoryEntity         AtlanTypeCategory = "ENTITY"
-	AtlanTypeCategoryRelationship   AtlanTypeCategory = "RELATIONSHIP"
-	AtlanTypeCategoryCustomMetadata AtlanTypeCategory = "BUSINESS_METADATA"
-)
+type IndexType string
+type Cardinality string
+type AtlanIcon string
 
 type TypeDef interface {
 	GetCategory() AtlanTypeCategory
+}
+
+type EnumDef struct {
+	TypeDef
+}
+
+type StructDef struct {
+	TypeDef
+}
+
+type EntityDef struct {
+	TypeDef
+}
+
+type RelationshipDef struct {
+	TypeDef
 }
 
 func (a *AtlanTagDef) GetCategory() AtlanTypeCategory {
@@ -30,7 +31,7 @@ func (a *AtlanTagDef) GetCategory() AtlanTypeCategory {
 }
 
 func (a *CustomMetadataDef) GetCategory() AtlanTypeCategory {
-	return a.Category
+	return *a.Category
 }
 
 type TypeDefBase struct {
@@ -85,7 +86,7 @@ type AttributesDefsTags struct {
 
 // AttributeOptions represents options for customizing an attribute.
 type AttributeOptions struct {
-	CustomMetadataVersion       string  `json:"customMetadataVersion,omitempty"`
+	CustomMetadataVersion       *string `json:"customMetadataVersion,omitempty"`
 	Description                 *string `json:"description,omitempty"`
 	ApplicableEntityTypes       *string `json:"applicableEntityTypes,omitempty"`
 	CustomApplicableEntityTypes *string `json:"customApplicableEntityTypes,omitempty"`
@@ -98,8 +99,8 @@ type AttributeOptions struct {
 	IsEnum                      *string `json:"isEnum,omitempty"`
 	EnumType                    *string `json:"enumType,omitempty"`
 	CustomType                  *string `json:"customType,omitempty"`
-	HasTimePrecision            *string `json:"hasTimePrecision,omitempty"`
-	IsArchived                  *bool   `json:"isArchived,omitempty"`
+	HasTimePrecision            *bool   `json:"hasTimePrecision,omitempty"`
+	IsArchived                  bool    `json:"isArchived,omitempty"`
 	ArchivedAt                  *int64  `json:"archivedAt,omitempty"` // Using int64 for timestamp
 	ArchivedBy                  *string `json:"archivedBy,omitempty"`
 	IsSoftReference             *string `json:"isSoftReference,omitempty"`
@@ -111,10 +112,6 @@ type AttributeOptions struct {
 	ApplicableGlossaryTypes     *string `json:"glossaryTypeList,omitempty"`
 	ApplicableOtherAssetTypes   *string `json:"otherAssetTypeList,omitempty"`
 }
-
-type IndexType string
-
-type Cardinality string
 
 // AttributeDef represents the definition of an attribute.
 type AttributeDef struct {
@@ -142,41 +139,23 @@ type AttributeDef struct {
 	IsDefaultValueNull    *bool                         `json:"isDefaultValueNull,omitempty"`
 }
 
-type EnumDef struct {
-	TypeDef
-}
-
-type StructDef struct {
-	TypeDef
-}
-
-type EntityDef struct {
-	TypeDef
-}
-
-type RelationshipDef struct {
-	TypeDef
-}
-
-type AtlanIcon string
-
 // CustomMetadataDefOptions represents options for customizing metadata definitions.
 type CustomMetadataDefOptions struct {
-	Emoji     string        `json:"emoji,omitempty"`
-	ImageID   string        `json:"imageId,omitempty"`
-	IsLocked  bool          `json:"isLocked,omitempty"`
-	LogoType  string        `json:"logoType,omitempty"`
-	LogoURL   string        `json:"logoUrl,omitempty"`
-	IconColor AtlanTagColor `json:"iconColor,omitempty"`
-	IconName  AtlanIcon     `json:"iconName,omitempty"`
+	Emoji     *string        `json:"emoji,omitempty"`
+	ImageID   *string        `json:"imageId,omitempty"`
+	IsLocked  *bool          `json:"isLocked,omitempty"`
+	LogoType  *string        `json:"logoType,omitempty"`
+	LogoURL   *string        `json:"logoUrl,omitempty"`
+	IconColor *AtlanTagColor `json:"iconColor,omitempty"`
+	IconName  *AtlanIcon     `json:"iconName,omitempty"`
 }
 
 // CustomMetadataDef represents the definition of custom metadata.
 type CustomMetadataDef struct {
 	TypeDefBase
 	TypeDef
-	AttributeDefs []AttributeDef           `json:"attributeDefs"`
-	Category      AtlanTypeCategory        `json:"category"`
-	DisplayName   string                   `json:"displayName"`
-	Options       CustomMetadataDefOptions `json:"options,omitempty"`
+	AttributeDefs []AttributeDef            `json:"attributeDefs"`
+	Category      *AtlanTypeCategory        `json:"category,omitempty"`
+	DisplayName   *string                   `json:"displayName,omitempty"`
+	Options       *CustomMetadataDefOptions `json:"options,omitempty"`
 }
