@@ -34,6 +34,15 @@ func (a *CustomMetadataDef) GetCategory() AtlanTypeCategory {
 	return *a.Category
 }
 
+type TypeDefResponse struct {
+	EnumDefs           []EnumDef           `json:"enumDefs"`
+	StructDefs         []StructDef         `json:"structDefs"`
+	AtlanTagDefs       []AtlanTagDef       `json:"classificationDefs"`
+	EntityDefs         []EntityDef         `json:"entityDefs"`
+	RelationshipDefs   []RelationshipDef   `json:"relationshipDefs"`
+	CustomMetadataDefs []CustomMetadataDef `json:"businessMetadataDefs"`
+}
+
 type TypeDefBase struct {
 	Category    AtlanTypeCategory `json:"category"`
 	CreateTime  int64             `json:"createTime,omitempty"`
@@ -57,15 +66,6 @@ type AtlanTagDef struct {
 	EntityTypes   []string               `json:"entityTypes"`
 	SubTypes      []string               `json:"subTypes"`
 	SuperTypes    []string               `json:"superTypes"`
-}
-
-type TypeDefResponse struct {
-	EnumDefs           []EnumDef           `json:"enumDefs"`
-	StructDefs         []StructDef         `json:"structDefs"`
-	AtlanTagDefs       []AtlanTagDef       `json:"classificationDefs"`
-	EntityDefs         []EntityDef         `json:"entityDefs"`
-	RelationshipDefs   []RelationshipDef   `json:"relationshipDefs"`
-	CustomMetadataDefs []CustomMetadataDef `json:"businessMetadataDefs"`
 }
 
 type AttributesDefsTags struct {

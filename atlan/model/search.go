@@ -62,10 +62,10 @@ type PrefixQuery struct {
 
 type RangeQuery struct {
 	Field    string
-	Gt       *interface{}
-	Gte      *interface{}
-	Lt       *interface{}
-	Lte      *interface{}
+	Gt       *float64
+	Gte      *float64
+	Lt       *float64
+	Lte      *float64
 	Boost    *float64
 	Format   *string
 	Relation *string

@@ -1,4 +1,8 @@
-package model
+package client
+
+import (
+	"atlan-go/atlan/model"
+)
 
 // Interface for all AtlanField queries
 type AtlanField interface {
@@ -48,13 +52,13 @@ func (sf *SearchableField) GetInternalFieldName() string {
 
 // HasAnyValue Returns a query that will only match assets that have some non-null, non-empty value
 // (no matter what actual value) for the field.
-func (sf *SearchableField) HasAnyValue() Query {
-	return &Exists{sf.ElasticFieldName}
+func (sf *SearchableField) HasAnyValue() model.Query {
+	return &model.Exists{sf.ElasticFieldName}
 }
 
 // Order Returns a condition to sort results by the field, in the specified order.
-func (sf *SearchableField) Order(order SortOrder) SortItem {
-	return SortItem{
+func (sf *SearchableField) Order(order model.SortOrder) model.SortItem {
+	return model.SortItem{
 		Field:      sf.ElasticFieldName,
 		Order:      order,
 		NestedPath: nil,
@@ -81,8 +85,8 @@ func (bf *BooleanField) GetBooleanFieldName() string {
 	return bf.BooleanFieldName
 }
 
-func (bf *BooleanField) Eq(value bool) Query {
-	return &TermQuery{
+func (bf *BooleanField) Eq(value bool) model.Query {
+	return &model.TermQuery{
 		Field: bf.BooleanFieldName,
 		Value: value,
 	}
@@ -108,8 +112,8 @@ func (kf *KeywordField) GetKeywordFieldName() string {
 
 // StartsWith Returns a query that will match all assets whose field has a value that starts with
 // the provided value. Note that this can also be a case-insensitive match.
-func (kf *KeywordTextField) StartsWith(value string, caseInsensitive *bool) Query {
-	return &PrefixQuery{
+func (kf *KeywordTextField) StartsWith(value string, caseInsensitive *bool) model.Query {
+	return &model.PrefixQuery{
 		Field:           kf.KeywordFieldName,
 		Value:           value,
 		CaseInsensitive: caseInsensitive,
@@ -118,8 +122,8 @@ func (kf *KeywordTextField) StartsWith(value string, caseInsensitive *bool) Quer
 
 // Eq Returns a query that will match all assets whose field has a value that exactly matches
 // the provided string value.
-func (kf *KeywordTextField) Eq(value string, caseInsensitive *bool) Query {
-	return &TermQuery{
+func (kf *KeywordTextField) Eq(value string, caseInsensitive *bool) model.Query {
+	return &model.TermQuery{
 		Field: kf.KeywordFieldName,
 		Value: value,
 	}
@@ -127,8 +131,8 @@ func (kf *KeywordTextField) Eq(value string, caseInsensitive *bool) Query {
 
 // Within Returns a query that will match all assets whose field has a value that exactly matches
 // at least one of the provided string values.
-func (kf *KeywordField) Within(values []string) Query {
-	return &Terms{
+func (kf *KeywordField) Within(values []string) model.Query {
+	return &model.Terms{
 		Field:  kf.KeywordFieldName,
 		Values: values,
 	}
@@ -172,8 +176,8 @@ func (tf *TextField) GetTextFieldName() string {
 // Match Returns a query that will textually match the provided value against the field. This
 // analyzes the provided value according to the same analysis carried out on the field
 // (for example, tokenization, stemming, and so on).
-func (tf *TextField) Match(value string) Query {
-	return &MatchQuery{
+func (tf *TextField) Match(value string) model.Query {
+	return &model.MatchQuery{
 		Field: tf.TextFieldName,
 		Query: value,
 	}
@@ -200,8 +204,8 @@ func (nf *NumericField) GetNumericFieldName() string {
 
 // Eq Returns a query that will match all assets whose field has a value that exactly
 // matches the provided numeric value.
-func (nf *NumericField) Eq(value interface{}) Query {
-	return &TermQuery{
+func (nf *NumericField) Eq(value interface{}) model.Query {
+	return &model.TermQuery{
 		Field: nf.NumericFieldName,
 		Value: value,
 	}
@@ -209,8 +213,8 @@ func (nf *NumericField) Eq(value interface{}) Query {
 
 // Gt Returns a query that will match all assets whose field has a value that is strictly
 // greater than the provided numeric value.
-func (nf *NumericField) Gt(value *interface{}) Query {
-	return &RangeQuery{
+func (nf *NumericField) Gt(value *float64) model.Query {
+	return &model.RangeQuery{
 		Field: nf.NumericFieldName,
 		Gt:    value,
 	}
@@ -218,8 +222,8 @@ func (nf *NumericField) Gt(value *interface{}) Query {
 
 // Gte Returns a query that will match all assets whose field has a value that is greater
 // than or equal to the provided numeric value.
-func (nf *NumericField) Gte(value *interface{}) Query {
-	return &RangeQuery{
+func (nf *NumericField) Gte(value *float64) model.Query {
+	return &model.RangeQuery{
 		Field: nf.NumericFieldName,
 		Gte:   value,
 	}
@@ -227,8 +231,8 @@ func (nf *NumericField) Gte(value *interface{}) Query {
 
 // Lt Returns a query that will match all assets whose field has a value that is strictly
 // less than the provided numeric value.
-func (nf *NumericField) Lt(value *interface{}) Query {
-	return &RangeQuery{
+func (nf *NumericField) Lt(value *float64) model.Query {
+	return &model.RangeQuery{
 		Field: nf.NumericFieldName,
 		Lt:    value,
 	}
@@ -236,8 +240,8 @@ func (nf *NumericField) Lt(value *interface{}) Query {
 
 // Lte Returns a query that will match all assets whose field has a value that is less
 // than or equal to the provided numeric value.
-func (nf *NumericField) Lte(value *interface{}) Query {
-	return &RangeQuery{
+func (nf *NumericField) Lte(value *float64) model.Query {
+	return &model.RangeQuery{
 		Field: nf.NumericFieldName,
 		Lte:   value,
 	}
@@ -245,8 +249,8 @@ func (nf *NumericField) Lte(value *interface{}) Query {
 
 // Between Returns a query that will match all assets whose field has a value between the minimum and
 // maximum specified values, inclusive.
-func (nf *NumericField) Between(minimum, maximum *interface{}) Query {
-	return &RangeQuery{
+func (nf *NumericField) Between(minimum, maximum *float64) model.Query {
+	return &model.RangeQuery{
 		Field: nf.NumericFieldName,
 		Gte:   minimum,
 		Lte:   maximum,
@@ -285,10 +289,96 @@ func NewKeywordTextStemmedField(atlanFieldName, keywordFieldName, textFieldName,
 
 // MatchStemmed Returns a query that will textually match the provided value against the field. This
 // analyzes the provided value according to the same analysis carried out on the field
-func (ktsf *KeywordTextStemmedField) MatchStemmed(value string) Query {
-	return &MatchQuery{
+func (ktsf *KeywordTextStemmedField) MatchStemmed(value string) model.Query {
+	return &model.MatchQuery{
 		Field: ktsf.StemmedFieldName,
 		Query: value,
+	}
+}
+
+/*
+CustomMetadataField Utility class to simplify searching for values on custom metadata attributes.
+*/
+type CustomMetadataField struct {
+	*SearchableField
+	SetName       string
+	AttributeName string
+	AttributeDef  model.AttributeDef
+}
+
+func NewCustomMetadataField(setName, attributeName, elasticFieldName string) *CustomMetadataField {
+	searchableField := NewSearchableField(attributeName, elasticFieldName)
+	return &CustomMetadataField{
+		SearchableField: searchableField,
+		SetName:         setName,
+		AttributeName:   attributeName,
+		AttributeDef:    GetAttributeDef(elasticFieldName),
+	}
+}
+
+func (cmf *CustomMetadataField) Eq(value string, caseInsensitive bool) model.Query {
+	return &model.TermQuery{
+		Field: cmf.ElasticFieldName,
+		Value: value,
+	}
+}
+
+func (cmf *CustomMetadataField) StartsWith(value string, caseInsensitive *bool) model.Query {
+	return &model.PrefixQuery{
+		Field:           cmf.ElasticFieldName,
+		Value:           value,
+		CaseInsensitive: caseInsensitive,
+	}
+}
+
+func (cmf *CustomMetadataField) Within(values []string) model.Query {
+	return &model.Terms{
+		Field:  cmf.ElasticFieldName,
+		Values: values,
+	}
+
+}
+
+func (cmf *CustomMetadataField) Match(value string) model.Query {
+	return &model.MatchQuery{
+		Field: cmf.ElasticFieldName,
+		Query: value,
+	}
+}
+
+func (cmf *CustomMetadataField) Gt(value *float64) model.Query {
+	return &model.RangeQuery{
+		Field: cmf.ElasticFieldName,
+		Gt:    value,
+	}
+}
+
+func (cmf *CustomMetadataField) Gte(value *float64) model.Query {
+	return &model.RangeQuery{
+		Field: cmf.ElasticFieldName,
+		Gte:   value,
+	}
+}
+
+func (cmf *CustomMetadataField) Lt(value *float64) model.Query {
+	return &model.RangeQuery{
+		Field: cmf.ElasticFieldName,
+		Lt:    value,
+	}
+}
+
+func (cmf *CustomMetadataField) Lte(value *float64) model.Query {
+	return &model.RangeQuery{
+		Field: cmf.ElasticFieldName,
+		Lt:    value,
+	}
+}
+
+func (cmf *CustomMetadataField) Between(minimum, maximum *float64) model.Query {
+	return &model.RangeQuery{
+		Field: cmf.ElasticFieldName,
+		Gte:   minimum,
+		Lte:   maximum,
 	}
 }
 

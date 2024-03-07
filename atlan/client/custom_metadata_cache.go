@@ -48,6 +48,11 @@ func RefreshCustomMetadataCache() {
 	GetCustomMetadataCache().RefreshCache()
 }
 
+func GetAttributeDef(attrID string) model.AttributeDef {
+	attrdef, _ := GetCustomMetadataCache().GetAttributeDef(attrID)
+	return attrdef
+}
+
 // GetCustomMetadataCache returns the CustomMetadataCache for the default AtlanClient.
 func GetCustomMetadataCache() *CustomMetadataCache {
 	client := DefaultAtlanClient
