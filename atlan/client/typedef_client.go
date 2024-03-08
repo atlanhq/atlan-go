@@ -66,10 +66,9 @@ func RefreshCaches(typedef model.TypeDef) error {
 
 	switch t := typedef.(type) {
 	case *model.AtlanTagDef:
-		atlanTagCache := NewAtlanTagCache(DefaultAtlanClient)
-		return atlanTagCache.RefreshCache()
+		return GetAtlanTagCache().RefreshCache()
 	case *model.CustomMetadataDef:
-		//return CustomMetadataCache.RefreshCache()
+		return GetCustomMetadataCache().RefreshCache()
 	case model.EnumDef:
 		//return EnumCache.RefreshCache()
 	default:
@@ -120,11 +119,11 @@ func (c *TypeDefClient) Purge(name string, typedefType model.TypeDef) error {
 	var internalName string
 	switch t := typedefType.(type) {
 	case *model.CustomMetadataDef:
-		//internalName = CustomMetadataCache.getIDForName(name)
+		internalName, _ = GetCustomMetadataCache().GetIDForName(name)
 	case *model.EnumDef:
 		//internalName = name
 	case *model.AtlanTagDef:
-		//internalName := fmt.Sprintf("Name: %s\n:", GetIDForName(name))
+		internalName, _ = GetAtlanTagCache().GetIDForName(name)
 	default:
 		return fmt.Errorf("unsupported TypeDef type: %T", t)
 	}
@@ -137,7 +136,7 @@ func (c *TypeDefClient) Purge(name string, typedefType model.TypeDef) error {
 
 	switch t := typedefType.(type) {
 	case *model.CustomMetadataDef:
-		//CustomMetadataCache.refreshCache()
+		GetCustomMetadataCache().RefreshCache()
 	case *model.EnumDef:
 		//EnumCache.refreshCache()
 	case *model.AtlanTagDef:

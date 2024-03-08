@@ -62,15 +62,15 @@ func RefreshCache() {
 	GetAtlanTagCache().RefreshCache()
 }
 
-func GetIDForName(name string) (string, error) {
+func GetAtlanTagIDForName(name string) (string, error) {
 	return GetAtlanTagCache().GetIDForName(name)
 }
 
-func GetNameForID(idstr string) (string, error) {
+func GetAtlanTagNameForID(idstr string) (string, error) {
 	return GetAtlanTagCache().GetNameForID(idstr)
 }
 
-// RefreshCache refreshes the cache of Atlan tags by requesting the full set of Atlan tags from Atlan.
+// RefreshCache ref	reshes the cache of Atlan tags by requesting the full set of Atlan tags from Atlan.
 // RefreshCache updates the AtlanTagCache with the latest data from Atlan.
 func (c *AtlanTagCache) RefreshCache() error {
 	c.mutex.Lock()
