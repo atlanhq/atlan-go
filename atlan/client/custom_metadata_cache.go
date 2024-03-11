@@ -165,7 +165,7 @@ GetIDForName Translate the provided human-readable custom metadata set name to i
 */
 func (c *CustomMetadataCache) GetIDForName(name string) (string, error) {
 	if name == "" || strings.TrimSpace(name) == "" {
-		return "", ErrMissingCMID
+		return "", InvalidRequestError{AtlanError{ErrorCode: errorCodes[MISSING_CM_NAME]}}
 	}
 
 	c.mutex.RLock()
@@ -174,8 +174,7 @@ func (c *CustomMetadataCache) GetIDForName(name string) (string, error) {
 
 	if !exists {
 		if err := c.RefreshCache(); err != nil {
-			fmt.Println(err)
-			return "Error", err
+			return "", ApiError{AtlanError{ErrorCode: errorCodes[CONNECTION_ERROR], OriginalError: err}}
 		}
 
 		c.mutex.RLock()
@@ -183,7 +182,7 @@ func (c *CustomMetadataCache) GetIDForName(name string) (string, error) {
 		c.mutex.RUnlock()
 
 		if !exists {
-			//return "", errorWithParameters(ErrCMNotFoundByName, name)
+			return "", NotFoundError{AtlanError{ErrorCode: errorCodes[CM_NOT_FOUND_BY_NAME], Args: []interface{}{name}}}
 		}
 	}
 
