@@ -111,7 +111,12 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 
 	response, err := ac.makeRequest(api.Method, path, params)
 	if err != nil {
-		return nil, err
+		return nil, ApiConnectionError{AtlanError{
+			ErrorCode:     errorCodes[CONNECTION_ERROR],
+			Args:          []interface{}{"IOException"},
+			OriginalError: err,
+		},
+		}
 	}
 
 	ac.logHTTPStatus(response)

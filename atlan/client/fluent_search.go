@@ -1,6 +1,7 @@
 package client
 
 import (
+	"atlan-go/atlan"
 	"atlan-go/atlan/model"
 	"fmt"
 )
@@ -93,7 +94,7 @@ func (fs *FluentSearch) MinSome(minSomes int) *FluentSearch {
 }
 
 // Sort adds a SortItem to the Sorts slice.
-func (fs *FluentSearch) Sort(field string, order model.SortOrder) *FluentSearch {
+func (fs *FluentSearch) Sort(field string, order atlan.SortOrder) *FluentSearch {
 	fs.Sorts = append(fs.Sorts, model.SortItem{Field: field, Order: order})
 	return fs
 }
@@ -162,7 +163,7 @@ func (fs *FluentSearch) SortByGuidDefault() *FluentSearch {
 
 	// If "guid" is not already in the list, add it as the final sort criteria
 	if !guidAlreadySorted {
-		fs.Sort(string(GUID), ASCENDING)
+		fs.Sort(GUID, atlan.SortOrderAscending)
 	}
 
 	return fs

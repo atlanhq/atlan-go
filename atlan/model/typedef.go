@@ -1,13 +1,11 @@
 package model
 
-type AtlanTypeCategory string
-type AtlanTagColor string
+import "atlan-go/atlan"
+
 type IndexType string
-type Cardinality string
-type AtlanIcon string
 
 type TypeDef interface {
-	GetCategory() AtlanTypeCategory
+	GetCategory() atlan.AtlanTypeCategory
 }
 
 type EnumDef struct {
@@ -26,11 +24,11 @@ type RelationshipDef struct {
 	TypeDef
 }
 
-func (a *AtlanTagDef) GetCategory() AtlanTypeCategory {
+func (a *AtlanTagDef) GetCategory() atlan.AtlanTypeCategory {
 	return a.Category
 }
 
-func (a *CustomMetadataDef) GetCategory() AtlanTypeCategory {
+func (a *CustomMetadataDef) GetCategory() atlan.AtlanTypeCategory {
 	return *a.Category
 }
 
@@ -44,16 +42,16 @@ type TypeDefResponse struct {
 }
 
 type TypeDefBase struct {
-	Category    AtlanTypeCategory `json:"category"`
-	CreateTime  int64             `json:"createTime,omitempty"`
-	CreatedBy   string            `json:"createdBy,omitempty"`
-	Description string            `json:"description,omitempty"`
-	GUID        string            `json:"guid,omitempty"`
-	Name        string            `json:"name"`
-	TypeVersion string            `json:"typeVersion,omitempty"`
-	UpdateTime  int64             `json:"updateTime,omitempty"`
-	UpdatedBy   string            `json:"updatedBy,omitempty"`
-	Version     int               `json:"version,omitempty"`
+	Category    atlan.AtlanTypeCategory `json:"category"`
+	CreateTime  int64                   `json:"createTime,omitempty"`
+	CreatedBy   string                  `json:"createdBy,omitempty"`
+	Description string                  `json:"description,omitempty"`
+	GUID        string                  `json:"guid,omitempty"`
+	Name        string                  `json:"name"`
+	TypeVersion string                  `json:"typeVersion,omitempty"`
+	UpdateTime  int64                   `json:"updateTime,omitempty"`
+	UpdatedBy   string                  `json:"updatedBy,omitempty"`
+	Version     int                     `json:"version,omitempty"`
 }
 
 // AtlanTagDef represents the AtlanTagDef(Classifications) structure.
@@ -116,7 +114,7 @@ type AttributeOptions struct {
 // AttributeDef represents the definition of an attribute.
 type AttributeDef struct {
 	IsNew                 *bool                         `json:"isNew,omitempty"`
-	Cardinality           *Cardinality                  `json:"cardinality,omitempty"`
+	Cardinality           *atlan.Cardinality            `json:"cardinality,omitempty"`
 	Constraints           *[]map[string]interface{}     `json:"constraints,omitempty"`
 	EnumValues            *[]string                     `json:"enumValues,omitempty"`
 	Description           *string                       `json:"description,omitempty"`
@@ -141,13 +139,13 @@ type AttributeDef struct {
 
 // CustomMetadataDefOptions represents options for customizing metadata definitions.
 type CustomMetadataDefOptions struct {
-	Emoji     *string        `json:"emoji,omitempty"`
-	ImageID   *string        `json:"imageId,omitempty"`
-	IsLocked  *bool          `json:"isLocked,omitempty"`
-	LogoType  *string        `json:"logoType,omitempty"`
-	LogoURL   *string        `json:"logoUrl,omitempty"`
-	IconColor *AtlanTagColor `json:"iconColor,omitempty"`
-	IconName  *AtlanIcon     `json:"iconName,omitempty"`
+	Emoji     *string              `json:"emoji,omitempty"`
+	ImageID   *string              `json:"imageId,omitempty"`
+	IsLocked  *bool                `json:"isLocked,omitempty"`
+	LogoType  *string              `json:"logoType,omitempty"`
+	LogoURL   *string              `json:"logoUrl,omitempty"`
+	IconColor *atlan.AtlanTagColor `json:"iconColor,omitempty"`
+	IconName  *atlan.AtlanIcon     `json:"iconName,omitempty"`
 }
 
 // CustomMetadataDef represents the definition of custom metadata.
@@ -155,7 +153,7 @@ type CustomMetadataDef struct {
 	TypeDefBase
 	TypeDef
 	AttributeDefs []AttributeDef            `json:"attributeDefs"`
-	Category      *AtlanTypeCategory        `json:"category,omitempty"`
+	Category      *atlan.AtlanTypeCategory  `json:"category,omitempty"`
 	DisplayName   *string                   `json:"displayName,omitempty"`
 	Options       *CustomMetadataDefOptions `json:"options,omitempty"`
 }

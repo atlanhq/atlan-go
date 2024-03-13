@@ -202,7 +202,7 @@ GetNameForID Translate the provided Atlan-internal custom metadata ID string to 
 */
 func (c *CustomMetadataCache) GetNameForID(idstr string) (string, error) {
 	if idstr = strings.TrimSpace(idstr); idstr == "" {
-		return "", ErrMissingCMID
+		return "", InvalidRequestError{AtlanError{ErrorCode: errorCodes[MISSING_CM_ID]}}
 	}
 
 	c.mutex.RLock()

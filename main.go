@@ -3,32 +3,48 @@ package main
 
 import (
 	"atlan-go/atlan/client"
-	"fmt"
 )
 
 func main() {
 
-	client.LoggingEnabled = false
+	client.LoggingEnabled = true
 
 	client.NewContext()
-	//resp, _ := client.GetAll()
-	//fmt.Println(resp.CustomMetadataDefs[0].Category)
+	/*
+		resp, err := client.GetAll()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(resp)
+	*/
 	//response, _ := client.GetGlossaryByGuid("89d2d396-20ec-40cf-bd5a-2abaf338d75c")
 
 	//client.GetAtlanTagCache().RefreshCache()
 	//id, _ := client.GetAtlanTagCache().GetIDForName("Hourly")
 	//fmt.Println("Print Response:", id)
 
-	client.GetCustomMetadataCache().RefreshCache()
-	id, _ := client.GetCustomMetadataCache().GetIDForName("test-go")
-	name, _ := client.GetCustomMetadataCache().GetNameForID("oac8lInkPpQmKksJdspSGX")
-	attrID, _ := client.GetCustomMetadataCache().GetAttrIDForName("test-go", "go-test")
-	attrName, _ := client.GetCustomMetadataCache().GetAttrNameForID("oac8lInkPpQmKksJdspSGX", "ZgUK7e29icy2atRDShLVH3")
-	fmt.Println("ID for name is : ", id)
-	fmt.Println("Name fo ID is:", name)
-	fmt.Printf("\nAttrID for name is: %s\n", attrID)
-	fmt.Printf("\n AttrName for ID is: %s\n", attrName)
+	/*
+		client.GetCustomMetadataCache().RefreshCache()
+		id, err := client.GetCustomMetadataCache().GetIDForName("go-test")
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+		name, _ := client.GetCustomMetadataCache().GetNameForID("Wd2QonGuCz6tj4uryxEoBs")
+		attrID, _ := client.GetCustomMetadataCache().GetAttrIDForName("go-test", "go-test")
+		attrName, _ := client.GetCustomMetadataCache().GetAttrNameForID("Wd2QonGuCz6tj4uryxEoBs", "fmfsP9P9IqWzqbXXCyMibP")
+		fmt.Println("ID for name is : ", id)
+		fmt.Println("Name fo ID is:", name)
+		fmt.Printf("\nAttrID for name is: %s\n", attrID)
+		fmt.Printf("\n AttrName for ID is: %s\n", attrName)
+	*/
+	/*
+		atlanTypeCategory := atlan.AtlanTypeCategoryRelationship
+		ctx := &model.CustomMetadataDef{
+			Category: &atlanTypeCategory,
+		}
 
+		fmt.Println("Category:", *ctx.Category)
+	*/
 	//client.Init()
 	/*
 		response, err := client.GetGlossaryByGuid("f273e814-f80e-4699-83f3-9462a153fb14")
@@ -37,12 +53,19 @@ func main() {
 		}
 		print("Response:", response.Name)
 	*/
-	//response, err := client.FindGlossaryByName("Manhattan Project")
 	//response, err := client.FindCategoryByName("Oak Ridge", "DDwycTZ007zZYxRajRVDK")
 
 	/*
+		response, err := client.FindGlossaryByName("go-sdk-test")
+		fmt.Println("Response:", response)
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+	*/
+
+	/*
 		// IndexSearch
-		boolQuery, _ := client.WithActiveGlossary("Test-go-sdk")
+		boolQuery, _ := client.WithActiveGlossary("go-sdk-test")
 
 		request := model.IndexSearchRequest{
 			Dsl: model.Dsl{
@@ -59,10 +82,9 @@ func main() {
 
 		response1, _ := client.Search(request)
 
-		fmt.Println("Response:", response1)
+		fmt.Println("Guid:", response1.Entities[0].Guid)
 		fmt.Println("Total Results", response1.ApproximateCount)
 	*/
-
 	//if err != nil {
 	//	fmt.Printf("Error fetching model: %v\n", err)
 	//}
@@ -117,12 +139,15 @@ func main() {
 			// Add other fields you want to print
 		}
 	*/
+
+	//query := ctx.Glossary.TYPENAME.Eq("AtlasGlossary", nil)
+
 	/*
-		//query := ctx.Glossary.TYPENAME.Eq("AtlasGlossary", nil)
 		excludeCondition := &model.TermQuery{
 			Field: client.NAME,
 			Value: "Concepts",
 		}
+
 
 		searchResult, err := client.NewFluentSearch().
 			PageSizes(10).
@@ -134,7 +159,7 @@ func main() {
 			}).
 			Where(ctx.Glossary.NAME.Eq("Metrics", nil)).
 			Where(ctx.Glossary.NAME.StartsWith("M", nil)).
-			Sort(client.NAME, client.ASCENDING).
+			Sort(client.NAME, atlan.ASCENDING).
 			//Sort(string(client.GUID), client.Ascending).
 			WhereNot(excludeCondition).
 			IncludeOnResults("guid").

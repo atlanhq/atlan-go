@@ -1,6 +1,7 @@
 package client
 
 import (
+	"atlan-go/atlan"
 	"atlan-go/atlan/model"
 	"encoding/json"
 	"errors"
@@ -80,14 +81,17 @@ func RefreshCaches(typedef model.TypeDef) error {
 func GetAll() (*model.TypeDefResponse, error) {
 	rawJSON, err := DefaultAtlanClient.CallAPI(&GET_ALL_TYPE_DEFS, nil, nil)
 	if err != nil {
-		return nil, err
+		return nil, AtlanError{
+			ErrorCode: errorCodes[CONNECTION_ERROR],
+			Args:      []interface{}{"IOException"},
+		}
 	}
 	return NewTypeDefResponse(rawJSON)
 }
 
 // Get retrieves a TypeDefResponse object that contains a list of the specified category type definitions in Atlan.
-func Get(typeCategory model.AtlanTypeCategory) (*model.TypeDefResponse, error) {
-	queryParams := map[string]string{"type": string(typeCategory)}
+func Get(typeCategory atlan.AtlanTypeCategory) (*model.TypeDefResponse, error) {
+	queryParams := map[string]string{"type": typeCategory.String()}
 	rawJSON, err := DefaultAtlanClient.CallAPI(&GET_ALL_TYPE_DEFS, queryParams, nil)
 	if err != nil {
 		return nil, err
