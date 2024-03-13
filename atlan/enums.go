@@ -1,6 +1,8 @@
 package atlan
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -20,6 +22,32 @@ var (
 	CardinalitySet    = Cardinality{"SET"}
 )
 
+// UnmarshalJSON customizes the unmarshalling of a Cardinality from JSON.
+func (c *Cardinality) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return err
+	}
+
+	switch name {
+	case "SINGLE":
+		*c = CardinalitySingle
+	case "LIST":
+		*c = CardinatlityList
+	case "SET":
+		*c = CardinalitySet
+	default:
+		*c = Cardinality{name: name}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of a Cardinality to JSON.
+func (c Cardinality) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.name)
+}
+
 type AtlanTagColor struct {
 	name string
 }
@@ -34,6 +62,34 @@ var (
 	AtlanTagColorRed    = AtlanTagColor{"Red"}
 	AtlanTagColorGray   = AtlanTagColor{"Gray"}
 )
+
+// UnmarshalJSON customizes the unmarshalling of an AtlanTagColor from JSON.
+func (a *AtlanTagColor) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return err
+	}
+
+	switch name {
+	case "Green":
+		*a = AtlanTagColorGreen
+	case "Yellow":
+		*a = AtlanTagColorYellow
+	case "Red":
+		*a = AtlanTagColorRed
+	case "Gray":
+		*a = AtlanTagColorGray
+	default:
+		*a = AtlanTagColor{name: name}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of an AtlanTagColor to JSON.
+func (a AtlanTagColor) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.name)
+}
 
 type AtlanTypeCategory struct {
 	Name string
@@ -53,6 +109,41 @@ var (
 	AtlanTypeCategoryBusinessMetadata = AtlanTypeCategory{"BUSINESS_METADATA"}
 )
 
+// UnmarshalJSON customizes the unmarshalling of an AtlanTypeCategory from JSON.
+func (a *AtlanTypeCategory) UnmarshalJSON(data []byte) error {
+	// Unmarshal the JSON data into a string.
+	var categoryName string
+	if err := json.Unmarshal(data, &categoryName); err != nil {
+		return err
+	}
+
+	// Based on the categoryName, set the corresponding AtlanTypeCategory.
+	switch categoryName {
+	case "ENTITY":
+		*a = AtlanTypeCategoryEntity
+	case "RELATIONSHIP":
+		*a = AtlanTypeCategoryRelationship
+	case "ENUM":
+		*a = AtlanTypeCategoryEnum
+	case "STRUCT":
+		*a = AtlanTypeCategoryStruct
+	case "CLASSIFICATION":
+		*a = AtlanTypeCategoryClassification
+	case "BUSINESS_METADATA":
+		*a = AtlanTypeCategoryBusinessMetadata
+	default:
+		// Handle unknown category case, could return an error
+		*a = AtlanTypeCategory{Name: categoryName}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of an AtlanTypeCategory to JSON.
+func (a AtlanTypeCategory) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.Name)
+}
+
 // AdminOperationType - Enum for admin operation types.
 type AdminOperationType struct {
 	Name string
@@ -68,6 +159,32 @@ var (
 	AdminOperationTypeDelete = AdminOperationType{"DELETE"}
 	AddAdminOperationType    = AdminOperationType{"ACTION"}
 )
+
+func (a *AdminOperationType) UnmarshalJSON(data []byte) error {
+	var operationName string
+	if err := json.Unmarshal(data, &operationName); err != nil {
+		return err
+	}
+
+	switch operationName {
+	case "CREATE":
+		*a = AdminOperationTypeCreate
+	case "UPDATE":
+		*a = AdminOperationTypeUpdate
+	case "DELETE":
+		*a = AdminOperationTypeDelete
+	case "ACTION":
+		*a = AddAdminOperationType
+	default:
+		*a = AdminOperationType{Name: operationName}
+	}
+
+	return nil
+}
+
+func (a AdminOperationType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.Name)
+}
 
 // AdminResourceType - Enum for admin resource types.
 type AdminResourceType struct {
@@ -114,6 +231,90 @@ var (
 	AdminResourceTypeCustom                      = AdminResourceType{"CUSTOM"}
 )
 
+func (a *AdminResourceType) UnmarshalJSON(data []byte) error {
+	var resourceName string
+	if err := json.Unmarshal(data, &resourceName); err != nil {
+		return err
+	}
+
+	switch resourceName {
+	case "REALM":
+		*a = AdminResourceTypeRealm
+	case "REALM_ROLE":
+		*a = AdminResourceTypeRealmRole
+	case "REALM_ROLE_MAPPING":
+		*a = AdminResourceTypeRealmRoleMapping
+	case "REALM_SCOPE_MAPPING":
+		*a = AdminResourceTypeRealmScopeMapping
+	case "AUTH_FLOW":
+		*a = AdminResourceTypeAuthFlow
+	case "AUTH_EXECUTION_FLOW":
+		*a = AdminResourceTypeAuthExecutionFlow
+	case "AUTH_EXECUTION":
+		*a = AdminResourceTypeAuthExecution
+	case "AUTHENTICATOR_CONFIG":
+		*a = AdminResourceTypeAuthenticatorConfig
+	case "REQUIRED_ACTION":
+		*a = AdminResourceTypeRequiredAction
+	case "IDENTITY_PROVIDER":
+		*a = AdminResourceTypeIdentityProvider
+	case "IDENTITY_PROVIDER_MAPPER":
+		*a = AdminResourceTypeIdentityProviderMapper
+	case "PROTOCOL_MAPPER":
+		*a = AdminResourceTypeProtocolMapper
+	case "USER":
+		*a = AdminResourceTypeUSER
+	case "USER_LOGIN_FAILURE":
+		*a = AdminResourceTypeUserLoginFailure
+	case "USER_SESSION":
+		*a = AdminResourceTypeUserSession
+	case "USER_FEDERATION_PROVIDER":
+		*a = AdminResourceTypeUserFederationProvider
+	case "USER_FEDERATION_MAPPER":
+		*a = AdminResourceTypeUserFederationMapper
+	case "GROUP":
+		*a = AdminResourceTypeGroup
+	case "GROUP_MEMBERSHIP":
+		*a = AdminResourceTypeGroupMembership
+	case "CLIENT":
+		*a = AdminResourceTypeClient
+	case "CLIENT_INITIAL_ACCESS_MODEL":
+		*a = AdminResourceTypeClientInitialAccessModel
+	case "CLIENT_ROLE":
+		*a = AdminResourceTypeClientRole
+	case "CLIENT_ROLE_MAPPING":
+		*a = AdminResourceTypeClientRoleMapping
+	case "CLIENT_SCOPE":
+		*a = AdminResourceTypeClientScope
+	case "CLIENT_SCOPE_MAPPING":
+		*a = AdminResourceTypeClientScopeMapping
+	case "CLIENT_SCOPE_CLIENT_MAPPING":
+		*a = AdminResourceTypeClientScopeClientMapping
+	case "CLUSTER_NODE":
+		*a = AdminResourceTypeClusterNode
+	case "COMPONENT":
+		*a = AdminResourceTypeComponent
+	case "AUTHORIZATION_RESOURCE_SERVER":
+		*a = AdminResourceTypeAuthorizationResourceServer
+	case "AUTHORIZATION_RESOURCE":
+		*a = AdminResourceTypeAuthorizationResource
+	case "AUTHORIZATION_SCOPE":
+		*a = AdminResourceTypeAuthorizationScope
+	case "AUTHORIZATION_POLICY":
+		*a = AdminResourceTypeAuthorizationPolicy
+	case "CUSTOM":
+		*a = AdminResourceTypeCustom
+	default:
+		*a = AdminResourceType{Name: resourceName}
+	}
+
+	return nil
+}
+
+func (a AdminResourceType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.Name)
+}
+
 // AnnouncementType represents the type of an announcement.
 type AnnouncementType struct {
 	Name string
@@ -128,6 +329,30 @@ var (
 	AnnouncementTypeWARNING     = AnnouncementType{"warning"}
 	AnnouncementTypeIssue       = AnnouncementType{"issue"}
 )
+
+func (a *AnnouncementType) UnmarshalJSON(data []byte) error {
+	var announcementName string
+	if err := json.Unmarshal(data, &announcementName); err != nil {
+		return err
+	}
+
+	switch announcementName {
+	case "information":
+		*a = AnnouncementTypeInformation
+	case "warning":
+		*a = AnnouncementTypeWARNING
+	case "issue":
+		*a = AnnouncementTypeIssue
+	default:
+		*a = AnnouncementType{Name: announcementName}
+	}
+
+	return nil
+}
+
+func (a AnnouncementType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.Name)
+}
 
 // AssetSidebarTab represents the tabs available in the asset sidebar.
 type AssetSidebarTab struct {
@@ -223,6 +448,83 @@ var (
 	AtlanConnectionCategorySchemaRegistry = AtlanConnectionCategory{"schema-registry"}
 )
 
+// UnmarshalJSON customizes the unmarshalling of an AssetSidebarTab from JSON.
+func (a *AssetSidebarTab) UnmarshalJSON(data []byte) error {
+	var tabName string
+	if err := json.Unmarshal(data, &tabName); err != nil {
+		return err
+	}
+
+	// Based on the tabName, set the corresponding AssetSidebarTab.
+	switch tabName {
+	case "overview":
+		*a = AssetSidebarTabOverview
+	case "Columns":
+		*a = AssetSidebarTabCOLUMNS
+	case "Runs":
+		*a = AssetSidebarTabRuns
+	case "Tasks":
+		*a = AssetSidebarTabTasks
+	case "Components":
+		*a = AssetSidebarTabComponents
+	case "Projects":
+		*a = AssetSidebarTabProjects
+	case "Collections":
+		*a = AssetSidebarTabCollections
+	case "Usage":
+		*a = AssetSidebarTabUsage
+	case "Objects":
+		*a = AssetSidebarTabObjects
+	case "Lineage":
+		*a = AssetSidebarTabLineage
+	case "Incidents":
+		*a = AssetSidebarTabIncidents
+	case "Fields":
+		*a = AssetSidebarTabFields
+	case "Visuals":
+		*a = AssetSidebarTabVisuals
+	case "Visualizations":
+		*a = AssetSidebarTabVisualizations
+	case "Schema Objects":
+		*a = AssetSidebarTabSchemaObjects
+	case "Relations":
+		*a = AssetSidebarTabRelations
+	case "Fact-Dim Relations":
+		*a = AssetSidebarTabFactDimRelations
+	case "Profile":
+		*a = AssetSidebarTabProfile
+	case "Assets":
+		*a = AssetSidebarTabAssets
+	case "Activity":
+		*a = AssetSidebarTabActivity
+	case "Schedules":
+		*a = AssetSidebarTabSchedules
+	case "Resources":
+		*a = AssetSidebarTabResources
+	case "Queries":
+		*a = AssetSidebarTabQueries
+	case "Requests":
+		*a = AssetSidebarTabRequests
+	case "Properties":
+		*a = AssetSidebarTabProperties
+	case "Monte Carlo":
+		*a = AssetSidebarTabMonteCarlo
+	case "dbt Test":
+		*a = AssetSidebarTabDbtTest
+	case "Soda":
+		*a = AssetSidebarTabSoda
+	default:
+		*a = AssetSidebarTab{Name: tabName}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of an AssetSidebarTab to JSON.
+func (a AssetSidebarTab) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.Name)
+}
+
 // AtlanConnectorType represents connector types with their categories.
 type AtlanConnectorType struct {
 	Value    string
@@ -279,6 +581,44 @@ var (
 	AtlanCustomAttributeTypeSQL     = AtlanCustomAttributePrimitiveType{"SQL"}
 )
 
+func (a *AtlanCustomAttributePrimitiveType) UnmarshalJSON(data []byte) error {
+	var typeName string
+	if err := json.Unmarshal(data, &typeName); err != nil {
+		return err
+	}
+
+	switch typeName {
+	case "string":
+		*a = AtlanCustomAttributeTypeString
+	case "int":
+		*a = AtlanCustomAttributeTypeInteger
+	case "float":
+		*a = AtlanCustomAttributeTypeDecimal
+	case "boolean":
+		*a = AtlanCustomAttributeTypeBoolean
+	case "date":
+		*a = AtlanCustomAttributeTypeDate
+	case "enum":
+		*a = AtlanCustomAttributeTypeOptions
+	case "users":
+		*a = AtlanCustomAttributeTypeUsers
+	case "groups":
+		*a = AtlanCustomAttributeTypeGroups
+	case "url":
+		*a = AtlanCustomAttributeTypeURL
+	case "SQL":
+		*a = AtlanCustomAttributeTypeSQL
+	default:
+		*a = AtlanCustomAttributePrimitiveType{Name: typeName}
+	}
+
+	return nil
+}
+
+func (a AtlanCustomAttributePrimitiveType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.Name)
+}
+
 // AtlanDeleteType simulates an enum for delete types.
 type AtlanDeleteType struct {
 	Name string
@@ -293,6 +633,30 @@ var (
 	AtlanDeleteTypeSoft  = AtlanDeleteType{"SOFT"}
 	AtlanDeleteTypePurge = AtlanDeleteType{"PURGE"}
 )
+
+func (a *AtlanDeleteType) UnmarshalJSON(data []byte) error {
+	var deleteTypeName string
+	if err := json.Unmarshal(data, &deleteTypeName); err != nil {
+		return err
+	}
+
+	switch deleteTypeName {
+	case "HARD":
+		*a = AtlanDeleteTypeHard
+	case "SOFT":
+		*a = AtlanDeleteTypeSoft
+	case "PURGE":
+		*a = AtlanDeleteTypePurge
+	default:
+		*a = AtlanDeleteType{Name: deleteTypeName}
+	}
+
+	return nil
+}
+
+func (a AtlanDeleteType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.Name)
+}
 
 // LiteralState represents the state of something.
 type LiteralState struct {
@@ -309,6 +673,30 @@ var (
 	LiteralStatePurged  = LiteralState{"PURGED"}
 )
 
+func (l *LiteralState) UnmarshalJSON(data []byte) error {
+	var stateName string
+	if err := json.Unmarshal(data, &stateName); err != nil {
+		return err
+	}
+
+	switch stateName {
+	case "ACTIVE":
+		*l = LiteralStateActive
+	case "DELETED":
+		*l = LiteralStateDeleted
+	case "PURGED":
+		*l = LiteralStatePurged
+	default:
+		*l = LiteralState{Name: stateName}
+	}
+
+	return nil
+}
+
+func (l LiteralState) MarshalJSON() ([]byte, error) {
+	return json.Marshal(l.Name)
+}
+
 // SortOrder represents the sorting order.
 type SortOrder struct {
 	Name string
@@ -322,6 +710,29 @@ var (
 	SortOrderAscending  = SortOrder{"asc"}
 	SortOrderDescending = SortOrder{"desc"}
 )
+
+func (a *SortOrder) UnmarshalJSON(data []byte) error {
+	var sortOrderName string
+	if err := json.Unmarshal(data, &sortOrderName); err != nil {
+		return err
+	}
+
+	switch sortOrderName {
+	case "asc":
+		*a = SortOrderAscending
+	case "desc":
+		*a = SortOrderDescending
+	default:
+		*a = SortOrder{Name: sortOrderName}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of an AtlanTypeCategory to JSON.
+func (a SortOrder) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.Name)
+}
 
 type AtlanIcon struct {
 	name string
@@ -1595,6 +2006,30 @@ var (
 	LineageDirectionBoth       = LineageDirection{"BOTH"}
 )
 
+func (l *LineageDirection) UnmarshalJSON(data []byte) error {
+	var directionName string
+	if err := json.Unmarshal(data, &directionName); err != nil {
+		return err
+	}
+
+	switch directionName {
+	case "INPUT":
+		*l = LineageDirectionUpstream
+	case "OUTPUT":
+		*l = LineageDirectionDownstream
+	case "BOTH":
+		*l = LineageDirectionBoth
+	default:
+		*l = LineageDirection{Name: directionName}
+	}
+
+	return nil
+}
+
+func (l LineageDirection) MarshalJSON() ([]byte, error) {
+	return json.Marshal(l.Name)
+}
+
 // PersonaGlossaryAction represents actions related to persona glossary.
 type PersonaGlossaryAction struct {
 	Name string
@@ -1614,6 +2049,40 @@ var (
 	PersonaGlossaryActionUpdateAtlanTag       = PersonaGlossaryAction{"persona-glossary-update-classifications"}
 	PersonaGlossaryActionRemoveAtlanTag       = PersonaGlossaryAction{"persona-glossary-delete-classifications"}
 )
+
+func (p *PersonaGlossaryAction) UnmarshalJSON(data []byte) error {
+	var actionName string
+	if err := json.Unmarshal(data, &actionName); err != nil {
+		return err
+	}
+
+	switch actionName {
+	case "persona-glossary-create":
+		*p = PersonaGlossaryActionCreate
+	case "persona-glossary-read":
+		*p = PersonaGlossaryActionRead
+	case "persona-glossary-update":
+		*p = PersonaGlossaryActionUpdate
+	case "persona-glossary-delete":
+		*p = PersonaGlossaryActionDelete
+	case "persona-glossary-update-custom-metadata":
+		*p = PersonaGlossaryActionUpdateCustomMetadata
+	case "persona-glossary-add-classifications":
+		*p = PersonaGlossaryActionAddAtlanTag
+	case "persona-glossary-update-classifications":
+		*p = PersonaGlossaryActionUpdateAtlanTag
+	case "persona-glossary-delete-classifications":
+		*p = PersonaGlossaryActionRemoveAtlanTag
+	default:
+		*p = PersonaGlossaryAction{Name: actionName}
+	}
+
+	return nil
+}
+
+func (p PersonaGlossaryAction) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.Name)
+}
 
 // PersonaMetadataAction represents actions related to persona metadata.
 type PersonaMetadataAction struct {
@@ -1637,6 +2106,46 @@ var (
 	PersonaMetadataActionDetachTerms          = PersonaMetadataAction{"persona-remove-terms"}
 )
 
+// UnmarshalJSON customizes the unmarshalling of a PersonaMetadataAction from JSON.
+func (p *PersonaMetadataAction) UnmarshalJSON(data []byte) error {
+	var actionName string
+	if err := json.Unmarshal(data, &actionName); err != nil {
+		return err
+	}
+
+	switch actionName {
+	case "persona-api-create":
+		*p = PersonaMetadataActionCreate
+	case "persona-asset-read":
+		*p = PersonaMetadataActionRead
+	case "persona-asset-update":
+		*p = PersonaMetadataActionUpdate
+	case "persona-api-delete":
+		*p = PersonaMetadataActionDelete
+	case "persona-business-update-metadata":
+		*p = PersonaMetadataActionUpdateCustomMetadata
+	case "persona-entity-add-classification":
+		*p = PersonaMetadataActionAddAtlanTag
+	case "persona-entity-update-classification":
+		*p = PersonaMetadataActionUpdateAtlanTag
+	case "persona-entity-remove-classification":
+		*p = PersonaMetadataActionRemoveAtlanTag
+	case "persona-add-terms":
+		*p = PersonaMetadataActionAttachTerms
+	case "persona-remove-terms":
+		*p = PersonaMetadataActionDetachTerms
+	default:
+		*p = PersonaMetadataAction{Name: actionName}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of a PersonaMetadataAction to JSON.
+func (p PersonaMetadataAction) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.Name)
+}
+
 // PurposeMetadataAction represents actions related to purpose metadata.
 type PurposeMetadataAction struct {
 	Name string
@@ -1659,6 +2168,48 @@ var (
 	PurposeMetadataActionAttachTerms          = PurposeMetadataAction{"purpose-add-terms"}
 	PurposeMetadataActionDetachTerms          = PurposeMetadataAction{"purpose-remove-terms"}
 )
+
+// UnmarshalJSON customizes the unmarshalling of a PurposeMetadataAction from JSON.
+func (p *PurposeMetadataAction) UnmarshalJSON(data []byte) error {
+	var actionName string
+	if err := json.Unmarshal(data, &actionName); err != nil {
+		return err
+	}
+
+	switch actionName {
+	case "entity-create":
+		*p = PurposeMetadataActionCreate
+	case "entity-read":
+		*p = PurposeMetadataActionRead
+	case "entity-update":
+		*p = PurposeMetadataActionUpdate
+	case "entity-delete":
+		*p = PurposeMetadataActionDelete
+	case "entity-update-business-metadata":
+		*p = PurposeMetadataActionUpdateCustomMetadata
+	case "entity-add-classification":
+		*p = PurposeMetadataActionAddAtlanTag
+	case "entity-read-classification":
+		*p = PurposeMetadataActionReadAtlanTag
+	case "entity-update-classification":
+		*p = PurposeMetadataActionUpdateAtlanTag
+	case "entity-remove-classification":
+		*p = PurposeMetadataActionRemoveAtlanTag
+	case "purpose-add-terms":
+		*p = PurposeMetadataActionAttachTerms
+	case "purpose-remove-terms":
+		*p = PurposeMetadataActionDetachTerms
+	default:
+		*p = PurposeMetadataAction{Name: actionName}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of a PurposeMetadataAction to JSON.
+func (p PurposeMetadataAction) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.Name)
+}
 
 // QueryParserSourceType represents types of query parsers.
 type QueryParserSourceType struct {
@@ -1684,6 +2235,48 @@ var (
 	QueryParserSourceTypeAthena     = QueryParserSourceType{"athena"}
 )
 
+func (q *QueryParserSourceType) UnmarshalJSON(data []byte) error {
+	var sourceType string
+	if err := json.Unmarshal(data, &sourceType); err != nil {
+		return err
+	}
+
+	switch sourceType {
+	case "ansi":
+		*q = QueryParserSourceTypeAnsi
+	case "bigquery":
+		*q = QueryParserSourceTypeBigquery
+	case "hana":
+		*q = QueryParserSourceTypeHana
+	case "hive":
+		*q = QueryParserSourceTypeHive
+	case "mssql":
+		*q = QueryParserSourceTypeMssql
+	case "mysql":
+		*q = QueryParserSourceTypeMysql
+	case "oracle":
+		*q = QueryParserSourceTypeOracle
+	case "postgresql":
+		*q = QueryParserSourceTypePostgresql
+	case "redshift":
+		*q = QueryParserSourceTypeRedshift
+	case "snowflake":
+		*q = QueryParserSourceTypeSnowflake
+	case "sparksql":
+		*q = QueryParserSourceTypeSparksql
+	case "athena":
+		*q = QueryParserSourceTypeAthena
+	default:
+		*q = QueryParserSourceType{Name: sourceType}
+	}
+
+	return nil
+}
+
+func (q QueryParserSourceType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(q.Name)
+}
+
 // TagIconType represents types of tag icons.
 type TagIconType struct {
 	Name string
@@ -1700,6 +2293,30 @@ var (
 	TagIconTypeNone  = TagIconType{""}
 )
 
+func (t *TagIconType) UnmarshalJSON(data []byte) error {
+	var iconType string
+	if err := json.Unmarshal(data, &iconType); err != nil {
+		return err
+	}
+
+	switch iconType {
+	case "image":
+		*t = TagIconTypeImage
+	case "icon":
+		*t = TagIconTypeIcon
+	case "emoji":
+		*t = TagIconTypeEmoji
+	default:
+		*t = TagIconType{Name: iconType}
+	}
+
+	return nil
+}
+
+func (t TagIconType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(t.Name)
+}
+
 // TypeName represents types of names.
 type TypeName struct {
 	Name string
@@ -1713,6 +2330,28 @@ var (
 	TypeNameString      = TypeName{"string"}
 	TypeNameArrayString = TypeName{"array<string>"}
 )
+
+func (t *TypeName) UnmarshalJSON(data []byte) error {
+	var typeName string
+	if err := json.Unmarshal(data, &typeName); err != nil {
+		return err
+	}
+
+	switch typeName {
+	case "string":
+		*t = TypeNameString
+	case "array<string>":
+		*t = TypeNameArrayString
+	default:
+		*t = TypeName{Name: typeName}
+	}
+
+	return nil
+}
+
+func (t TypeName) MarshalJSON() ([]byte, error) {
+	return json.Marshal(t.Name)
+}
 
 // AtlanWorkflowPhase represents phases of Atlan workflows.
 type AtlanWorkflowPhase struct {
@@ -1731,6 +2370,34 @@ var (
 	AtlanWorkflowPhasePending = AtlanWorkflowPhase{"Pending"}
 )
 
+func (a *AtlanWorkflowPhase) UnmarshalJSON(data []byte) error {
+	var phaseName string
+	if err := json.Unmarshal(data, &phaseName); err != nil {
+		return err
+	}
+
+	switch phaseName {
+	case "Succeeded":
+		*a = AtlanWorkflowPhaseSuccess
+	case "Running":
+		*a = AtlanWorkflowPhaseRunning
+	case "Failed":
+		*a = AtlanWorkflowPhaseFailed
+	case "Error":
+		*a = AtlanWorkflowPhaseError
+	case "Pending":
+		*a = AtlanWorkflowPhasePending
+	default:
+		*a = AtlanWorkflowPhase{Name: phaseName}
+	}
+
+	return nil
+}
+
+func (a AtlanWorkflowPhase) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.Name)
+}
+
 // ChildScoreMode represents modes of child scores.
 type ChildScoreMode struct {
 	Name string
@@ -1747,6 +2414,37 @@ var (
 	ChildScoreModeMax  = ChildScoreMode{"max"}
 	ChildScoreModeMin  = ChildScoreMode{"min"}
 )
+
+// UnmarshalJSON customizes the unmarshalling of a ChildScoreMode from JSON.
+func (c *ChildScoreMode) UnmarshalJSON(data []byte) error {
+	var modeName string
+	if err := json.Unmarshal(data, &modeName); err != nil {
+		return err
+	}
+
+	// Set the corresponding ChildScoreMode based on the modeName.
+	switch modeName {
+	case "none":
+		*c = ChildScoreModeNone
+	case "avg":
+		*c = ChildScoreModeAvg
+	case "sum":
+		*c = ChildScoreModeSum
+	case "max":
+		*c = ChildScoreModeMax
+	case "min":
+		*c = ChildScoreModeMin
+	default:
+		*c = ChildScoreMode{Name: modeName}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of a ChildScoreMode to JSON.
+func (c ChildScoreMode) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.Name)
+}
 
 // WorkflowPackage represents types of workflow packages.
 type WorkflowPackage struct {
@@ -1810,3 +2508,126 @@ var (
 	WorkflowPackageThoughtspot                = WorkflowPackage{"atlan-thoughtspot"}
 	WorkflowPackageTrino                      = WorkflowPackage{"atlan-trino"}
 )
+
+// UnmarshalJSON customizes the unmarshalling of a WorkflowPackage from JSON.
+func (w *WorkflowPackage) UnmarshalJSON(data []byte) error {
+	var packageName string
+	if err := json.Unmarshal(data, &packageName); err != nil {
+		return err
+	}
+
+	// Based on the packageName, set the corresponding WorkflowPackage.
+	switch packageName {
+	case "atlan-airflow":
+		*w = WorkflowPackageAirflow
+	case "atlan-athena":
+		*w = WorkflowPackageAthena
+	case "atlan-aws-lambda-trigger":
+		*w = WorkflowPackageAwsLambdaTrigger
+	case "atlan-azure-event-hub":
+		*w = WorkflowPackageAzureEventHub
+	case "atlan-bigquery":
+		*w = WorkflowPackageBigquery
+	case "atlan-bigquery-miner":
+		*w = WorkflowPackageBigqueryMiner
+	case "atlan-connection-delete":
+		*w = WorkflowPackageConnectionDelete
+	case "atlan-databricks":
+		*w = WorkflowPackageDatabricks
+	case "atlan-databricks-lineage":
+		*w = WorkflowPackageDatabricksLineage
+	case "atlan-dbt":
+		*w = WorkflowPackageDbt
+	case "atlan-fivetran":
+		*w = WorkflowPackageFivetran
+	case "atlan-glue":
+		*w = WorkflowPackageGlue
+	case "atlan-hive":
+		*w = WorkflowPackageHive
+	case "atlan-hive-miner":
+		*w = WorkflowPackageHiveMiner
+	case "atlan-kafka":
+		*w = WorkflowPackageKafka
+	case "atlan-kafka-aiven":
+		*w = WorkflowPackageKafkaAiven
+	case "atlan-kafka-confluent-cloud":
+		*w = WorkflowPackageKafkaConfluentCloud
+	case "atlan-kafka-redpanda":
+		*w = WorkflowPackageKafkaRedpanda
+	case "atlan-looker":
+		*w = WorkflowPackageLooker
+	case "atlan-matillion":
+		*w = WorkflowPackageMatillion
+	case "atlan-metabase":
+		*w = WorkflowPackageMetabase
+	case "atlan-microstrategy":
+		*w = WorkflowPackageMicrostrategy
+	case "atlan-mode":
+		*w = WorkflowPackageMode
+	case "atlan-monte-carlo":
+		*w = WorkflowPackageMonteCarlo
+	case "atlan-mssql":
+		*w = WorkflowPackageMssql
+	case "atlan-mssql-miner":
+		*w = WorkflowPackageMssqlMiner
+	case "atlan-mysql":
+		*w = WorkflowPackageMysql
+	case "atlan-oracle":
+		*w = WorkflowPackageOracle
+	case "atlan-postgres":
+		*w = WorkflowPackagePostgres
+	case "atlan-powerbi":
+		*w = WorkflowPackagePowerbi
+	case "atlan-powerbi-miner":
+		*w = WorkflowPackagePowerbiMiner
+	case "atlan-presto":
+		*w = WorkflowPackagePresto
+	case "atlan-qlik-sense":
+		*w = WorkflowPackageQlikSense
+	case "atlan-qlik-sense-enterprise-windows":
+		*w = WorkflowPackageQlikSenseEnterpriseWindows
+	case "atlan-quicksight":
+		*w = WorkflowPackageQuicksight
+	case "atlan-redash":
+		*w = WorkflowPackageRedash
+	case "atlan-redshift":
+		*w = WorkflowPackageRedshift
+	case "atlan-redshift-miner":
+		*w = WorkflowPackageRedshiftMiner
+	case "atlan-salesforce":
+		*w = WorkflowPackageSalesforce
+	case "atlan-sap-hana":
+		*w = WorkflowPackageSapHana
+	case "atlan-schema-registry-confluent":
+		*w = WorkflowPackageSchemaRegistryConfluent
+	case "atlan-sigma":
+		*w = WorkflowPackageSigma
+	case "atlan-snowflake":
+		*w = WorkflowPackageSnowflake
+	case "atlan-snowflake-miner":
+		*w = WorkflowPackageSnowflakeMiner
+	case "atlan-soda":
+		*w = WorkflowPackageSoda
+	case "atlan-synapse":
+		*w = WorkflowPackageSynapse
+	case "atlan-tableau":
+		*w = WorkflowPackageTableau
+	case "atlan-teradata":
+		*w = WorkflowPackageTeradata
+	case "atlan-teradata-miner":
+		*w = WorkflowPackageTeradataMiner
+	case "atlan-thoughtspot":
+		*w = WorkflowPackageThoughtspot
+	case "atlan-trino":
+		*w = WorkflowPackageTrino
+	default:
+		return errors.New("unknown workflow package: " + packageName)
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of a WorkflowPackage to JSON.
+func (w WorkflowPackage) MarshalJSON() ([]byte, error) {
+	return json.Marshal(w.Name)
+}
