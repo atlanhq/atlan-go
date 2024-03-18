@@ -1,6 +1,5 @@
 package client
 
-import "C"
 import (
 	"atlan-go/atlan/model"
 	"encoding/json"
