@@ -111,11 +111,7 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 
 	response, err := ac.makeRequest(api.Method, path, params)
 	if err != nil {
-		return nil, ApiConnectionError{AtlanError{
-			ErrorCode:     errorCodes[CONNECTION_ERROR],
-			Args:          []interface{}{"IOException"},
-			OriginalError: err,
-		},
+		return nil, handleApiError(response)
 		}
 	}
 
@@ -224,12 +220,7 @@ func (ac *AtlanClient) logHTTPStatus(response *http.Response) {
 		ac.logger.Printf("HTTP Status: %s\n", response.Status)
 		if response.StatusCode < 200 || response.StatusCode >= 300 {
 			// Read the response body for the error message
-			bodyBytes, err := io.ReadAll(response.Body)
-			if err != nil {
-				ac.logger.Printf("Error reading response body: %v\n", err)
-			} else {
-				ac.logger.Printf("Error: %s\n", string(bodyBytes))
-			}
+			ac.logger.Printf("Error: %s\n", handleApiError(response))
 		}
 	}
 }

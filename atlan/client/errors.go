@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"net/http"
 )
 
 type ErrorInfo struct {
@@ -131,6 +132,7 @@ const (
 	FOUND_UNEXPECTED_ASSET_TYPE
 	RETRIES_INTERRUPTED
 	RETRY_OVERRUN
+	TYPEDEF_NOT_FOUND_BY_NAME
 )
 
 var errorCodes = map[ErrorCode]ErrorInfo{
@@ -608,6 +610,12 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 		ErrorMessage:  "Unable to find a query with the name: %s.",
 		UserAction:    "Verify the requested query exists in your Atlan environment.",
 	},
+	TYPEDEF_NOT_FOUND_BY_NAME: {
+		HTTPErrorCode: 404,
+		ErrorID:       "ATLAN-GO-404-027",
+		ErrorMessage:  "Type definition with name %s does not exist.",
+		UserAction:    "Verify the type definition name provided is a valid type definition name. This should be the human-readable name of the type definition.",
+	},
 	CONFLICT_PASSTHROUGH: {
 		HTTPErrorCode: 409,
 		ErrorID:       "ATLAN-GO-409-000",
@@ -668,4 +676,26 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 		ErrorMessage:  "Loop for retrying a failed action hit the maximum number of retries.",
 		UserAction:    "Please raise an issue on the Go SDK GitHub repository providing context in which this error occurred.",
 	},
+}
+
+func handleApiError(response *http.Response) error {
+	rc := response.StatusCode
+
+	switch rc {
+	case 400:
+		return InvalidRequestError{AtlanError{ErrorCode: errorCodes[INVALID_REQUEST_PASSTHROUGH]}}
+	case 404:
+		return NotFoundError{AtlanError{ErrorCode: errorCodes[NOT_FOUND_PASSTHROUGH]}}
+	case 401:
+		return AuthenticationError{AtlanError{ErrorCode: errorCodes[AUTHENTICATION_PASSTHROUGH]}}
+	case 403:
+		return PermissionError{AtlanError{ErrorCode: errorCodes[PERMISSION_PASSTHROUGH]}}
+	case 409:
+		return ConflictError{AtlanError{ErrorCode: errorCodes[CONFLICT_PASSTHROUGH]}}
+	case 429:
+		return RateLimitError{AtlanError{ErrorCode: errorCodes[RATE_LIMIT_PASSTHROUGH]}}
+	default:
+		return ApiError{AtlanError{ErrorCode: errorCodes[ERROR_PASSTHROUGH]}}
+	}
+	return nil
 }
