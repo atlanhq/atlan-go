@@ -4,7 +4,6 @@ import "C"
 import (
 	"atlan-go/atlan/model"
 	"encoding/json"
-	"fmt"
 	"sync"
 )
 
@@ -87,7 +86,7 @@ func (c *AtlanTagCache) RefreshCache() error {
 	var atlanTags model.TypeDefResponse
 	err = json.Unmarshal(response, &atlanTags)
 	if err != nil {
-		return fmt.Errorf("error unmarshalling Atlan tags: %v", err)
+		return AtlanError{ErrorCode: errorCodes[EXPIRED_API_TOKEN]}
 	}
 
 	c.cacheByID = make(map[string]model.AtlanTagDef)
@@ -119,7 +118,6 @@ func (c *AtlanTagCache) GetIDForName(name string) (string, error) {
 			// an entry in an audit log that refers to a classification that
 			// no longer exists)
 			c.deletedNames[name] = struct{}{}
-			fmt.Printf("deletedNames: %s\n", c.deletedNames)
 		}
 	}
 

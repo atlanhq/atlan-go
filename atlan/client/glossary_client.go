@@ -41,7 +41,6 @@ func GetGlossaryByGuid(glossaryGuid string) (*assets.AtlasGlossary, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Glossary:", g)
 
 	return g, nil
 }
@@ -64,7 +63,6 @@ func GetGlossaryTermByGuid(glossaryGuid string) (*assets.GlossaryTerm, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("GlossaryTerm:", gt)
 
 	return gt, nil
 }

@@ -3,7 +3,6 @@ package client
 import (
 	"atlan-go/atlan/model"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -93,7 +92,6 @@ func (c *CustomMetadataCache) RefreshCache() error {
 
 	response, err := DefaultAtlanClient.CallAPI(api, nil, nil)
 	if err != nil {
-		fmt.Println("Error", err)
 		return err
 	}
 
@@ -101,12 +99,11 @@ func (c *CustomMetadataCache) RefreshCache() error {
 	var customMetadataDefs model.TypeDefResponse
 	err = json.Unmarshal(response, &customMetadataDefs)
 	if err != nil {
-		fmt.Println("Error", err)
 		return err
 	}
 
 	if response == nil || len(customMetadataDefs.CustomMetadataDefs) == 0 {
-		return errors.New("expired API token or no custom metadata definitions found")
+		return AuthenticationError{AtlanError{ErrorCode: errorCodes[EXPIRED_API_TOKEN]}}
 	}
 
 	// Clear existing cache data
@@ -136,7 +133,7 @@ func (c *CustomMetadataCache) RefreshCache() error {
 
 			// Check for duplicate attributes.
 			if existsInIDToName || existsInNameToID {
-				return fmt.Errorf("duplicate custom attributes detected: %s in %s", attrName, typeName)
+				return LogicError{AtlanError{ErrorCode: errorCodes[DUPLICATE_CUSTOM_ATTRIBUTES]}}
 			}
 
 			if attr.Options == nil || attr.Options.IsArchived {
@@ -165,7 +162,7 @@ GetIDForName Translate the provided human-readable custom metadata set name to i
 */
 func (c *CustomMetadataCache) GetIDForName(name string) (string, error) {
 	if name == "" || strings.TrimSpace(name) == "" {
-		return "", ErrMissingCMID
+		return "", InvalidRequestError{AtlanError{ErrorCode: errorCodes[MISSING_CM_NAME]}}
 	}
 
 	c.mutex.RLock()
@@ -174,8 +171,7 @@ func (c *CustomMetadataCache) GetIDForName(name string) (string, error) {
 
 	if !exists {
 		if err := c.RefreshCache(); err != nil {
-			fmt.Println(err)
-			return "Error", err
+			return "", ApiError{AtlanError{ErrorCode: errorCodes[CONNECTION_ERROR], OriginalError: err}}
 		}
 
 		c.mutex.RLock()
@@ -183,7 +179,7 @@ func (c *CustomMetadataCache) GetIDForName(name string) (string, error) {
 		c.mutex.RUnlock()
 
 		if !exists {
-			//return "", errorWithParameters(ErrCMNotFoundByName, name)
+			return "", NotFoundError{AtlanError{ErrorCode: errorCodes[CM_NOT_FOUND_BY_NAME], Args: []interface{}{name}}}
 		}
 	}
 
@@ -203,7 +199,7 @@ GetNameForID Translate the provided Atlan-internal custom metadata ID string to 
 */
 func (c *CustomMetadataCache) GetNameForID(idstr string) (string, error) {
 	if idstr = strings.TrimSpace(idstr); idstr == "" {
-		return "", ErrMissingCMID
+		return "", InvalidRequestError{AtlanError{ErrorCode: errorCodes[MISSING_CM_ID]}}
 	}
 
 	c.mutex.RLock()
@@ -220,7 +216,7 @@ func (c *CustomMetadataCache) GetNameForID(idstr string) (string, error) {
 		c.mutex.RUnlock()
 
 		if !exists {
-			//return "", errorWithParameters(ErrCMNotFoundByID, idstr)
+			return "", NotFoundError{AtlanError{ErrorCode: errorCodes[CM_NOT_FOUND_BY_ID], Args: []interface{}{idstr}}}
 		}
 	}
 
@@ -248,8 +244,7 @@ func (c *CustomMetadataCache) GetAllCustomAttributes(includeDeleted, forceRefres
 	for typeID, cm := range c.CacheByID {
 		typeName, err := c.GetNameForID(typeID)
 		if err != nil {
-			return nil, fmt.Errorf("custom metadata not found by name")
-			//return nil, ErrorCode.CM_NOT_FOUND_BY_ID
+			return nil, NotFoundError{AtlanError{ErrorCode: errorCodes[CM_NOT_FOUND_BY_ID], Args: []interface{}{typeID}}}
 		}
 		var toInclude []model.AttributeDef
 		if includeDeleted {
@@ -296,9 +291,9 @@ func (c *CustomMetadataCache) GetAttrIDForName(setName, attrName string) (string
 			// If found, return straight away
 			return attrID, nil
 		}
-		return "", fmt.Errorf("attribute %s not found in set %s", attrName, setName)
+		return "", NotFoundError{AtlanError{ErrorCode: errorCodes[CM_ATTR_NOT_FOUND_BY_NAME], Args: []interface{}{attrName, setName}}}
 	}
-	return "", fmt.Errorf("set %s not found", setName)
+	return "", NotFoundError{AtlanError{ErrorCode: errorCodes[CM_ATTR_NOT_FOUND_BY_ID], Args: []interface{}{setID}}}
 }
 
 /*
@@ -323,8 +318,7 @@ func (c *CustomMetadataCache) GetAttrNameForID(setID, attrID string) (string, er
 			return attrName, nil
 		}
 	}
-	//return "", ErrorCode.CM_ATTR_NOT_FOUND_BY_ID
-	return "", fmt.Errorf("attribute not found by id")
+	return "", NotFoundError{AtlanError{ErrorCode: errorCodes[CM_ATTR_NOT_FOUND_BY_ID], Args: []interface{}{setID}}}
 }
 
 func (c *CustomMetadataCache) GetAttributesForSearchResults(setID string) []string {
@@ -385,15 +379,13 @@ GetCustomMetadataDef Retrieve the full custom metadata structure definition.
 func (c *CustomMetadataCache) GetCustomMetadataDef(name string) (model.CustomMetadataDef, error) {
 	baID, _ := c.GetIDForName(name)
 	if baID == "" {
-		//return CustomMetadataDef{}, ErrorCode.CM_NOT_FOUND_BY_NAME
-		return model.CustomMetadataDef{}, fmt.Errorf("missing custom metadata attribute id")
+		return model.CustomMetadataDef{}, NotFoundError{AtlanError{ErrorCode: errorCodes[CM_NOT_FOUND_BY_NAME], Args: []interface{}{name}}}
 
 	}
 	if typedef, ok := c.CacheByID[baID]; ok {
 		return typedef, nil
 	}
-	//return CustomMetadataDef{}, ErrorCode.CM_NOT_FOUND_BY_NAME
-	return model.CustomMetadataDef{}, fmt.Errorf("missing custom metadata attribute id")
+	return model.CustomMetadataDef{}, NotFoundError{AtlanError{ErrorCode: errorCodes[CM_NOT_FOUND_BY_NAME], Args: []interface{}{name}}}
 
 }
 
@@ -410,8 +402,7 @@ GetAttributeDef Retrieve a specific custom metadata attribute definition by its 
 */
 func (c *CustomMetadataCache) GetAttributeDef(attrID string) (model.AttributeDef, error) {
 	if attrID == "" {
-		//return AttributeDef{}, ErrorCode.MISSING_CM_ATTR_ID
-		return model.AttributeDef{}, fmt.Errorf("missing custom metadata attribute id")
+		return model.AttributeDef{}, NotFoundError{AtlanError{ErrorCode: errorCodes[MISSING_CM_ATTR_ID]}}
 	}
 	if c.AttrCacheByID == nil {
 		c.RefreshCache()
@@ -419,7 +410,6 @@ func (c *CustomMetadataCache) GetAttributeDef(attrID string) (model.AttributeDef
 	if attrDef, ok := c.AttrCacheByID[attrID]; ok {
 		return attrDef, nil
 	}
-	//return AttributeDef{}, ErrorCode.CM_ATTR_NOT_FOUND_BY_ID
-	return model.AttributeDef{}, fmt.Errorf("missing custom metadata attribute id")
+	return model.AttributeDef{}, NotFoundError{AtlanError{ErrorCode: errorCodes[CM_ATTR_NOT_FOUND_BY_ID], Args: []interface{}{attrID}}}
 
 }

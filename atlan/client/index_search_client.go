@@ -1,6 +1,7 @@
 package client
 
 import (
+	"atlan-go/atlan"
 	"atlan-go/atlan/model"
 	"encoding/json"
 	"errors"
@@ -37,7 +38,7 @@ func FindGlossaryByName(glossaryName string) (*model.IndexSearchResponse, error)
 	}
 	pageSize := 1
 
-	sortItems := []model.SortItem{{Field: string(MODIFIED_BY), Order: ASCENDING}}
+	sortItems := []model.SortItem{{Field: string(MODIFIED_BY), Order: atlan.SortOrderAscending}}
 	sortItemsJSON := make([]map[string]interface{}, len(sortItems))
 	for i, item := range sortItems {
 		sortItemsJSON[i] = item.ToJSON()
@@ -161,7 +162,7 @@ func WithActiveCategory(name string, glossaryqualifiedname string) (*model.BoolQ
 
 // WithState returns a query for an entity with a specific state.
 func WithState(value string) (*model.TermQuery, error) {
-	if value != string(ACTIVE) && value != string(DELETED) && value != string(PURGED) {
+	if value != atlan.LiteralStateActive.String() && value != atlan.LiteralStateDeleted.String() && value != atlan.LiteralStatePurged.String() {
 		return nil, errors.New("invalid state")
 	}
 	return &model.TermQuery{

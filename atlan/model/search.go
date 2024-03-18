@@ -2,8 +2,7 @@
 
 package model
 
-type LiteralState string
-type SortOrder string
+import "atlan-go/atlan"
 
 // Query is an interface that represents the base query behavior.
 type Query interface {
@@ -116,7 +115,7 @@ type MatchQuery struct {
 
 type SortItem struct {
 	Field      string
-	Order      SortOrder
+	Order      atlan.SortOrder
 	NestedPath *string
 }
 
@@ -393,7 +392,7 @@ func (m *MatchQuery) ToJSON() map[string]interface{} {
 
 // ToJSON returns the JSON representation of the SortItem.
 func (s *SortItem) ToJSON() map[string]interface{} {
-	sortField := map[string]interface{}{"order": string(s.Order)}
+	sortField := map[string]interface{}{"order": s.Order}
 	if s.NestedPath != nil {
 		sortField["nested"] = map[string]interface{}{"path": *s.NestedPath}
 	}

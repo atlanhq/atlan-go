@@ -1,6 +1,7 @@
 package client
 
 import (
+	"atlan-go/atlan"
 	"atlan-go/atlan/model"
 )
 
@@ -57,7 +58,7 @@ func (sf *SearchableField) HasAnyValue() model.Query {
 }
 
 // Order Returns a condition to sort results by the field, in the specified order.
-func (sf *SearchableField) Order(order model.SortOrder) model.SortItem {
+func (sf *SearchableField) Order(order atlan.SortOrder) model.SortItem {
 	return model.SortItem{
 		Field:      sf.ElasticFieldName,
 		Order:      order,

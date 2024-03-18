@@ -1,9 +1,9 @@
 package client
 
 import (
+	"atlan-go/atlan"
 	"atlan-go/atlan/model"
 	"encoding/json"
-	"errors"
 	"fmt"
 )
 
@@ -48,7 +48,7 @@ func buildTypeDefRequest(typedef model.TypeDef) (model.TypeDefResponse, error) {
 			CustomMetadataDefs: []model.CustomMetadataDef{},
 		}
 	default:
-		return model.TypeDefResponse{}, errors.New("unsupported typedef category")
+		return model.TypeDefResponse{}, AtlanError{ErrorCode: errorCodes[UNABLE_TO_UPDATE_TYPEDEF_CATEGORY], Args: []interface{}{t}}
 	}
 
 	return payload, nil
@@ -72,7 +72,7 @@ func RefreshCaches(typedef model.TypeDef) error {
 	case model.EnumDef:
 		//return EnumCache.RefreshCache()
 	default:
-		return fmt.Errorf("unsupported typedef category: %T", t)
+		return AtlanError{ErrorCode: errorCodes[UNABLE_TO_UPDATE_TYPEDEF_CATEGORY], Args: []interface{}{t}}
 	}
 	return nil
 }
@@ -80,14 +80,17 @@ func RefreshCaches(typedef model.TypeDef) error {
 func GetAll() (*model.TypeDefResponse, error) {
 	rawJSON, err := DefaultAtlanClient.CallAPI(&GET_ALL_TYPE_DEFS, nil, nil)
 	if err != nil {
-		return nil, err
+		return nil, AtlanError{
+			ErrorCode: errorCodes[CONNECTION_ERROR],
+			Args:      []interface{}{"IOException"},
+		}
 	}
 	return NewTypeDefResponse(rawJSON)
 }
 
 // Get retrieves a TypeDefResponse object that contains a list of the specified category type definitions in Atlan.
-func Get(typeCategory model.AtlanTypeCategory) (*model.TypeDefResponse, error) {
-	queryParams := map[string]string{"type": string(typeCategory)}
+func Get(typeCategory atlan.AtlanTypeCategory) (*model.TypeDefResponse, error) {
+	queryParams := map[string]string{"type": typeCategory.String()}
 	rawJSON, err := DefaultAtlanClient.CallAPI(&GET_ALL_TYPE_DEFS, queryParams, nil)
 	if err != nil {
 		return nil, err
@@ -129,7 +132,7 @@ func (c *TypeDefClient) Purge(name string, typedefType model.TypeDef) error {
 	}
 
 	if internalName == "" {
-		return fmt.Errorf("type definition not found by name: %s", name)
+		return NotFoundError{AtlanError{ErrorCode: errorCodes[TYPEDEF_NOT_FOUND_BY_NAME], Args: []interface{}{name}}}
 	}
 
 	c.Client.CallAPI(&DELETE_TYPE_DEF_BY_NAME, nil, nil)
