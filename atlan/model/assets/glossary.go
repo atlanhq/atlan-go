@@ -74,15 +74,11 @@ func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
 	ag.CreateTime = temp.Entity.CreateTime
 	ag.UpdateTime = temp.Entity.UpdateTime
 
-	//	ag.Asset = temp.Entity.Attributes
-
 	var asset AtlasGlossaryAttributes
-	//fmt.Println("Json Attributes: ", string(temp.Entity.AttributesJSON))
 	if err := json.Unmarshal(temp.Entity.AttributesJSON, &asset); err != nil {
 		return err
 	}
 
-	//fmt.Println("Asset Unmarshalled: ", asset)
 	// Map Asset fields
 	ag.Name = asset.Name
 	ag.AssetIcon = asset.AssetIcon
