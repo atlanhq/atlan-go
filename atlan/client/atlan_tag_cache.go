@@ -1,5 +1,6 @@
 package client
 
+import "C"
 import (
 	"atlan-go/atlan/model"
 	"encoding/json"
@@ -37,9 +38,9 @@ var (
 )
 
 // GetCache returns the AtlanTagCache for the default AtlanClient.
-func GetCache() *AtlanTagCache {
+func GetAtlanTagCache() *AtlanTagCache {
 	client := DefaultAtlanClient
-	cacheKey := client.ApiKey
+	cacheKey := generateCacheKey(client.host, client.ApiKey)
 
 	mu.Lock()
 	defer mu.Unlock()
@@ -58,18 +59,18 @@ func GetCache() *AtlanTagCache {
 }
 
 func RefreshCache() {
-	GetCache().RefreshCache()
+	GetAtlanTagCache().RefreshCache()
 }
 
-func GetIDForName(name string) (string, error) {
-	return GetCache().GetIDForName(name)
+func GetAtlanTagIDForName(name string) (string, error) {
+	return GetAtlanTagCache().GetIDForName(name)
 }
 
-func GetNameForID(idstr string) (string, error) {
-	return GetCache().GetNameForID(idstr)
+func GetAtlanTagNameForID(idstr string) (string, error) {
+	return GetAtlanTagCache().GetNameForID(idstr)
 }
 
-// RefreshCache refreshes the cache of Atlan tags by requesting the full set of Atlan tags from Atlan.
+// RefreshCache ref	reshes the cache of Atlan tags by requesting the full set of Atlan tags from Atlan.
 // RefreshCache updates the AtlanTagCache with the latest data from Atlan.
 func (c *AtlanTagCache) RefreshCache() error {
 	c.mutex.Lock()

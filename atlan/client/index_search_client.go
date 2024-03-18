@@ -9,7 +9,7 @@ import (
 )
 
 // Call the search API
-func search(request model.IndexSearchRequest) (*model.IndexSearchResponse, error) {
+func Search(request model.IndexSearchRequest) (*model.IndexSearchResponse, error) {
 	// Define the API endpoint and method
 	api := &INDEX_SEARCH
 
@@ -223,7 +223,7 @@ func (it *IndexSearchIterator) NextPage() (*model.IndexSearchResponse, error) {
 	it.request.Dsl.From = it.currentPage * it.pageSize
 	it.request.Dsl.Size = it.pageSize
 
-	response, err := search(it.request)
+	response, err := Search(it.request)
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +249,7 @@ func (it *IndexSearchIterator) IteratePages() ([]*model.IndexSearchResponse, err
 	// Perform an initial search to get the approximateCount
 	it.request.Dsl.From = 0
 	it.request.Dsl.Size = it.pageSize
-	response, err := search(it.request)
+	response, err := Search(it.request)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +277,7 @@ func (it *IndexSearchIterator) IteratePages() ([]*model.IndexSearchResponse, err
 			defer wg.Done()
 			it.request.Dsl.From = i * it.pageSize
 			it.request.Dsl.Size = it.pageSize
-			response, err := search(it.request)
+			response, err := Search(it.request)
 			if err != nil {
 				errors[i] = err
 				return

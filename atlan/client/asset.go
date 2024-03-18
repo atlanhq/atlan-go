@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"hash/fnv"
 	"strings"
 	"time"
 )
@@ -22,41 +23,41 @@ type SearchAssets struct {
 }
 
 type AttributesFields struct {
-	TYPENAME              *model.KeywordTextField
-	GUID                  *model.KeywordField
-	CREATED_BY            *model.KeywordField
-	UPDATED_BY            *model.KeywordField
-	STATUS                *model.KeywordField
-	ATLAN_TAGS            *model.KeywordTextField
-	PROPOGATED_ATLAN_TAGS *model.KeywordTextField
-	ASSIGNED_TERMS        *model.KeywordTextField
-	SUPERTYPE_NAMES       *model.KeywordTextField
-	CREATE_TIME           *model.NumericField
-	UPDATE_TIME           *model.NumericField
-	QUALIFIED_NAME        *model.KeywordTextField
+	TYPENAME              *KeywordTextField
+	GUID                  *KeywordField
+	CREATED_BY            *KeywordField
+	UPDATED_BY            *KeywordField
+	STATUS                *KeywordField
+	ATLAN_TAGS            *KeywordTextField
+	PROPOGATED_ATLAN_TAGS *KeywordTextField
+	ASSIGNED_TERMS        *KeywordTextField
+	SUPERTYPE_NAMES       *KeywordTextField
+	CREATE_TIME           *NumericField
+	UPDATE_TIME           *NumericField
+	QUALIFIED_NAME        *KeywordTextField
 }
 
 type AssetFields struct {
 	*AttributesFields
-	NAME                       *model.KeywordTextStemmedField
-	DISPLAY_NAME               *model.KeywordTextField
-	DESCRIPTION                *model.KeywordTextField
-	USER_DESCRIPTION           *model.KeywordTextField
-	TENET_ID                   *model.KeywordField
-	CERTIFICATE_STATUS         *model.KeywordTextField
-	CERTIFICATE_STATUS_MESSAGE *model.KeywordField
-	CERTIFICATE_UPDATED_BY     *model.NumericField
-	ANNOUNCEMENT_TITLE         *model.KeywordField
-	ANNOUNCEMENT_MESSAGE       *model.KeywordTextField
-	ANNOUNCEMENT_TYPE          *model.KeywordField
-	ANNOUNCEMENT_UPDATED_AT    *model.NumericField
-	ANNOUNCEMENT_UPDATED_BY    *model.KeywordField
-	OWNER_USERS                *model.KeywordTextField
-	ADMIN_USERS                *model.KeywordField
-	VIEWER_USERS               *model.KeywordField
-	VIEWER_GROUPS              *model.KeywordField
-	CONNECTOR_NAME             *model.KeywordTextField
-	CONNECTION_NAME            *model.KeywordTextField
+	NAME                       *KeywordTextStemmedField
+	DISPLAY_NAME               *KeywordTextField
+	DESCRIPTION                *KeywordTextField
+	USER_DESCRIPTION           *KeywordTextField
+	TENET_ID                   *KeywordField
+	CERTIFICATE_STATUS         *KeywordTextField
+	CERTIFICATE_STATUS_MESSAGE *KeywordField
+	CERTIFICATE_UPDATED_BY     *NumericField
+	ANNOUNCEMENT_TITLE         *KeywordField
+	ANNOUNCEMENT_MESSAGE       *KeywordTextField
+	ANNOUNCEMENT_TYPE          *KeywordField
+	ANNOUNCEMENT_UPDATED_AT    *NumericField
+	ANNOUNCEMENT_UPDATED_BY    *KeywordField
+	OWNER_USERS                *KeywordTextField
+	ADMIN_USERS                *KeywordField
+	VIEWER_USERS               *KeywordField
+	VIEWER_GROUPS              *KeywordField
+	CONNECTOR_NAME             *KeywordTextField
+	CONNECTION_NAME            *KeywordTextField
 }
 
 // AtlasGlossary represents the AtlasGlossary asset
@@ -74,7 +75,7 @@ type AtlasTable struct {
 func NewSearchTable() *AtlasTable {
 	return &AtlasTable{
 		AttributesFields: AttributesFields{
-			TYPENAME: model.NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
+			TYPENAME: NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
 		},
 	}
 }
@@ -84,21 +85,21 @@ func NewSearchGlossary() *AtlasGlossary {
 	return &AtlasGlossary{
 		AssetFields: AssetFields{
 			AttributesFields: &AttributesFields{
-				TYPENAME:              model.NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
-				GUID:                  model.NewKeywordField("guid", "__guid"),
-				CREATED_BY:            model.NewKeywordField("createdBy", "__createdBy"),
-				UPDATED_BY:            model.NewKeywordField("updatedBy", "__modifiedBy"),
-				STATUS:                model.NewKeywordField("status", "__state"),
-				ATLAN_TAGS:            model.NewKeywordTextField("classificationNames", "__traitNames", "__classificationsText"),
-				PROPOGATED_ATLAN_TAGS: model.NewKeywordTextField("classificationNames", "__propagatedTraitNames", "__classificationsText"),
-				ASSIGNED_TERMS:        model.NewKeywordTextField("meanings", "__meanings", "__meaningsText"),
-				SUPERTYPE_NAMES:       model.NewKeywordTextField("typeName", "__superTypeNames.keyword", "__superTypeNames"),
-				CREATE_TIME:           model.NewNumericField("createTime", "__timestamp"),
-				UPDATE_TIME:           model.NewNumericField("updateTime", "__modificationTimestamp"),
-				QUALIFIED_NAME:        model.NewKeywordTextField("qualifiedName", "qualifiedName", "qualifiedName.text"),
+				TYPENAME:              NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
+				GUID:                  NewKeywordField("guid", "__guid"),
+				CREATED_BY:            NewKeywordField("createdBy", "__createdBy"),
+				UPDATED_BY:            NewKeywordField("updatedBy", "__modifiedBy"),
+				STATUS:                NewKeywordField("status", "__state"),
+				ATLAN_TAGS:            NewKeywordTextField("classificationNames", "__traitNames", "__classificationsText"),
+				PROPOGATED_ATLAN_TAGS: NewKeywordTextField("classificationNames", "__propagatedTraitNames", "__classificationsText"),
+				ASSIGNED_TERMS:        NewKeywordTextField("meanings", "__meanings", "__meaningsText"),
+				SUPERTYPE_NAMES:       NewKeywordTextField("typeName", "__superTypeNames.keyword", "__superTypeNames"),
+				CREATE_TIME:           NewNumericField("createTime", "__timestamp"),
+				UPDATE_TIME:           NewNumericField("updateTime", "__modificationTimestamp"),
+				QUALIFIED_NAME:        NewKeywordTextField("qualifiedName", "qualifiedName", "qualifiedName.text"),
 			},
-			DISPLAY_NAME: model.NewKeywordTextField("displayName", "displayName.keyword", "displayName"),
-			NAME:         model.NewKeywordTextStemmedField("name", "name.keyword", "name", "name"),
+			DISPLAY_NAME: NewKeywordTextField("displayName", "displayName.keyword", "displayName"),
+			NAME:         NewKeywordTextStemmedField("name", "name.keyword", "name", "name"),
 		},
 	}
 }
@@ -271,4 +272,10 @@ func Save(asset AtlanObject) (*model.AssetMutationResponse, error) {
 	}
 
 	return &response, nil
+}
+
+func generateCacheKey(baseURL, apiKey string) string {
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(fmt.Sprintf("%s/%s", baseURL, apiKey)))
+	return fmt.Sprintf("%d", h.Sum32())
 }
