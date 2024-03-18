@@ -139,7 +139,7 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	CONNECTION_ERROR: {
 		HTTPErrorCode: -1,
 		ErrorID:       "ATLAN-GO--1-001",
-		ErrorMessage:  "IOException occurred during API request to Atlan: %s.",
+		ErrorMessage:  "IOException occurred during API request to Atlan.",
 		UserAction:    "Please check your internet connection and try again. If this problem persists, you should check Atlan's availability via a browser, or let us know at support@atlan.com.",
 	},
 	INVALID_REQUEST_PASSTHROUGH: {
@@ -679,6 +679,9 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 }
 
 func handleApiError(response *http.Response) error {
+	if response == nil {
+		return ApiConnectionError{AtlanError{ErrorCode: errorCodes[CONNECTION_ERROR]}}
+	}
 	rc := response.StatusCode
 
 	switch rc {

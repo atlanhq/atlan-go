@@ -113,7 +113,7 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 	if err != nil {
 		return nil, handleApiError(response)
 	}
-	
+
 	ac.logHTTPStatus(response)
 
 	responseJSON, err := io.ReadAll(response.Body)
