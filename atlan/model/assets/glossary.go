@@ -6,24 +6,24 @@ import (
 
 type AtlasGlossary struct {
 	Asset
-	ShortDescription     string                  `json:"shortDescription"`
-	LongDescription      string                  `json:"longDescription"`
-	Language             string                  `json:"language"`
-	Usage                string                  `json:"usage"`
-	AdditionalAttributes struct{}                `json:"additionalAttributes"`
-	Terms                []AtlasGlossaryTerm     `json:"terms"`
-	Categories           []AtlasGlossaryCategory `json:"categories"`
+	ShortDescription     string                  `json:"shortDescription,omitempty"`
+	LongDescription      string                  `json:"longDescription,omitempty"`
+	Language             string                  `json:"language,omitempty"`
+	Usage                string                  `json:"usage,omitempty"`
+	AdditionalAttributes *struct{}               `json:"additionalAttributes,omitempty"`
+	Terms                []AtlasGlossaryTerm     `json:"terms,omitempty"`
+	Categories           []AtlasGlossaryCategory `json:"categories,omitempty"`
 }
 
 type AtlasGlossaryAttributes struct {
 	Asset
-	ShortDescription     string                  `json:"shortDescription"`
-	LongDescription      string                  `json:"longDescription"`
-	Language             string                  `json:"language"`
-	Usage                string                  `json:"usage"`
-	AdditionalAttributes struct{}                `json:"additionalAttributes"`
-	Terms                []AtlasGlossaryTerm     `json:"terms"`
-	Categories           []AtlasGlossaryCategory `json:"categories"`
+	ShortDescription     string                  `json:"shortDescription,omitempty"`
+	LongDescription      string                  `json:"longDescription,omitempty"`
+	Language             string                  `json:"language,omitempty"`
+	Usage                string                  `json:"usage,omitempty"`
+	AdditionalAttributes struct{}                `json:"additionalAttributes,omitempty"`
+	Terms                []AtlasGlossaryTerm     `json:"terms,omitempty"`
+	Categories           []AtlasGlossaryCategory `json:"categories,omitempty"`
 }
 
 func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
@@ -81,6 +81,12 @@ func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
 
 	// Map Asset fields
 	ag.Name = asset.Name
+	ag.AssetIcon = asset.AssetIcon
+	ag.QualifiedName = asset.QualifiedName
+	ag.ShortDescription = asset.ShortDescription
+	ag.LongDescription = asset.LongDescription
+	ag.Language = asset.Language
+	ag.Usage = asset.Usage
 	ag.AssetIcon = asset.AssetIcon
 
 	return nil

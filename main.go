@@ -17,8 +17,13 @@ func main() {
 		}
 		fmt.Println(resp)
 	*/
-	//response, _ := client.GetGlossaryByGuid("89d2d396-20ec-40cf-bd5a-2abaf338d75c")
+	response, err := client.GetGlossaryByGuid("fc36342b-ddb5-44ba-b774-4c90cc66d5a2")
 
+	if err != nil {
+		println("Error:", err)
+	} else {
+		println("Response:", response.Typename)
+	}
 	//client.GetAtlanTagCache().RefreshCache()
 	//id, _ := client.GetAtlanTagCache().GetIDForName("Hourly")
 	//fmt.Println("Print Response:", id)

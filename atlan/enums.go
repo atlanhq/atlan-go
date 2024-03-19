@@ -1991,6 +1991,28 @@ var (
 	AtlanIconYoutubeLogo                 = AtlanIcon{"PhYoutubeLogo"}
 )
 
+func (a *AtlanIcon) UnmarshalJSON(data []byte) error {
+	var atlanIconName string
+	if err := json.Unmarshal(data, &atlanIconName); err != nil {
+		return err
+	}
+
+	switch atlanIconName {
+	case "PhWind":
+		*a = AtlanIconWind
+	case "PhAirplaneInFlight":
+		*a = AtlanIconAirplaneInFlight
+	default:
+		*a = AtlanIcon{name: atlanIconName}
+	}
+
+	return nil
+}
+
+func (a AtlanIcon) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.name)
+}
+
 // LineageDirection represents the direction of lineage.
 type LineageDirection struct {
 	Name string

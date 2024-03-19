@@ -13,7 +13,7 @@ import (
 
 // AtlanClient defines the Atlan API client structure.
 type AtlanClient struct {
-	session        *http.Client
+	Session        *http.Client
 	host           string
 	ApiKey         string
 	loggingEnabled bool
@@ -43,7 +43,6 @@ func Init() error {
 	if err != nil {
 		return err
 	}
-	DefaultAtlanTagCache = NewAtlanTagCache(DefaultAtlanClient)
 
 	return nil
 }
@@ -59,7 +58,7 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 		logger = log.New(io.Discard, "", 0) // Logger that discards all log output
 	}
 	return &AtlanClient{
-		session: client,
+		Session: client,
 		host:    baseURL,
 		ApiKey:  apiKey,
 		requestParams: map[string]interface{}{
@@ -201,7 +200,7 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 		req.URL.RawQuery = query
 	}
 
-	return ac.session.Do(req)
+	return ac.Session.Do(req)
 }
 
 func (ac *AtlanClient) logAPICall(method, path string) {
@@ -214,7 +213,7 @@ func (ac *AtlanClient) logAPICall(method, path string) {
 }
 
 func (ac *AtlanClient) logHTTPStatus(response *http.Response) {
-	if response != nil {
+	if ac.loggingEnabled && response != nil {
 		ac.logger.Printf("HTTP Status: %s\n", response.Status)
 		if response.StatusCode < 200 || response.StatusCode >= 300 {
 			// Read the response body for the error message
@@ -224,7 +223,9 @@ func (ac *AtlanClient) logHTTPStatus(response *http.Response) {
 }
 
 func (ac *AtlanClient) logResponse(responseJSON []byte) {
-	ac.logger.Println("<== __call_api", string(responseJSON))
+	if ac.loggingEnabled {
+		ac.logger.Println("<== __call_api", string(responseJSON))
+	}
 }
 
 func deepCopy(original map[string]interface{}) map[string]interface{} {
