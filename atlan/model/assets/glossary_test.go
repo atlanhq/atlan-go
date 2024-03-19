@@ -8,6 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func stringPtr(s string) *string {
+	return &s
+}
+
 func TestUnmarshalling(t *testing.T) {
 	// Define a sample JSON data representing an AtlasGlossary
 	jsonData := []byte(`{
@@ -31,25 +35,18 @@ func TestUnmarshalling(t *testing.T) {
 	err := glossary.UnmarshalJSON(jsonData)
 
 	fmt.Println("Unmarshalled glossary:", glossary)
-	// Define the expected AtlasGlossary object
-	expectedGlossary := AtlasGlossary{
-		Asset: Asset{
-			Referenceable: Referenceable{TypeName: "AtlasGlossary"},
-			Name:          "Test Glossary",
-			QualifiedName: "test_glossary",
-			AssetIcon:     atlan.AtlanIconAirplaneInFlight,
-		},
-		ShortDescription: "Short description",
-		LongDescription:  "Long description",
-		Language:         "English",
-		Usage:            "Usage details",
-	}
 
 	// Assert that there is no error during unmarshalling
 	assert.NoError(t, err, "Error unmarshalling JSON")
 
 	// Assert that the unmarshalled glossary matches the expected glossary
-	assert.Equal(t, expectedGlossary, glossary, "Unmarshalled glossary does not match expected glossary")
+	assert.Equal(t, "Test Glossary", *glossary.Name, "Unexpected glossary name")
+	assert.Equal(t, "test_glossary", *glossary.QualifiedName, "Unexpected glossary qualified name")
+	assert.Equal(t, atlan.AtlanIconAirplaneInFlight, glossary.AssetIcon, "Unexpected glossary asset icon")
+	assert.Equal(t, "Short description", *glossary.ShortDescription, "Unexpected glossary short description")
+	assert.Equal(t, "Long description", *glossary.LongDescription, "Unexpected glossary long description")
+	assert.Equal(t, "English", *glossary.Language, "Unexpected glossary language")
+	assert.Equal(t, "Usage details", *glossary.Usage, "Unexpected glossary usage")
 }
 
 func TestMarshalling(t *testing.T) {
@@ -57,18 +54,18 @@ func TestMarshalling(t *testing.T) {
 	glossary := AtlasGlossary{
 		Asset: Asset{
 			Referenceable: Referenceable{
-				TypeName: "AtlasGlossary",
-				Guid:     "fc36342b-ddb5-44ba-b774-4c90cc66d5a2",
-				Status:   "ACTIVE",
+				TypeName: stringPtr("AtlasGlossary"),
+				Guid:     stringPtr("fc36342b-ddb5-44ba-b774-4c90cc66d5a2"),
+				Status:   atlan.AtlanStatusPtr("ACTIVE"),
 			},
-			Name:          "Test Glossary",
-			QualifiedName: "test_glossary",
+			Name:          stringPtr("Test Glossary"),
+			QualifiedName: stringPtr("test_glossary"),
 			AssetIcon:     atlan.AtlanIconAirplaneInFlight,
 		},
-		ShortDescription: "Short description",
-		LongDescription:  "Long description",
-		Language:         "English",
-		Usage:            "Usage details",
+		ShortDescription: stringPtr("Short description"),
+		LongDescription:  stringPtr("Long description"),
+		Language:         stringPtr("English"),
+		Usage:            stringPtr("Usage details"),
 	}
 
 	// Marshal the AtlasGlossary object into JSON
@@ -101,15 +98,15 @@ func TestMarshallingAndUnmarshalling(t *testing.T) {
 	// Define a sample AtlasGlossary object
 	glossary := AtlasGlossary{
 		Asset: Asset{
-			Referenceable: Referenceable{TypeName: "AtlasGlossary"},
-			Name:          "Test Glossary",
-			QualifiedName: "test_glossary",
+			Referenceable: Referenceable{TypeName: stringPtr("AtlasGlossary")},
+			Name:          stringPtr("Test Glossary"),
+			QualifiedName: stringPtr("test_glossary"),
 			AssetIcon:     atlan.AtlanIconAirplaneInFlight,
 		},
-		ShortDescription: "Short description",
-		LongDescription:  "Long description",
-		Language:         "English",
-		Usage:            "Usage details",
+		ShortDescription: stringPtr("Short description"),
+		LongDescription:  stringPtr("Long description"),
+		Language:         stringPtr("English"),
+		Usage:            stringPtr("Usage details"),
 	}
 
 	// Marshal the AtlasGlossary object to JSON

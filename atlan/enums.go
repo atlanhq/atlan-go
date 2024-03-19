@@ -2653,3 +2653,10 @@ func (w *WorkflowPackage) UnmarshalJSON(data []byte) error {
 func (w WorkflowPackage) MarshalJSON() ([]byte, error) {
 	return json.Marshal(w.Name)
 }
+
+type AtlanStatus string
+
+func AtlanStatusPtr(value string) *AtlanStatus {
+	status := AtlanStatus(value)
+	return &status
+}

@@ -1,29 +1,30 @@
 package assets
 
 import (
+	"atlan-go/atlan"
 	"encoding/json"
 )
 
 type AtlasGlossary struct {
 	Asset
-	ShortDescription     string                  `json:"shortDescription,omitempty"`
-	LongDescription      string                  `json:"longDescription,omitempty"`
-	Language             string                  `json:"language,omitempty"`
-	Usage                string                  `json:"usage,omitempty"`
-	AdditionalAttributes *struct{}               `json:"additionalAttributes,omitempty"`
-	Terms                []AtlasGlossaryTerm     `json:"terms,omitempty"`
-	Categories           []AtlasGlossaryCategory `json:"categories,omitempty"`
+	ShortDescription     *string                  `json:"shortDescription,omitempty"`
+	LongDescription      *string                  `json:"longDescription,omitempty"`
+	Language             *string                  `json:"language,omitempty"`
+	Usage                *string                  `json:"usage,omitempty"`
+	AdditionalAttributes *struct{}                `json:"additionalAttributes,omitempty"`
+	Terms                *[]AtlasGlossaryTerm     `json:"terms,omitempty"`
+	Categories           *[]AtlasGlossaryCategory `json:"categories,omitempty"`
 }
 
 type AtlasGlossaryAttributes struct {
 	Asset
-	ShortDescription     string                  `json:"shortDescription,omitempty"`
-	LongDescription      string                  `json:"longDescription,omitempty"`
-	Language             string                  `json:"language,omitempty"`
-	Usage                string                  `json:"usage,omitempty"`
-	AdditionalAttributes struct{}                `json:"additionalAttributes,omitempty"`
-	Terms                []AtlasGlossaryTerm     `json:"terms,omitempty"`
-	Categories           []AtlasGlossaryCategory `json:"categories,omitempty"`
+	ShortDescription     *string                  `json:"shortDescription,omitempty"`
+	LongDescription      *string                  `json:"longDescription,omitempty"`
+	Language             *string                  `json:"language,omitempty"`
+	Usage                *string                  `json:"usage,omitempty"`
+	AdditionalAttributes *struct{}                `json:"additionalAttributes,omitempty"`
+	Terms                *[]AtlasGlossaryTerm     `json:"terms,omitempty"`
+	Categories           *[]AtlasGlossaryCategory `json:"categories,omitempty"`
 }
 
 func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
@@ -31,16 +32,16 @@ func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
 	var temp struct {
 		ReferredEntities map[string]interface{} `json:"referredEntities"`
 		Entity           struct {
-			TypeName               string          `json:"typeName"`
-			AttributesJSON         json.RawMessage `json:"attributes"`
-			Guid                   string          `json:"guid"`
-			IsIncomplete           bool            `json:"isIncomplete"`
-			Status                 AtlanStatus     `json:"status"`
-			CreatedBy              string          `json:"createdBy"`
-			UpdatedBy              string          `json:"updatedBy"`
-			CreateTime             int64           `json:"createTime"`
-			UpdateTime             int64           `json:"updateTime"`
-			Version                int             `json:"version"`
+			TypeName               string            `json:"typeName"`
+			AttributesJSON         json.RawMessage   `json:"attributes"`
+			Guid                   string            `json:"guid"`
+			IsIncomplete           bool              `json:"isIncomplete"`
+			Status                 atlan.AtlanStatus `json:"status"`
+			CreatedBy              string            `json:"createdBy"`
+			UpdatedBy              string            `json:"updatedBy"`
+			CreateTime             int64             `json:"createTime"`
+			UpdateTime             int64             `json:"updateTime"`
+			Version                int               `json:"version"`
 			RelationshipAttributes struct {
 				SchemaRegistrySubjects []SchemaRegistrySubject `json:"schemaRegistrySubjects"`
 				McMonitors             []MCMonitor             `json:"mcMonitors"`
@@ -65,14 +66,14 @@ func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
 	}
 
 	// Map the fields from the temporary structure to your AtlasGlossary struct
-	ag.TypeName = temp.Entity.TypeName
-	ag.Guid = temp.Entity.Guid
-	ag.IsIncomplete = temp.Entity.IsIncomplete
-	ag.Status = temp.Entity.Status
-	ag.CreatedBy = temp.Entity.CreatedBy
-	ag.UpdatedBy = temp.Entity.UpdatedBy
-	ag.CreateTime = temp.Entity.CreateTime
-	ag.UpdateTime = temp.Entity.UpdateTime
+	ag.TypeName = &temp.Entity.TypeName
+	ag.Guid = &temp.Entity.Guid
+	ag.IsIncomplete = &temp.Entity.IsIncomplete
+	ag.Status = &temp.Entity.Status
+	ag.CreatedBy = &temp.Entity.CreatedBy
+	ag.UpdatedBy = &temp.Entity.UpdatedBy
+	ag.CreateTime = &temp.Entity.CreateTime
+	ag.UpdateTime = &temp.Entity.UpdateTime
 
 	var asset AtlasGlossaryAttributes
 	if err := json.Unmarshal(temp.Entity.AttributesJSON, &asset); err != nil {
