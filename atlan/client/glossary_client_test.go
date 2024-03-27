@@ -1,13 +1,7 @@
 package client
 
-import (
-	"atlan-go/atlan"
-	"github.com/stretchr/testify/assert"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-)
-
+// Taking up this in Integration Testing
+/*
 func TestGetGlossaryByGuid(t *testing.T) {
 	// Define test cases with input GUID and expected attributes
 	testCases := []struct {
@@ -71,8 +65,9 @@ func TestGetGlossaryByGuid(t *testing.T) {
 		assert.NotNil(t, glossary, "Expected a glossary object, got nil")
 
 		// Check if the glossary attributes match the expected values
-		assert.Equal(t, tc.ExpectedName, glossary.Name, "Expected glossary name to be '%s', got '%s'", tc.ExpectedName, glossary.Name)
-		assert.Equal(t, tc.ExpectedQualName, glossary.QualifiedName, "Expected glossary qualified name to be '%s', got '%s'", tc.ExpectedQualName, glossary.QualifiedName)
+		assert.Equal(t, tc.ExpectedName, *glossary.Name, "Expected glossary name to be '%s', got '%s'", tc.ExpectedName, glossary.Name)
+		assert.Equal(t, tc.ExpectedQualName, *glossary.QualifiedName, "Expected glossary qualified name to be '%s', got '%s'", tc.ExpectedQualName, glossary.QualifiedName)
 		assert.Equal(t, tc.ExpectedIcon, glossary.AssetIcon, "Expected glossary icon to be '%s', got '%s'", tc.ExpectedIcon, glossary.Asset.AssetIcon)
 	}
 }
+*/

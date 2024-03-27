@@ -2,7 +2,9 @@
 package main
 
 import (
+	"atlan-go/atlan"
 	"atlan-go/atlan/client"
+	"fmt"
 )
 
 func main() {
@@ -17,13 +19,15 @@ func main() {
 		}
 		fmt.Println(resp)
 	*/
-	response, err := client.GetGlossaryByGuid("fc36342b-ddb5-44ba-b774-4c90cc66d5a2")
+	/*
+		response, err := client.GetGlossaryByGuid("fc36342b-ddb5-44ba-b774-4c90cc66d5a2")
 
-	if err != nil {
-		println("Error:", err)
-	} else {
-		println("Response:", response.Typename)
-	}
+		if err != nil {
+			fmt.Println("Error:", err)
+		} else {
+			println("Response:", *response.TypeName)
+		}
+	*/
 	//client.GetAtlanTagCache().RefreshCache()
 	//id, _ := client.GetAtlanTagCache().GetIDForName("Hourly")
 	//fmt.Println("Print Response:", id)
@@ -100,29 +104,28 @@ func main() {
 
 	// client.Init()
 
-	/*
-		g := &client.AtlasGlossary{} // create a new Glossary instance
+	g := &client.AtlasGlossary{} // create a new Glossary instance
 
-		g.Creator("TestGlossary7", "") // initialize the Glossary
-		response, err := client.Save(g)
-		fmt.Println("Resp1:", response)
-		if err != nil {
-			fmt.Println("Error:", err)
-		} else {
-			for _, entity := range response.MutatedEntities.CREATE {
-				fmt.Println("Response:", entity)
-				fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
-			}
+	g.Creator("TestGlossary14", atlan.AtlanIconAirplaneInFlight)
+
+	response, err := client.Save(g) // save the Glossary
+	if err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		for _, entity := range response.MutatedEntities.CREATE {
+			fmt.Println("Response:", entity)
+			fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
 		}
-	*/
-	// Modify an existing Glossary
+	}
+
+	//Modify an existing Glossary
 	/*
 		g := &client.AtlasGlossary{}
-		g.Updater("TestGlossary7", "CBtveYe0Avp5iwU8q3M7Y", "e63cf857-c788-4197-a60e-397b24e749ee")
-		g.Entities[0].Attributes.DisplayName = "Testing"
+		DisplayName := "Testing5"
+		g.Updater("TestGlossary8", "CBtveYe0Avp5iwU8q3M7Y1", "78e820ef-21a2-4f1d-a1dc-8c5a648cb1e3")
+		g.DisplayName = &DisplayName
 		response, err := client.Save(g)
 		if err != nil {
-			println("Error:", err)
 		} else {
 			for _, entity := range response.MutatedEntities.UPDATE {
 				println("Response:", entity)

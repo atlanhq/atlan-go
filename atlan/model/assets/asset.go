@@ -170,7 +170,7 @@ type Asset struct {
 	// Unique identifier of this asset in dbt.
 	AssetDbtUniqueId *string `json:"assetDbtUniqueId,omitempty"`
 	// Name of the icon to use for this asset.
-	AssetIcon atlan.AtlanIcon `json:"assetIcon,omitempty"`
+	AssetIcon *atlan.AtlanIcon `json:"assetIcon,omitempty"`
 	// List of Monte Carlo incident names attached to this asset.
 	AssetMcIncidentNames *[]string `json:"assetMcIncidentNames,omitempty"`
 	// List of unique Monte Carlo incident names attached to this asset.
@@ -343,8 +343,6 @@ type Asset struct {
 	AtlanTags *[]AtlanTag `json:"atlanTags,omitempty"`
 	// Map of custom metadata attributes and values defined on the asset.
 	CustomMetadataSets map[string]CustomMetadataAttributes `json:"customMetadataSets,omitempty"`
-	// User or account that last updated the asset.
-	UpdatedBy *string `json:"updatedBy,omitempty"`
 	// Time (epoch) at which the asset was created, in milliseconds.
 	CreateTime *int64 `json:"createTime,omitempty"`
 	// Time (epoch) at which the asset was last updated, in milliseconds.
@@ -363,24 +361,16 @@ type Asset struct {
 	PendingTasks *[]string `json:"pendingTasks,omitempty"`
 }
 
-/*
-	type Asset struct {
-		TypeName            string     `json:"typeName"`
-		Attributes          Attributes `json:"attributes"`
-		Guid                string     `json:"guid"`
-		Status              string     `json:"status"`
-		DisplayText         string     `json:"displayText"`
-		ClassificationNames []string   `json:"classificationNames"`
-		MeaningNames        []string   `json:"meaningNames"`
-		Meanings            []string   `json:"meanings"`
-		IsIncomplete        bool       `json:"isIncomplete"`
-		Labels              []string   `json:"labels"`
-		CreatedBy           string     `json:"createdBy"`
-		UpdatedBy           string     `json:"updatedBy"`
-		CreateTime          int64      `json:"createTime"`
-		UpdateTime          int64      `json:"updateTime"`
-	}
-*/
+type Relation struct {
+	displayText            *string            `json:"displayText,omitempty"`
+	entityStatus           *string            `json:"entityStatus,omitempty"`
+	relationshipType       *string            `json:"relationshipType,omitempty"`
+	relationshipGuid       *string            `json:"relationshipGuid,omitempty"`
+	relationshipStatus     *atlan.AtlanStatus `json:"relationshipStatus,omitempty"`
+	relationshipAttributes *[]interface{}     `json:"relationshipAttributes,omitempty"`
+	uniqueAttributes       *string            `json:"uniqueAttributes,omitempty"`
+}
+
 type Attributes struct {
 	PopularityScore                       float64 `json:"popularityScore"`
 	AssetMcMonitorNames                   []string
@@ -461,64 +451,6 @@ type AtlanTag struct {
 	RestrictPropagationThroughLineage bool   `json:"restrictPropagationThroughLineage"`
 }
 
-/*
-func (a *Asset) UnmarshalJSON(data []byte) error {
-	var temp struct {
-		Entity struct {
-			TypeName               string     `json:"typeName"`
-			Attributes             Attributes `json:"attributes"`
-			Guid                   string     `json:"guid"`
-			IsIncomplete           bool       `json:"isIncomplete"`
-			Status                 string     `json:"status"`
-			CreatedBy              string     `json:"createdBy"`
-			UpdatedBy              string     `json:"updatedBy"`
-			CreateTime             int64      `json:"createTime"`
-			UpdateTime             int64      `json:"updateTime"`
-			Version                int        `json:"version"`
-			RelationshipAttributes struct {
-				SchemaRegistrySubjects []interface{} `json:"schemaRegistrySubjects"`
-				McMonitors             []interface{} `json:"mcMonitors"`
-				Terms                  []struct {
-					Guid                   string `json:"guid"`
-					TypeName               string `json:"typeName"`
-					EntityStatus           string `json:"entityStatus"`
-					DisplayText            string `json:"displayText"`
-					RelationshipType       string `json:"relationshipType"`
-					RelationshipGuid       string `json:"relationshipGuid"`
-					RelationshipStatus     string `json:"relationshipStatus"`
-					RelationshipAttributes struct {
-						TypeName string `json:"typeName"`
-					} `json:"relationshipAttributes"`
-				} `json:"terms"`
-				OutputPortDataProducts []interface{} `json:"outputPortDataProducts"`
-				Files                  []interface{} `json:"files"`
-				McIncidents            []interface{} `json:"mcIncidents"`
-				Links                  []interface{} `json:"links"`
-				Categories             []interface{} `json:"categories"`
-				Metrics                []interface{} `json:"metrics"`
-				Readme                 interface{}   `json:"readme"`
-				Meanings               []interface{} `json:"meanings"`
-				SodaChecks             []interface{} `json:"sodaChecks"`
-			} `json:"relationshipAttributes"`
-			Labels []interface{} `json:"labels"`
-		} `json:"entity"`
-	}
-
-	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
-	}
-
-	// Copy fields
-	a.TypeName = temp.Entity.TypeName
-	//a.Attributes = temp.Entity.Attributes
-	a.Guid = temp.Entity.Guid
-	a.IsIncomplete = temp.Entity.IsIncomplete
-	//a.Status = temp.Entity.Status
-	a.CreatedBy = temp.Entity.CreatedBy
-	a.UpdatedBy = temp.Entity.UpdatedBy
-	a.CreateTime = temp.Entity.CreateTime
-	a.UpdateTime = temp.Entity.UpdateTime
-
-	return nil
+func StringPtr(s string) *string {
+	return &s
 }
-*/

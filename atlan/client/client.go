@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -97,19 +98,21 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 	}
 
 	if requestObj != nil {
+		fmt.Println("Request Object:", requestObj)
 		requestJSON, err := json.Marshal(requestObj)
+		fmt.Println("Request JSON:", string(requestJSON))
 		if err != nil {
 			return nil, fmt.Errorf("error marshaling request object: %v", err)
 		}
 		params["data"] = bytes.NewBuffer(requestJSON)
-
 	}
 
 	ac.logAPICall(api.Method, path)
 
 	response, err := ac.makeRequest(api.Method, path, params)
 	if err != nil {
-		return nil, handleApiError(response)
+		errorMessage, _ := ioutil.ReadAll(response.Body)
+		return nil, handleApiError(response, string(errorMessage))
 	}
 
 	ac.logHTTPStatus(response)
@@ -213,11 +216,15 @@ func (ac *AtlanClient) logAPICall(method, path string) {
 }
 
 func (ac *AtlanClient) logHTTPStatus(response *http.Response) {
-	if ac.loggingEnabled && response != nil {
+	if ac.loggingEnabled {
 		ac.logger.Printf("HTTP Status: %s\n", response.Status)
 		if response.StatusCode < 200 || response.StatusCode >= 300 {
 			// Read the response body for the error message
-			ac.logger.Printf("Error: %s\n", handleApiError(response))
+			errorMessage, err := ioutil.ReadAll(response.Body)
+			if err != nil {
+				ac.logger.Printf("Error reading response body: %v\n", err)
+			}
+			ac.logger.Printf("Error: %s\n", handleApiError(response, string(errorMessage)))
 		}
 	}
 }

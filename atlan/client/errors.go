@@ -15,7 +15,7 @@ type ErrorInfo struct {
 type AtlanError struct {
 	ErrorCode     ErrorInfo
 	Args          []interface{}
-	OriginalError error // Error received from Atlan API
+	OriginalError string // Error received from Atlan API
 
 }
 
@@ -24,8 +24,8 @@ func (e AtlanError) Error() string {
 	if e.ErrorCode.UserAction != "" {
 		errorMessage += "\n" + e.ErrorCode.UserAction
 	}
-	if e.OriginalError != nil {
-		errorMessage += "\nError: " + e.OriginalError.Error()
+	if e.OriginalError != "" {
+		errorMessage += "\nError response from server: " + e.OriginalError
 	}
 	return errorMessage
 }
@@ -678,7 +678,7 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	},
 }
 
-func handleApiError(response *http.Response) error {
+func handleApiError(response *http.Response, originalError string) error {
 	if response == nil {
 		return ApiConnectionError{AtlanError{ErrorCode: errorCodes[CONNECTION_ERROR]}}
 	}
@@ -686,19 +686,19 @@ func handleApiError(response *http.Response) error {
 
 	switch rc {
 	case 400:
-		return InvalidRequestError{AtlanError{ErrorCode: errorCodes[INVALID_REQUEST_PASSTHROUGH]}}
+		return InvalidRequestError{AtlanError{ErrorCode: errorCodes[INVALID_REQUEST_PASSTHROUGH], OriginalError: originalError}}
 	case 404:
-		return NotFoundError{AtlanError{ErrorCode: errorCodes[NOT_FOUND_PASSTHROUGH]}}
+		return NotFoundError{AtlanError{ErrorCode: errorCodes[NOT_FOUND_PASSTHROUGH], OriginalError: originalError}}
 	case 401:
-		return AuthenticationError{AtlanError{ErrorCode: errorCodes[AUTHENTICATION_PASSTHROUGH]}}
+		return AuthenticationError{AtlanError{ErrorCode: errorCodes[AUTHENTICATION_PASSTHROUGH], OriginalError: originalError}}
 	case 403:
-		return PermissionError{AtlanError{ErrorCode: errorCodes[PERMISSION_PASSTHROUGH]}}
+		return PermissionError{AtlanError{ErrorCode: errorCodes[PERMISSION_PASSTHROUGH], OriginalError: originalError}}
 	case 409:
-		return ConflictError{AtlanError{ErrorCode: errorCodes[CONFLICT_PASSTHROUGH]}}
+		return ConflictError{AtlanError{ErrorCode: errorCodes[CONFLICT_PASSTHROUGH], OriginalError: originalError}}
 	case 429:
-		return RateLimitError{AtlanError{ErrorCode: errorCodes[RATE_LIMIT_PASSTHROUGH]}}
+		return RateLimitError{AtlanError{ErrorCode: errorCodes[RATE_LIMIT_PASSTHROUGH], OriginalError: originalError}}
 	default:
-		return ApiError{AtlanError{ErrorCode: errorCodes[ERROR_PASSTHROUGH]}}
+		return ApiError{AtlanError{ErrorCode: errorCodes[ERROR_PASSTHROUGH], OriginalError: originalError}}
 	}
 	return nil
 }

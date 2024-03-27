@@ -1,6 +1,7 @@
 package client
 
 import (
+	"atlan-go/atlan"
 	"atlan-go/atlan/model/assets"
 	"encoding/json"
 	"errors"
@@ -12,6 +13,8 @@ const (
 	MaxRetries    = 5
 	RetryInterval = time.Second * 5
 )
+
+type AtlasGlossary assets.AtlasGlossary
 
 // GlossaryClient defines the client for interacting with the model API.
 type GlossaryClient struct {
@@ -46,7 +49,7 @@ func GetGlossaryByGuid(glossaryGuid string) (*assets.AtlasGlossary, error) {
 }
 
 // GetGlossaryTermByGuid retrieves a glossary term by its GUID.
-func GetGlossaryTermByGuid(glossaryGuid string) (*assets.GlossaryTerm, error) {
+func GetGlossaryTermByGuid(glossaryGuid string) (*assets.AtlasGlossaryTerm, error) {
 	if DefaultAtlanClient == nil {
 		return nil, fmt.Errorf("default AtlanClient not initialized")
 	}
@@ -68,20 +71,11 @@ func GetGlossaryTermByGuid(glossaryGuid string) (*assets.GlossaryTerm, error) {
 }
 
 // Creator is used to create a new glossary asset in memory.
-func (g *AtlasGlossary) Creator(name string, icon string) {
-	entity := assets.Glossary{
-		TypeName: "AtlasGlossary",
-		Attributes: assets.GlossaryAttributes{
-			Name:          name,
-			QualifiedName: name,
-			AssetIcon:     icon,
-		},
-	}
-	if icon != "" {
-		entity.Attributes.AssetIcon = icon
-	}
-
-	g.Entities = append(g.Entities, entity)
+func (g *AtlasGlossary) Creator(name string, icon atlan.AtlanIcon) {
+	g.TypeName = assets.StringPtr("AtlasGlossary")
+	g.Name = assets.StringPtr(name)
+	g.QualifiedName = assets.StringPtr("CBtveYe0Avp5iwU8q3M7Y12")
+	g.AssetIcon = atlan.AtlanIconPtr(icon)
 }
 
 // Updater is used to modify a glossary asset in memory.
@@ -90,35 +84,34 @@ func (g *AtlasGlossary) Updater(name string, qualifiedName string, glossary_guid
 		return errors.New("name, qualified_name, and glossary_guid are required fields")
 	}
 
-	entity := assets.Glossary{
-		TypeName: "AtlasGlossary",
-		Attributes: assets.GlossaryAttributes{
-			Name:          name,
-			QualifiedName: qualifiedName,
-		},
-		Guid: glossary_guid,
-	}
-	g.Entities = append(g.Entities, entity)
+	g.TypeName = assets.StringPtr("AtlasGlossary")
+	g.Name = assets.StringPtr(name)
+	g.Guid = assets.StringPtr(glossary_guid)
+	g.QualifiedName = assets.StringPtr(qualifiedName)
+
 	return nil
 }
 
 // MarshalJSON filters out entities to only include those with non-empty attributes.
 func (g *AtlasGlossary) MarshalJSON() ([]byte, error) {
-	// Filter out entities to only include those with non-empty attributes
-	filteredEntities := make([]assets.Glossary, 0)
-	for _, entity := range g.Entities {
-		if entity.Attributes.Name != "" || entity.Attributes.QualifiedName != "" || entity.Attributes.AssetIcon != "" {
-			filteredEntities = append(filteredEntities, entity)
-		}
+	// Construct the custom JSON structure
+	customJSON := map[string]interface{}{
+		"typeName": "AtlasGlossary",
+		"attributes": map[string]interface{}{
+			"name": g.Name,
+			// Add other attributes as necessary.
+		},
+		"relationshipAttributes": make(map[string]interface{}),
 	}
 
-	type Alias AtlasGlossary
-
-	customJSON := &struct {
-		Entities []assets.Glossary `json:"entities"`
-	}{
-		Entities: filteredEntities,
+	if g.QualifiedName != nil && *g.QualifiedName != "" {
+		customJSON["attributes"].(map[string]interface{})["qualifiedName"] = *g.QualifiedName
 	}
 
+	if g.Guid != nil && *g.Guid != "" {
+		customJSON["guid"] = *g.Guid
+	}
+
+	// Marshal the custom JSON
 	return json.MarshalIndent(customJSON, "", "  ")
 }

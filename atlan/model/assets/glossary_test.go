@@ -2,17 +2,13 @@ package assets
 
 import (
 	"atlan-go/atlan"
-	"fmt"
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func stringPtr(s string) *string {
-	return &s
-}
-
-func TestUnmarshalling(t *testing.T) {
+func TestAtlasGlossaryUnmarshalling(t *testing.T) {
 	// Define a sample JSON data representing an AtlasGlossary
 	jsonData := []byte(`{
 		"referredEntities":{},
@@ -34,44 +30,40 @@ func TestUnmarshalling(t *testing.T) {
 	var glossary AtlasGlossary
 	err := glossary.UnmarshalJSON(jsonData)
 
-	fmt.Println("Unmarshalled glossary:", glossary)
-
 	// Assert that there is no error during unmarshalling
 	assert.NoError(t, err, "Error unmarshalling JSON")
 
 	// Assert that the unmarshalled glossary matches the expected glossary
 	assert.Equal(t, "Test Glossary", *glossary.Name, "Unexpected glossary name")
 	assert.Equal(t, "test_glossary", *glossary.QualifiedName, "Unexpected glossary qualified name")
-	assert.Equal(t, atlan.AtlanIconAirplaneInFlight, glossary.AssetIcon, "Unexpected glossary asset icon")
+	assert.Equal(t, atlan.AtlanIconAirplaneInFlight, *glossary.AssetIcon, "Unexpected glossary asset icon")
 	assert.Equal(t, "Short description", *glossary.ShortDescription, "Unexpected glossary short description")
 	assert.Equal(t, "Long description", *glossary.LongDescription, "Unexpected glossary long description")
 	assert.Equal(t, "English", *glossary.Language, "Unexpected glossary language")
 	assert.Equal(t, "Usage details", *glossary.Usage, "Unexpected glossary usage")
 }
 
-func TestMarshalling(t *testing.T) {
+func TestAtlasGlossaryMarshalling(t *testing.T) {
 	// Define a sample AtlasGlossary object
 	glossary := AtlasGlossary{
 		Asset: Asset{
 			Referenceable: Referenceable{
-				TypeName: stringPtr("AtlasGlossary"),
-				Guid:     stringPtr("fc36342b-ddb5-44ba-b774-4c90cc66d5a2"),
+				TypeName: StringPtr("AtlasGlossary"),
+				Guid:     StringPtr("fc36342b-ddb5-44ba-b774-4c90cc66d5a2"),
 				Status:   atlan.AtlanStatusPtr("ACTIVE"),
 			},
-			Name:          stringPtr("Test Glossary"),
-			QualifiedName: stringPtr("test_glossary"),
-			AssetIcon:     atlan.AtlanIconAirplaneInFlight,
+			Name:          StringPtr("Test Glossary"),
+			QualifiedName: StringPtr("test_glossary"),
+			AssetIcon:     atlan.AtlanIconPtr(atlan.AtlanIconAirplaneInFlight),
 		},
-		ShortDescription: stringPtr("Short description"),
-		LongDescription:  stringPtr("Long description"),
-		Language:         stringPtr("English"),
-		Usage:            stringPtr("Usage details"),
+		ShortDescription: StringPtr("Short description"),
+		LongDescription:  StringPtr("Long description"),
+		Language:         StringPtr("English"),
+		Usage:            StringPtr("Usage details"),
 	}
 
 	// Marshal the AtlasGlossary object into JSON
 	jsonData, err := glossary.ToJSON()
-
-	fmt.Println("Marshalled JSON:", string(jsonData))
 
 	// Define the expected JSON data
 	expectedJSON := []byte(`{
@@ -94,31 +86,97 @@ func TestMarshalling(t *testing.T) {
 	assert.JSONEq(t, string(expectedJSON), string(jsonData), "Marshalled JSON does not match expected JSON")
 }
 
-func TestMarshallingAndUnmarshalling(t *testing.T) {
-	// Define a sample AtlasGlossary object
-	glossary := AtlasGlossary{
-		Asset: Asset{
-			Referenceable: Referenceable{TypeName: stringPtr("AtlasGlossary")},
-			Name:          stringPtr("Test Glossary"),
-			QualifiedName: stringPtr("test_glossary"),
-			AssetIcon:     atlan.AtlanIconAirplaneInFlight,
-		},
-		ShortDescription: stringPtr("Short description"),
-		LongDescription:  stringPtr("Long description"),
-		Language:         stringPtr("English"),
-		Usage:            stringPtr("Usage details"),
+func TestAtlasGlossaryTermUnmarshalling(t *testing.T) {
+	// Define a sample JSON data representing an AtlasGlossaryTerm
+	jsonData := []byte(`{
+		"entity": {
+			"typeName": "AtlasGlossaryTerm",
+			"attributes": {
+				"shortDescription": "Short description",
+				"longDescription": "Long description",
+				"example": "Example",
+				"abbreviation": "Abbreviation",
+				"usage": "Usage",
+				"anchor": {
+					"guid": "some_guid",
+					"typeName": "AtlasGlossary",
+					"entityStatus": "ACTIVE",
+					"displayText": "Display Text",
+					"relationshipType": "RELATIONSHIP_TYPE",
+					"relationshipGuid": "RELATIONSHIP_GUID",
+					"relationshipStatus": "ACTIVE"
+				}
+			}
+		}
+	}`)
+
+	// Unmarshal the JSON data into an AtlasGlossaryTerm object
+	var term AtlasGlossaryTerm
+	err := term.UnmarshalJSON(jsonData)
+	if err != nil {
+		t.Fatalf("Error unmarshalling JSON: %v", err)
 	}
 
-	// Marshal the AtlasGlossary object to JSON
-	jsonData, err := glossary.ToJSON()
-	assert.NoError(t, err, "Error marshalling AtlasGlossary to JSON")
-	fmt.Println("Marshalled JSON:", string(jsonData))
+	// Perform assertions on the unmarshalled object's fields
+	assert.Equal(t, "AtlasGlossaryTerm", *term.TypeName, "Unexpected term type name")
+	assert.Equal(t, "Short description", *term.ShortDescription, "Unexpected term short description")
+	assert.Equal(t, "Long description", *term.LongDescription, "Unexpected term long description")
+	assert.Equal(t, "Example", *term.Example, "Unexpected term example")
+	assert.Equal(t, "Abbreviation", *term.Abbreviation, "Unexpected term abbreviation")
+	assert.Equal(t, "Usage", *term.Usage, "Unexpected term usage")
 
-	// Unmarshal the JSON data back to AtlasGlossary
-	decodedGlossary, err := FromJSON(jsonData)
-	assert.NoError(t, err, "Error unmarshalling JSON to AtlasGlossary")
-	fmt.Println("Unmarshalled glossary:", decodedGlossary)
+	// Assert anchor details
+	assert.NotNil(t, term.Anchor, "Anchor should not be nil")
+	assert.Equal(t, "AtlasGlossary", *term.Anchor.TypeName, "Unexpected anchor type name")
+	assert.Equal(t, "some_guid", *term.Anchor.Guid, "Unexpected anchor guid")
 
-	// Assert that the unmarshalled glossary matches the original glossary
-	assert.Equal(t, glossary, decodedGlossary, "Unmarshalled glossary does not match original glossary")
+}
+
+func TestAtlasGlossaryTermMarshalling(t *testing.T) {
+	// Define a sample AtlasGlossaryTerm object
+	term := AtlasGlossaryTerm{
+		Asset: Asset{
+			Referenceable: Referenceable{
+				TypeName:  StringPtr("AtlasGlossaryTerm"),
+				Guid:      StringPtr("433b1b64-0b16-4812-9bae-14b13e9bd645"),
+				Status:    atlan.AtlanStatusPtr("ACTIVE"),
+				CreatedBy: StringPtr("user1"),
+				UpdatedBy: StringPtr("user2"),
+			},
+		},
+		ShortDescription: StringPtr("Short description"),
+		LongDescription:  StringPtr("Long description"),
+		Example:          StringPtr("Example Text"),
+		Abbreviation:     StringPtr("Abbreviation Text"),
+		Usage:            StringPtr("Usage Text"),
+		AdditionalAttributes: &map[string]string{
+			"key": "value",
+		},
+		Anchor: &AtlasGlossary{
+			Asset: Asset{Referenceable: Referenceable{
+				TypeName: StringPtr("AtlasGlossaryTerm"),
+				Guid:     StringPtr("562067ed-c56a-470d-9306-488d9c6d6448"),
+			},
+			},
+			Relation: Relation{
+				displayText:        StringPtr("Display Text"),
+				entityStatus:       StringPtr("ACTIVE"),
+				relationshipType:   StringPtr("AtlasGlossaryTermAnchor"),
+				relationshipGuid:   StringPtr("abe7f160-182e-4c61-bc8e-e3392404611b"),
+				relationshipStatus: atlan.AtlanStatusPtr("ACTIVE"),
+			},
+		},
+	}
+
+	// Marshal the AtlasGlossaryTerm object into JSON
+	jsonData, err := json.Marshal(term)
+	if err != nil {
+		t.Fatalf("Error marshalling JSON: %v", err)
+	}
+
+	// Define the expected JSON data
+	expectedJSON := []byte(`{"typeName":"AtlasGlossaryTerm","guid":"433b1b64-0b16-4812-9bae-14b13e9bd645","createdBy":"user1","updatedBy":"user2","status":"ACTIVE","shortDescription":"Short description","longDescription":"Long description","example":"Example Text","abbreviation":"Abbreviation Text","usage":"Usage Text","additionalAttributes":{"key":"value"},"anchor":{"typeName":"AtlasGlossaryTerm","guid":"562067ed-c56a-470d-9306-488d9c6d6448"}}`)
+
+	// Assert that the marshalled JSON matches the expected JSON data
+	assert.JSONEq(t, string(expectedJSON), string(jsonData), "Marshalled JSON does not match the expected JSON")
 }

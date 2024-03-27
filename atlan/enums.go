@@ -2009,6 +2009,11 @@ func (a *AtlanIcon) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func AtlanIconPtr(value AtlanIcon) *AtlanIcon {
+	Icon := AtlanIcon{name: value.name}
+	return &Icon
+}
+
 func (a AtlanIcon) MarshalJSON() ([]byte, error) {
 	return json.Marshal(a.name)
 }
