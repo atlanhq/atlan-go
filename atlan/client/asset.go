@@ -17,8 +17,8 @@ type AtlanObject interface {
 
 // SearchAssets Struct to represent assets for searching
 type SearchAssets struct {
-	Glossary *AtlasGlossary
-	Table    *AtlasTable
+	Glossary *AtlasGlossaryFields
+	Table    *AtlasTableFields
 	// Add other assets here
 }
 
@@ -61,19 +61,18 @@ type AssetFields struct {
 }
 
 // AtlasGlossary represents the AtlasGlossary asset
-type AtlasGlossary struct {
+type AtlasGlossaryFields struct {
 	AssetFields
 	AtlanObject
-	Entities []Assets2.Glossary `json:"entities"`
 }
 
-type AtlasTable struct {
+type AtlasTableFields struct {
 	AttributesFields
 }
 
 // NewSearchTable returns a new AtlasTable object for Searching
-func NewSearchTable() *AtlasTable {
-	return &AtlasTable{
+func NewSearchTable() *AtlasTableFields {
+	return &AtlasTableFields{
 		AttributesFields: AttributesFields{
 			TYPENAME: NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
 		},
@@ -81,8 +80,8 @@ func NewSearchTable() *AtlasTable {
 }
 
 // NewSearchGlossary returns a new AtlasGlossary object for Searching
-func NewSearchGlossary() *AtlasGlossary {
-	return &AtlasGlossary{
+func NewSearchGlossary() *AtlasGlossaryFields {
+	return &AtlasGlossaryFields{
 		AssetFields: AssetFields{
 			AttributesFields: &AttributesFields{
 				TYPENAME:              NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
@@ -185,8 +184,8 @@ func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 		}
 
 		// Assuming the asset has a CanBeArchived field that indicates if it can be archived
-		if asset.TypeName == "AtlasGlossaryCategory" {
-			return nil, fmt.Errorf("asset %s of type %s cannot be archived", guid, asset.TypeName)
+		if *asset.TypeName == "AtlasGlossaryCategory" {
+			return nil, fmt.Errorf("asset %s of type %s cannot be archived", guid, *asset.TypeName)
 		}
 	}
 
@@ -235,7 +234,7 @@ func WaitTillDeleted(guid string) error {
 			return fmt.Errorf("error retrieving asset: %v", err)
 		}
 
-		if asset.Status == "DELETED" {
+		if *asset.Status == "DELETED" {
 			return nil
 		}
 
@@ -247,23 +246,21 @@ func WaitTillDeleted(guid string) error {
 	return errors.New("retry limit overrun waiting for asset to be deleted")
 }
 
-// Save saves the asset in memory to the Atlas server.
-func Save(asset AtlanObject) (*model.AssetMutationResponse, error) {
-	assetJSON, err := asset.MarshalJSON()
-	if err != nil {
-		return nil, err
-	}
+type SaveRequest struct {
+	Entities []AtlanObject `json:"entities"`
+}
 
-	fmt.Println(string(assetJSON))
-
-	var requestObj interface{}
-	err = json.Unmarshal(assetJSON, &requestObj)
-	if err != nil {
-		return nil, err
+// Save saves the assets in memory to the Atlas server.
+func Save(assets ...AtlanObject) (*model.AssetMutationResponse, error) {
+	request := SaveRequest{
+		Entities: assets,
 	}
 
 	api := &CREATE_ENTITIES
-	resp, err := DefaultAtlanClient.CallAPI(api, nil, requestObj)
+	resp, err := DefaultAtlanClient.CallAPI(api, nil, request)
+	if err != nil {
+		return nil, err
+	}
 
 	var response model.AssetMutationResponse
 	err = json.Unmarshal(resp, &response)

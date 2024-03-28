@@ -1991,6 +1991,33 @@ var (
 	AtlanIconYoutubeLogo                 = AtlanIcon{"PhYoutubeLogo"}
 )
 
+func (a *AtlanIcon) UnmarshalJSON(data []byte) error {
+	var atlanIconName string
+	if err := json.Unmarshal(data, &atlanIconName); err != nil {
+		return err
+	}
+
+	switch atlanIconName {
+	case "PhWind":
+		*a = AtlanIconWind
+	case "PhAirplaneInFlight":
+		*a = AtlanIconAirplaneInFlight
+	default:
+		*a = AtlanIcon{name: atlanIconName}
+	}
+
+	return nil
+}
+
+func AtlanIconPtr(value AtlanIcon) *AtlanIcon {
+	Icon := AtlanIcon{name: value.name}
+	return &Icon
+}
+
+func (a AtlanIcon) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.name)
+}
+
 // LineageDirection represents the direction of lineage.
 type LineageDirection struct {
 	Name string
@@ -2630,4 +2657,11 @@ func (w *WorkflowPackage) UnmarshalJSON(data []byte) error {
 // MarshalJSON customizes the marshalling of a WorkflowPackage to JSON.
 func (w WorkflowPackage) MarshalJSON() ([]byte, error) {
 	return json.Marshal(w.Name)
+}
+
+type AtlanStatus string
+
+func AtlanStatusPtr(value string) *AtlanStatus {
+	status := AtlanStatus(value)
+	return &status
 }

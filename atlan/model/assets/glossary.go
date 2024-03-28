@@ -1,29 +1,22 @@
 package assets
 
 import (
+	"atlan-go/atlan"
 	"encoding/json"
 )
 
-type AtlasGlossary struct {
-	Asset
-	ShortDescription     string                  `json:"shortDescription"`
-	LongDescription      string                  `json:"longDescription"`
-	Language             string                  `json:"language"`
-	Usage                string                  `json:"usage"`
-	AdditionalAttributes struct{}                `json:"additionalAttributes"`
-	Terms                []AtlasGlossaryTerm     `json:"terms"`
-	Categories           []AtlasGlossaryCategory `json:"categories"`
-}
+type AtlasGlossaryAttributes AtlasGlossary
 
-type AtlasGlossaryAttributes struct {
+type AtlasGlossary struct {
+	Relation
 	Asset
-	ShortDescription     string                  `json:"shortDescription"`
-	LongDescription      string                  `json:"longDescription"`
-	Language             string                  `json:"language"`
-	Usage                string                  `json:"usage"`
-	AdditionalAttributes struct{}                `json:"additionalAttributes"`
-	Terms                []AtlasGlossaryTerm     `json:"terms"`
-	Categories           []AtlasGlossaryCategory `json:"categories"`
+	ShortDescription     *string                  `json:"shortDescription,omitempty"`
+	LongDescription      *string                  `json:"longDescription,omitempty"`
+	Language             *string                  `json:"language,omitempty"`
+	Usage                *string                  `json:"usage,omitempty"`
+	AdditionalAttributes *map[string]string       `json:"additionalAttributes,omitempty"`
+	Terms                *[]AtlasGlossaryTerm     `json:"terms,omitempty"`
+	Categories           *[]AtlasGlossaryCategory `json:"categories,omitempty"`
 }
 
 func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
@@ -31,16 +24,16 @@ func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
 	var temp struct {
 		ReferredEntities map[string]interface{} `json:"referredEntities"`
 		Entity           struct {
-			TypeName               string          `json:"typeName"`
-			AttributesJSON         json.RawMessage `json:"attributes"`
-			Guid                   string          `json:"guid"`
-			IsIncomplete           bool            `json:"isIncomplete"`
-			Status                 AtlanStatus     `json:"status"`
-			CreatedBy              string          `json:"createdBy"`
-			UpdatedBy              string          `json:"updatedBy"`
-			CreateTime             int64           `json:"createTime"`
-			UpdateTime             int64           `json:"updateTime"`
-			Version                int             `json:"version"`
+			TypeName               string            `json:"typeName"`
+			AttributesJSON         json.RawMessage   `json:"attributes"`
+			Guid                   string            `json:"guid"`
+			IsIncomplete           bool              `json:"isIncomplete"`
+			Status                 atlan.AtlanStatus `json:"status"`
+			CreatedBy              string            `json:"createdBy"`
+			UpdatedBy              string            `json:"updatedBy"`
+			CreateTime             int64             `json:"createTime"`
+			UpdateTime             int64             `json:"updateTime"`
+			Version                int               `json:"version"`
 			RelationshipAttributes struct {
 				SchemaRegistrySubjects []SchemaRegistrySubject `json:"schemaRegistrySubjects"`
 				McMonitors             []MCMonitor             `json:"mcMonitors"`
@@ -65,14 +58,14 @@ func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
 	}
 
 	// Map the fields from the temporary structure to your AtlasGlossary struct
-	ag.TypeName = temp.Entity.TypeName
-	ag.Guid = temp.Entity.Guid
-	ag.IsIncomplete = temp.Entity.IsIncomplete
-	ag.Status = temp.Entity.Status
-	ag.CreatedBy = temp.Entity.CreatedBy
-	ag.UpdatedBy = temp.Entity.UpdatedBy
-	ag.CreateTime = temp.Entity.CreateTime
-	ag.UpdateTime = temp.Entity.UpdateTime
+	ag.TypeName = &temp.Entity.TypeName
+	ag.Guid = &temp.Entity.Guid
+	ag.IsIncomplete = &temp.Entity.IsIncomplete
+	ag.Status = &temp.Entity.Status
+	ag.CreatedBy = &temp.Entity.CreatedBy
+	ag.UpdatedBy = &temp.Entity.UpdatedBy
+	ag.CreateTime = &temp.Entity.CreateTime
+	ag.UpdateTime = &temp.Entity.UpdateTime
 
 	var asset AtlasGlossaryAttributes
 	if err := json.Unmarshal(temp.Entity.AttributesJSON, &asset); err != nil {
@@ -81,6 +74,12 @@ func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
 
 	// Map Asset fields
 	ag.Name = asset.Name
+	ag.AssetIcon = asset.AssetIcon
+	ag.QualifiedName = asset.QualifiedName
+	ag.ShortDescription = asset.ShortDescription
+	ag.LongDescription = asset.LongDescription
+	ag.Language = asset.Language
+	ag.Usage = asset.Usage
 	ag.AssetIcon = asset.AssetIcon
 
 	return nil
@@ -274,166 +273,4 @@ type GlossaryTerm struct {
 		} `json:"relationshipAttributes"`
 	} `json:"anchor"`
 	Labels []interface{} `json:"labels"`
-}
-
-/*
-// UnmarshalJSON unmarshals the JSON data into a Glossary object.
-func (g *Glossary) UnmarshalJSON(data []byte) error {
-	var temp struct {
-		Entity struct {
-			TypeName               string             `json:"typeName"`
-			Attributes             GlossaryAttributes `json:"attributes"`
-			Guid                   string             `json:"guid"`
-			IsIncomplete           bool               `json:"isIncomplete"`
-			Status                 string             `json:"status"`
-			CreatedBy              string             `json:"createdBy"`
-			UpdatedBy              string             `json:"updatedBy"`
-			CreateTime             int64              `json:"createTime"`
-			UpdateTime             int64              `json:"updateTime"`
-			Version                int                `json:"version"`
-			RelationshipAttributes struct {
-				SchemaRegistrySubjects []interface{} `json:"schemaRegistrySubjects"`
-				McMonitors             []interface{} `json:"mcMonitors"`
-				Terms                  []struct {
-					Guid                   string `json:"guid"`
-					TypeName               string `json:"typeName"`
-					EntityStatus           string `json:"entityStatus"`
-					DisplayText            string `json:"displayText"`
-					RelationshipType       string `json:"relationshipType"`
-					RelationshipGuid       string `json:"relationshipGuid"`
-					RelationshipStatus     string `json:"relationshipStatus"`
-					RelationshipAttributes struct {
-						TypeName string `json:"typeName"`
-					} `json:"relationshipAttributes"`
-				} `json:"terms"`
-				OutputPortDataProducts []interface{} `json:"outputPortDataProducts"`
-				Files                  []interface{} `json:"files"`
-				McIncidents            []interface{} `json:"mcIncidents"`
-				Links                  []interface{} `json:"links"`
-				Categories             []interface{} `json:"categories"`
-				Metrics                []interface{} `json:"metrics"`
-				Readme                 interface{}   `json:"readme"`
-				Meanings               []interface{} `json:"meanings"`
-				SodaChecks             []interface{} `json:"sodaChecks"`
-			} `json:"relationshipAttributes"`
-			Labels []interface{} `json:"labels"`
-		} `json:"entity"`
-	}
-
-	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
-	}
-
-	// Copy fields
-	g.TypeName = temp.Entity.TypeName
-	g.Attributes = temp.Entity.Attributes
-	g.Guid = temp.Entity.Guid
-	g.IsIncomplete = temp.Entity.IsIncomplete
-	g.Status = temp.Entity.Status
-	g.CreatedBy = temp.Entity.CreatedBy
-	g.UpdatedBy = temp.Entity.UpdatedBy
-	g.CreateTime = temp.Entity.CreateTime
-	g.UpdateTime = temp.Entity.UpdateTime
-	g.Version = temp.Entity.Version
-	g.Terms = temp.Entity.RelationshipAttributes.Terms
-
-	return nil
-}
-*/
-
-// UnmarshalJSON unmarshals the JSON data into a GlossaryTerm object.
-func (gt *GlossaryTerm) UnmarshalJSON(data []byte) error {
-	var temp struct {
-		Entity struct {
-			TypeName               string             `json:"typeName"`
-			Attributes             GlossaryAttributes `json:"attributes"`
-			Guid                   string             `json:"guid"`
-			IsIncomplete           bool               `json:"isIncomplete"`
-			Status                 string             `json:"status"`
-			CreatedBy              string             `json:"createdBy"`
-			UpdatedBy              string             `json:"updatedBy"`
-			CreateTime             int64              `json:"createTime"`
-			UpdateTime             int64              `json:"updateTime"`
-			Version                int                `json:"version"`
-			RelationshipAttributes struct {
-				ValidValuesFor         []interface{} `json:"validValuesFor"`
-				SchemaRegistrySubjects []interface{} `json:"schemaRegistrySubjects"`
-				ValidValues            []interface{} `json:"validValues"`
-				SeeAlso                []interface{} `json:"seeAlso"`
-				IsA                    []interface{} `json:"isA"`
-				Antonyms               []interface{} `json:"antonyms"`
-				AssignedEntities       []interface{} `json:"assignedEntities"`
-				McIncidents            []interface{} `json:"mcIncidents"`
-				Links                  []interface{} `json:"links"`
-				Classifies             []interface{} `json:"classifies"`
-				Categories             []interface{} `json:"categories"`
-				PreferredToTerms       []interface{} `json:"preferredToTerms"`
-				PreferredTerms         []interface{} `json:"preferredTerms"`
-				TranslationTerms       []interface{} `json:"translationTerms"`
-				Synonyms               []interface{} `json:"synonyms"`
-				ReplacedBy             []interface{} `json:"replacedBy"`
-				OutputPortDataProducts []interface{} `json:"outputPortDataProducts"`
-				Readme                 interface{}   `json:"readme"`
-				ReplacementTerms       []interface{} `json:"replacementTerms"`
-				Meanings               []interface{} `json:"meanings"`
-				McMonitors             []interface{} `json:"mcMonitors"`
-				TranslatedTerms        []interface{} `json:"translatedTerms"`
-				Anchor                 struct {
-					Guid                   string `json:"guid"`
-					TypeName               string `json:"typeName"`
-					EntityStatus           string `json:"entityStatus"`
-					DisplayText            string `json:"displayText"`
-					RelationshipType       string `json:"relationshipType"`
-					RelationshipGuid       string `json:"relationshipGuid"`
-					RelationshipStatus     string `json:"relationshipStatus"`
-					RelationshipAttributes struct {
-						TypeName string `json:"typeName"`
-					} `json:"relationshipAttributes"`
-				} `json:"anchor"`
-				Files      []interface{} `json:"files"`
-				Metrics    []interface{} `json:"metrics"`
-				SodaChecks []interface{} `json:"sodaChecks"`
-			} `json:"relationshipAttributes"`
-			Tags   []AtlanTag `json:"classifications"`
-			Anchor struct {
-				Guid                   string `json:"guid"`
-				TypeName               string `json:"typeName"`
-				EntityStatus           string `json:"entityStatus"`
-				DisplayText            string `json:"displayText"`
-				RelationshipType       string `json:"relationshipType"`
-				RelationshipGuid       string `json:"relationshipGuid"`
-				RelationshipStatus     string `json:"relationshipStatus"`
-				RelationshipAttributes struct {
-					TypeName string `json:"typeName"`
-				} `json:"relationshipAttributes"`
-			} `json:"anchor"`
-			Labels []interface{} `json:"labels"`
-		} `json:"entity"`
-	}
-
-	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
-	}
-
-	// Copy fields
-	gt.TypeName = temp.Entity.TypeName
-	gt.Attributes = temp.Entity.Attributes
-	gt.Guid = temp.Entity.Guid
-	if temp.Entity.Anchor.Guid != "" {
-		gt.Anchor = temp.Entity.Anchor
-	}
-	if temp.Entity.RelationshipAttributes.Anchor.Guid != "" {
-		gt.Anchor = temp.Entity.RelationshipAttributes.Anchor
-	}
-	gt.McMonitors = temp.Entity.RelationshipAttributes.McMonitors
-	gt.Tags = temp.Entity.Tags
-
-	return nil
-}
-
-func FromJSONTerm(data []byte) (*GlossaryTerm, error) {
-	var glossaryResponse GlossaryTerm
-	err := json.Unmarshal(data, &glossaryResponse)
-
-	return &glossaryResponse, err
 }

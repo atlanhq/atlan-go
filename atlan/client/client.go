@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -13,7 +14,7 @@ import (
 
 // AtlanClient defines the Atlan API client structure.
 type AtlanClient struct {
-	session        *http.Client
+	Session        *http.Client
 	host           string
 	ApiKey         string
 	loggingEnabled bool
@@ -43,7 +44,6 @@ func Init() error {
 	if err != nil {
 		return err
 	}
-	DefaultAtlanTagCache = NewAtlanTagCache(DefaultAtlanClient)
 
 	return nil
 }
@@ -59,7 +59,7 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 		logger = log.New(io.Discard, "", 0) // Logger that discards all log output
 	}
 	return &AtlanClient{
-		session: client,
+		Session: client,
 		host:    baseURL,
 		ApiKey:  apiKey,
 		requestParams: map[string]interface{}{
@@ -98,19 +98,21 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 	}
 
 	if requestObj != nil {
+		fmt.Println("Request Object:", requestObj)
 		requestJSON, err := json.Marshal(requestObj)
+		fmt.Println("Request JSON:", string(requestJSON))
 		if err != nil {
 			return nil, fmt.Errorf("error marshaling request object: %v", err)
 		}
 		params["data"] = bytes.NewBuffer(requestJSON)
-
 	}
 
 	ac.logAPICall(api.Method, path)
 
 	response, err := ac.makeRequest(api.Method, path, params)
 	if err != nil {
-		return nil, handleApiError(response)
+		errorMessage, _ := ioutil.ReadAll(response.Body)
+		return nil, handleApiError(response, string(errorMessage))
 	}
 
 	ac.logHTTPStatus(response)
@@ -201,7 +203,7 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 		req.URL.RawQuery = query
 	}
 
-	return ac.session.Do(req)
+	return ac.Session.Do(req)
 }
 
 func (ac *AtlanClient) logAPICall(method, path string) {
@@ -214,17 +216,23 @@ func (ac *AtlanClient) logAPICall(method, path string) {
 }
 
 func (ac *AtlanClient) logHTTPStatus(response *http.Response) {
-	if response != nil {
+	if ac.loggingEnabled {
 		ac.logger.Printf("HTTP Status: %s\n", response.Status)
 		if response.StatusCode < 200 || response.StatusCode >= 300 {
 			// Read the response body for the error message
-			ac.logger.Printf("Error: %s\n", handleApiError(response))
+			errorMessage, err := ioutil.ReadAll(response.Body)
+			if err != nil {
+				ac.logger.Printf("Error reading response body: %v\n", err)
+			}
+			ac.logger.Printf("Error: %s\n", handleApiError(response, string(errorMessage)))
 		}
 	}
 }
 
 func (ac *AtlanClient) logResponse(responseJSON []byte) {
-	ac.logger.Println("<== __call_api", string(responseJSON))
+	if ac.loggingEnabled {
+		ac.logger.Println("<== __call_api", string(responseJSON))
+	}
 }
 
 func deepCopy(original map[string]interface{}) map[string]interface{} {

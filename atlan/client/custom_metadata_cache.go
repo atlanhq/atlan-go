@@ -171,7 +171,7 @@ func (c *CustomMetadataCache) GetIDForName(name string) (string, error) {
 
 	if !exists {
 		if err := c.RefreshCache(); err != nil {
-			return "", ApiError{AtlanError{ErrorCode: errorCodes[CONNECTION_ERROR], OriginalError: err}}
+			return "", ApiError{AtlanError{ErrorCode: errorCodes[CONNECTION_ERROR]}}
 		}
 
 		c.mutex.RLock()
