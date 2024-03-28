@@ -17,9 +17,10 @@ type AtlanObject interface {
 
 // SearchAssets Struct to represent assets for searching
 type SearchAssets struct {
-	Glossary *AtlasGlossaryFields
-	Table    *AtlasTableFields
-	Column   *ColumnFields
+	Glossary   *AtlasGlossaryFields
+	Table      *AtlasTableFields
+	Column     *ColumnFields
+	Connection *ConnectionFields
 	// Add other assets here
 }
 
@@ -188,6 +189,37 @@ type ColumnFields struct {
 	FOREIGN_KEY_FROM                   *RelationField
 	DBT_METRICS                        *RelationField
 	TABLE_PARTITION                    *RelationField
+}
+
+type ConnectionFields struct {
+	AssetFields
+	CATEGORY                        *KeywordField
+	SUB_CATEGORY                    *KeywordField
+	HOST                            *KeywordField
+	PORT                            *NumericField
+	ALLOW_QUERY                     *BooleanField
+	ALLOW_QUERY_PREVIEW             *BooleanField
+	QUERY_PREVIEW_CONFIG            *KeywordField
+	QUERY_CONFIG                    *KeywordField
+	CREDENTIAL_STRATEGY             *KeywordField
+	PREVIEW_CREDENTIAL_STRATEGY     *KeywordField
+	POLICY_STRATEGY                 *KeywordField
+	QUERY_USERNAME_STRATEGY         *KeywordField
+	ROW_LIMIT                       *NumericField
+	QUERY_TIMEOUT                   *NumericField
+	DEFAULT_CREDENTIAL_GUID         *KeywordField
+	CONNECTOR_ICON                  *KeywordField
+	CONNECTOR_IMAGE                 *KeywordField
+	SOURCE_LOGO                     *KeywordField
+	IS_SAMPLE_DATA_PREVIEW_ENABLED  *BooleanField
+	POPULARITY_INSIGHTS_TIMEFRAME   *NumericField
+	HAS_POPULARITY_INSIGHTS         *BooleanField
+	CONNECTION_DBT_ENVIRONMENTS     *KeywordField
+	CONNECTION_SSO_CREDENTIAL_GUID  *KeywordField
+	USE_OBJECT_STORAGE              *BooleanField
+	OBJECT_STORAGE_UPLOAD_THRESHOLD *NumericField
+	VECTOR_EMBEDDINGS_ENABLED       *BooleanField
+	VECTOR_EMBEDDINGS_UPDATED_AT    *NumericField
 }
 
 // NewSearchTable returns a new AtlasTable object for Searching
@@ -404,6 +436,72 @@ func NewSearchColumn() *ColumnFields {
 		FOREIGN_KEY_FROM:                   NewRelationField("foreignKeyFrom"),
 		DBT_METRICS:                        NewRelationField("dbtMetrics"),
 		TABLE_PARTITION:                    NewRelationField("tablePartition"),
+	}
+}
+
+func NewSearchConnection() *ConnectionFields {
+	return &ConnectionFields{
+		AssetFields: AssetFields{
+			AttributesFields: AttributesFields{
+				TYPENAME:              NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
+				GUID:                  NewKeywordField("guid", "__guid"),
+				CREATED_BY:            NewKeywordField("createdBy", "__createdBy"),
+				UPDATED_BY:            NewKeywordField("updatedBy", "__modifiedBy"),
+				STATUS:                NewKeywordField("status", "__state"),
+				ATLAN_TAGS:            NewKeywordTextField("classificationNames", "__traitNames", "__classificationsText"),
+				PROPOGATED_ATLAN_TAGS: NewKeywordTextField("classificationNames", "__propagatedTraitNames", "__classificationsText"),
+				ASSIGNED_TERMS:        NewKeywordTextField("meanings", "__meanings", "__meaningsText"),
+				SUPERTYPE_NAMES:       NewKeywordTextField("typeName", "__superTypeNames.keyword", "__superTypeNames"),
+				CREATE_TIME:           NewNumericField("createTime", "__timestamp"),
+				UPDATE_TIME:           NewNumericField("updateTime", "__modificationTimestamp"),
+				QUALIFIED_NAME:        NewKeywordTextField("qualifiedName", "qualifiedName", "qualifiedName.text"),
+			},
+			NAME:                       NewKeywordTextStemmedField("name", "name.keyword", "name", "name"),
+			DISPLAY_NAME:               NewKeywordTextField("displayName", "displayName.keyword", "displayName"),
+			DESCRIPTION:                NewKeywordTextField("description", "description", "description.text"),
+			USER_DESCRIPTION:           NewKeywordTextField("userDescription", "userDescription", "userDescription.text"),
+			TENET_ID:                   NewKeywordField("tenetId", "tenetId"),
+			CERTIFICATE_STATUS:         NewKeywordTextField("certificateStatus", "certificateStatus", "certificateStatus.text"),
+			CERTIFICATE_STATUS_MESSAGE: NewKeywordField("certificateStatusMessage", "certificateStatusMessage"),
+			CERTIFICATE_UPDATED_BY:     NewNumericField("certificateUpdatedBy", "certificateUpdatedBy"),
+			ANNOUNCEMENT_TITLE:         NewKeywordField("announcementTitle", "announcementTitle"),
+			ANNOUNCEMENT_MESSAGE:       NewKeywordTextField("announcementMessage", "announcementMessage", "announcementMessage.text"),
+			ANNOUNCEMENT_TYPE:          NewKeywordField("announcementType", "announcementType"),
+			ANNOUNCEMENT_UPDATED_AT:    NewNumericField("announcementUpdatedAt", "announcementUpdatedAt"),
+			ANNOUNCEMENT_UPDATED_BY:    NewKeywordField("announcementUpdatedBy", "announcementUpdatedBy"),
+			OWNER_USERS:                NewKeywordTextField("ownerUsers", "ownerUsers", "ownerUsers.text"),
+			ADMIN_USERS:                NewKeywordField("adminUsers", "adminUsers"),
+			VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
+			VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
+			CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+		},
+		CATEGORY:                        NewKeywordField("category", "category"),
+		SUB_CATEGORY:                    NewKeywordField("subCategory", "subCategory"),
+		HOST:                            NewKeywordField("host", "host"),
+		PORT:                            NewNumericField("port", "port"),
+		ALLOW_QUERY:                     NewBooleanField("allowQuery", "allowQuery"),
+		ALLOW_QUERY_PREVIEW:             NewBooleanField("allowQueryPreview", "allowQueryPreview"),
+		QUERY_PREVIEW_CONFIG:            NewKeywordField("queryPreviewConfig", "queryPreviewConfig"),
+		QUERY_CONFIG:                    NewKeywordField("queryConfig", "queryConfig"),
+		CREDENTIAL_STRATEGY:             NewKeywordField("credentialStrategy", "credentialStrategy"),
+		PREVIEW_CREDENTIAL_STRATEGY:     NewKeywordField("previewCredentialStrategy", "previewCredentialStrategy"),
+		POLICY_STRATEGY:                 NewKeywordField("policyStrategy", "policyStrategy"),
+		QUERY_USERNAME_STRATEGY:         NewKeywordField("queryUsernameStrategy", "queryUsernameStrategy"),
+		ROW_LIMIT:                       NewNumericField("rowLimit", "rowLimit"),
+		QUERY_TIMEOUT:                   NewNumericField("queryTimeout", "queryTimeout"),
+		DEFAULT_CREDENTIAL_GUID:         NewKeywordField("defaultCredentialGuid", "defaultCredentialGuid"),
+		CONNECTOR_ICON:                  NewKeywordField("connectorIcon", "connectorIcon"),
+		CONNECTOR_IMAGE:                 NewKeywordField("connectorImage", "connectorImage"),
+		SOURCE_LOGO:                     NewKeywordField("sourceLogo", "sourceLogo"),
+		IS_SAMPLE_DATA_PREVIEW_ENABLED:  NewBooleanField("isSampleDataPreviewEnabled", "isSampleDataPreviewEnabled"),
+		POPULARITY_INSIGHTS_TIMEFRAME:   NewNumericField("popularityInsightsTimeframe", "popularityInsightsTimeframe"),
+		HAS_POPULARITY_INSIGHTS:         NewBooleanField("hasPopularityInsights", "hasPopularityInsights"),
+		CONNECTION_DBT_ENVIRONMENTS:     NewKeywordField("connectionDbtEnvironments", "connectionDbtEnvironments"),
+		CONNECTION_SSO_CREDENTIAL_GUID:  NewKeywordField("connectionSSOCredentialGuid", "connectionSSOCredentialGuid"),
+		USE_OBJECT_STORAGE:              NewBooleanField("useObjectStorage", "useObjectStorage"),
+		OBJECT_STORAGE_UPLOAD_THRESHOLD: NewNumericField("objectStorageUploadThreshold", "objectStorageUploadThreshold"),
+		VECTOR_EMBEDDINGS_ENABLED:       NewBooleanField("vectorEmbeddingsEnabled", "vectorEmbeddingsEnabled"),
+		VECTOR_EMBEDDINGS_UPDATED_AT:    NewNumericField("vectorEmbeddingsUpdatedAt", "vectorEmbeddingsUpdatedAt"),
 	}
 }
 
