@@ -2,7 +2,10 @@
 
 package model
 
-import "atlan-go/atlan"
+import (
+	"atlan-go/atlan"
+	"atlan-go/atlan/model/assets"
+)
 
 // Query is an interface that represents the base query behavior.
 type Query interface {
@@ -435,7 +438,7 @@ type Dsl struct {
 type IndexSearchResponse struct {
 	QueryType        string           `json:"queryType"`
 	SearchParameters SearchParameters `json:"searchParameters"`
-	Entities         []Entity         `json:"entities"`
+	Entities         []assets.Asset   `json:"entities"`
 	ApproximateCount int64            `json:"approximateCount"`
 }
 

@@ -59,7 +59,9 @@ type CustomMetadataAttributes string
 
 type SchemaRegistrySubject string
 
-type Metric string
+type Metric struct {
+	// DataQuality
+}
 
 type Readme string
 

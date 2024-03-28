@@ -74,6 +74,7 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 		SearchAssets: SearchAssets{
 			Glossary: NewSearchGlossary(),
 			Table:    NewSearchTable(),
+			Column:   NewSearchColumn(),
 			// Add other methods
 		},
 	}, nil

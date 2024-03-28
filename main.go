@@ -2,8 +2,8 @@
 package main
 
 import (
-	"atlan-go/atlan"
 	"atlan-go/atlan/client"
+	"atlan-go/atlan/model"
 	"fmt"
 )
 
@@ -11,22 +11,22 @@ func main() {
 
 	client.LoggingEnabled = true
 
-	client.NewContext()
+	ctx := client.NewContext()
 	/*
 		resp, err := client.GetAll()
 		if err != nil {
 			fmt.Println(err)
 		}
 		fmt.Println(resp)
-	*/
-	/*
-		response, err := client.GetGlossaryByGuid("fc36342b-ddb5-44ba-b774-4c90cc66d5a2")
+		*
+		/*
+			response, err := client.GetGlossaryByGuid("fc36342b-ddb5-44ba-b774-4c90cc66d5a2")
 
-		if err != nil {
-			fmt.Println("Error:", err)
-		} else {
-			println("Response:", *response.TypeName)
-		}
+			if err != nil {
+				fmt.Println("Error:", err)
+			} else {
+				println("Response:", *response.TypeName)
+			}
 	*/
 	//client.GetAtlanTagCache().RefreshCache()
 	//id, _ := client.GetAtlanTagCache().GetIDForName("Hourly")
@@ -72,52 +72,54 @@ func main() {
 		}
 	*/
 
-	/*
-		// IndexSearch
-		boolQuery, _ := client.WithActiveGlossary("go-sdk-test")
+	// IndexSearch
+	//boolQuery, _ := client.WithActiveGlossary("go-sdk-test")
+	boolQuery2 := &model.TermQuery{Field: ctx.Column.TYPENAME.GetElasticFieldName(), Value: "Column"}
+	//boolQuery3 := &model.PrefixQuery{Field: ctx.Table.NAME.GetElasticFieldName(), Value: "SE"}
 
-		request := model.IndexSearchRequest{
-			Dsl: model.Dsl{
-				From:           0,
-				Size:           2,
-				Query:          boolQuery.ToJSON(),
-				TrackTotalHits: true,
-			},
-			SuppressLogs:           true,
-			ShowSearchScore:        false,
-			ExcludeMeanings:        false,
-			ExcludeClassifications: false,
-		}
+	request := model.IndexSearchRequest{
+		Dsl: model.Dsl{
+			From:           0,
+			Size:           30,
+			Query:          boolQuery2.ToJSON(),
+			TrackTotalHits: true,
+		},
+		SuppressLogs:           true,
+		ShowSearchScore:        false,
+		ExcludeMeanings:        false,
+		ExcludeClassifications: false,
+	}
 
-		response1, _ := client.Search(request)
+	response1, _ := client.Search(request)
 
-		fmt.Println("Guid:", response1.Entities[0].Guid)
-		fmt.Println("Total Results", response1.ApproximateCount)
-	*/
+	fmt.Println("Guid:", *response1.Entities[0].Guid)
+	fmt.Println("Total Results", response1.ApproximateCount)
+	fmt.Println("Typename:", *response1.Entities[0].TypeName)
+
 	//if err != nil {
 	//	fmt.Printf("Error fetching model: %v\n", err)
 	//}
 
 	//fmt.Printf("Response: %+v\n", response)
 
-	//	ctx := client.NewContext()
+	//ctx := client.NewContext()
 
 	// client.Init()
+	/*
+		g := &client.AtlasGlossary{} // create a new Glossary instance
 
-	g := &client.AtlasGlossary{} // create a new Glossary instance
+		g.Creator("TestGlossary14", atlan.AtlanIconAirplaneInFlight)
 
-	g.Creator("TestGlossary14", atlan.AtlanIconAirplaneInFlight)
-
-	response, err := client.Save(g) // save the Glossary
-	if err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		for _, entity := range response.MutatedEntities.CREATE {
-			fmt.Println("Response:", entity)
-			fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
+		response, err := client.Save(g) // save the Glossary
+		if err != nil {
+			fmt.Println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.CREATE {
+				fmt.Println("Response:", entity)
+				fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
+			}
 		}
-	}
-
+	*/
 	//Modify an existing Glossary
 	/*
 		g := &client.AtlasGlossary{}
@@ -149,25 +151,23 @@ func main() {
 	*/
 
 	//query := ctx.Glossary.TYPENAME.Eq("AtlasGlossary", nil)
-
 	/*
 		excludeCondition := &model.TermQuery{
 			Field: client.NAME,
 			Value: "Concepts",
 		}
 
-
 		searchResult, err := client.NewFluentSearch().
 			PageSizes(10).
 			ActiveAssets().
 			AssetType("AtlasGlossary").
 			Where(&model.TermQuery{
-				Field: client.TYPE_NAME,
-				Value: "AtlasGlossary",
+				Field: ctx.Table.TYPENAME.GetElasticFieldName(),
+				Value: "Table",
 			}).
 			Where(ctx.Glossary.NAME.Eq("Metrics", nil)).
 			Where(ctx.Glossary.NAME.StartsWith("M", nil)).
-			Sort(client.NAME, atlan.ASCENDING).
+			Sort(client.NAME, atlan.SortOrderAscending).
 			//Sort(string(client.GUID), client.Ascending).
 			WhereNot(excludeCondition).
 			IncludeOnResults("guid").
@@ -186,29 +186,29 @@ func main() {
 		for _, entity := range searchResult[0].Entities {
 			fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
 		}
-	*/
-	//glossaryGuid := "c1620acb-e89d-4bb2-8bee-3f56be6439b5"
-	//glossaryGuidterm := "1ee6a1e5-7afa-4b31-a736-af1f656ae0c3"
 
-	//t, err := client.GetAll()
-	//client.DefaultAtlanTagCache.RefreshCache()
-	//if err != nil {
-	//	fmt.Printf("Error fetching model: %v\n", err)
-	//	return
-	//}
+		//glossaryGuid := "c1620acb-e89d-4bb2-8bee-3f56be6439b5"
+		//glossaryGuidterm := "1ee6a1e5-7afa-4b31-a736-af1f656ae0c3"
 
-	//client.GetCache().RefreshCache()
-	//client.GetCache()
-	//a, _ := client.GetCache().GetIDForName("PII")
-	//fmt.Printf("ID for name is : %s\n", a)
-	/*
-		tagName := "Hourly"
-		tagID, err := client.GetIDForName(tagName)
-		if err != nil {
-			log.Fatal(err)
-		}
+		//t, err := client.GetAll()
+		//client.DefaultAtlanTagCache.RefreshCache()
+		//if err != nil {
+		//	fmt.Printf("Error fetching model: %v\n", err)
+		//	return
+		//}
 
-		fmt.Printf("Atlan tag ID for %s: %s\n", tagName, tagID)
+		//client.GetCache().RefreshCache()
+		//client.GetCache()
+		//a, _ := client.GetCache().GetIDForName("PII")
+		//fmt.Printf("ID for name is : %s\n", a)
+		/*
+			tagName := "Hourly"
+			tagID, err := client.GetIDForName(tagName)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			fmt.Printf("Atlan tag ID for %s: %s\n", tagName, tagID)
 	*/
 	/*
 		tagID = "a3el9UemzJZqZAUFcsDjy4"
