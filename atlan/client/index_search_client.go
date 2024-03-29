@@ -67,7 +67,7 @@ func FindGlossaryByName(glossaryName string) (*model.IndexSearchResponse, error)
 		}
 		for _, response := range responses {
 			for _, entity := range response.Entities {
-				if entity.TypeName == "AtlasGlossary" {
+				if *entity.TypeName == "AtlasGlossary" {
 					return response, nil
 				}
 			}
@@ -113,7 +113,7 @@ func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*mod
 		}
 		fmt.Println("Current Page: ", iterator.CurrentPage())
 		for _, entity := range response.Entities {
-			if entity.TypeName == "AtlasGlossaryCategory" {
+			if *entity.TypeName == "AtlasGlossaryCategory" {
 				return response, err
 			}
 		}

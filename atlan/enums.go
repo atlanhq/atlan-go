@@ -2665,3 +2665,40 @@ func AtlanStatusPtr(value string) *AtlanStatus {
 	status := AtlanStatus(value)
 	return &status
 }
+
+type QueryUsernameStrategy struct {
+	Name string
+}
+
+func (q QueryUsernameStrategy) String() string {
+	return q.Name
+}
+
+var (
+	CONNECTION_USERNAME = QueryUsernameStrategy{"connectionUsername"}
+	ATLAN_USERNAME      = QueryUsernameStrategy{Name: "atlanUsername"}
+)
+
+func (q QueryUsernameStrategy) MarshalJSON() ([]byte, error) {
+	return json.Marshal(q.Name)
+}
+
+func (q *QueryUsernameStrategy) UnmarshalJSON(data []byte) error {
+	var UserStrategy string
+	if err := json.Unmarshal(data, &UserStrategy); err != nil {
+		return err
+	}
+
+	// Set the corresponding ChildScoreMode based on the modeName.
+	switch UserStrategy {
+	case "connectionUsername":
+		*q = CONNECTION_USERNAME
+	case "atlanUsername":
+		*q = ATLAN_USERNAME
+
+	default:
+		*q = QueryUsernameStrategy{Name: UserStrategy}
+	}
+
+	return nil
+}

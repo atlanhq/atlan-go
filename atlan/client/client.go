@@ -72,8 +72,12 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 		logger:         logger,
 		loggingEnabled: LoggingEnabled,
 		SearchAssets: SearchAssets{
-			Glossary: NewSearchGlossary(),
-			Table:    NewSearchTable(),
+			Glossary:         NewSearchGlossary(),
+			Table:            NewSearchTable(),
+			Column:           NewSearchColumn(),
+			Connection:       NewSearchConnection(),
+			MaterialisedView: NewSearchMaterialisedView(),
+			View:             NewSearchView(),
 			// Add other methods
 		},
 	}, nil
