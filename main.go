@@ -3,7 +3,6 @@ package main
 
 import (
 	"atlan-go/atlan/client"
-	"atlan-go/atlan/model"
 	"fmt"
 )
 
@@ -12,6 +11,24 @@ func main() {
 	client.LoggingEnabled = true
 
 	ctx := client.NewContext()
+
+	// TEST INTEGRATION ATLAN-CLI WITH GO-SDK
+
+	// Fluent-Search
+
+	query := ctx.Table.QUALIFIED_NAME.Eq("default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/SELLER_HISTORY", nil)
+	//query2 := ctx.Column.TYPENAME.Eq("Column", nil)
+
+	searchResult, err := client.NewFluentSearch().
+		PageSizes(50).
+		Where(query).
+		Execute()
+
+	if err != nil {
+		fmt.Printf("Error executing search: %v\n", err)
+		return
+	}
+	fmt.Println("Search results:", *searchResult[0].Entities[0].DisplayName)
 	/*
 		resp, err := client.GetAll()
 		if err != nil {
@@ -71,31 +88,31 @@ func main() {
 			fmt.Println("Error:", err)
 		}
 	*/
+	/*
+		// IndexSearch
+		//boolQuery, _ := client.WithActiveGlossary("go-sdk-test")
+		boolQuery2 := &model.TermQuery{Field: ctx.Column.TYPENAME.GetElasticFieldName(), Value: "Column"}
+		//boolQuery3 := &model.PrefixQuery{Field: ctx.Table.NAME.GetElasticFieldName(), Value: "SE"}
 
-	// IndexSearch
-	//boolQuery, _ := client.WithActiveGlossary("go-sdk-test")
-	boolQuery2 := &model.TermQuery{Field: ctx.Column.TYPENAME.GetElasticFieldName(), Value: "Column"}
-	//boolQuery3 := &model.PrefixQuery{Field: ctx.Table.NAME.GetElasticFieldName(), Value: "SE"}
+		request := model.IndexSearchRequest{
+			Dsl: model.Dsl{
+				From:           0,
+				Size:           30,
+				Query:          boolQuery2.ToJSON(),
+				TrackTotalHits: true,
+			},
+			SuppressLogs:           true,
+			ShowSearchScore:        false,
+			ExcludeMeanings:        false,
+			ExcludeClassifications: false,
+		}
 
-	request := model.IndexSearchRequest{
-		Dsl: model.Dsl{
-			From:           0,
-			Size:           30,
-			Query:          boolQuery2.ToJSON(),
-			TrackTotalHits: true,
-		},
-		SuppressLogs:           true,
-		ShowSearchScore:        false,
-		ExcludeMeanings:        false,
-		ExcludeClassifications: false,
-	}
+		response1, _ := client.Search(request)
 
-	response1, _ := client.Search(request)
-
-	fmt.Println("Guid:", *response1.Entities[0].Guid)
-	fmt.Println("Total Results", response1.ApproximateCount)
-	fmt.Println("Typename:", *response1.Entities[0].TypeName)
-
+		fmt.Println("Guid:", *response1.Entities[0].Guid)
+		fmt.Println("Total Results", response1.ApproximateCount)
+		fmt.Println("Typename:", *response1.Entities[0].TypeName)
+	*/
 	//if err != nil {
 	//	fmt.Printf("Error fetching model: %v\n", err)
 	//}

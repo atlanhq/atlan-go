@@ -10,10 +10,6 @@ type SnowflakeDynamicTable struct {
 	Table
 }
 
-type View struct {
-	SQL
-}
-
 type DbtModelColumn struct {
 	// Dbt
 }

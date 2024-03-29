@@ -232,7 +232,7 @@ type Asset struct {
 	// Description of this asset, for example as crawled from a source.
 	Description *string `json:"description,omitempty"`
 	// Human-readable name of this asset used for display purposes (in user interface).
-	DisplayName *string `json:"displayName,omitempty"`
+	DisplayName *string `json:"displayText,omitempty"`
 	// List of files associated with this asset.
 	Files *[]File `json:"files,omitempty"`
 	// Whether this asset has lineage (true) or not (false).
@@ -267,8 +267,6 @@ type Asset struct {
 	OwnerUsers *[]string `json:"ownerUsers,omitempty"`
 	// Popularity score for this asset.
 	PopularityScore *float64 `json:"popularityScore,omitempty"`
-	// Qualified name of this asset.
-	QualifiedName *string `json:"qualifiedName,omitempty"`
 	// README that is linked to this asset.
 	Readme *Readme `json:"readme,omitempty"`
 	// URL for sample data for this asset.

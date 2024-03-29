@@ -17,10 +17,12 @@ type AtlanObject interface {
 
 // SearchAssets Struct to represent assets for searching
 type SearchAssets struct {
-	Glossary   *AtlasGlossaryFields
-	Table      *AtlasTableFields
-	Column     *ColumnFields
-	Connection *ConnectionFields
+	Glossary         *AtlasGlossaryFields
+	Table            *AtlasTableFields
+	Column           *ColumnFields
+	Connection       *ConnectionFields
+	MaterialisedView *MaterialisedViewFields
+	View             *ViewFields
 	// Add other assets here
 }
 
@@ -220,6 +222,39 @@ type ConnectionFields struct {
 	OBJECT_STORAGE_UPLOAD_THRESHOLD *NumericField
 	VECTOR_EMBEDDINGS_ENABLED       *BooleanField
 	VECTOR_EMBEDDINGS_UPDATED_AT    *NumericField
+}
+
+type MaterialisedViewFields struct {
+	SQLFields
+	REFRESH_MODE         *KeywordField
+	REFRESH_METHOD       *KeywordField
+	STALENESS            *KeywordField
+	STALE_SINCE_DATE     *NumericField
+	COLUMN_COUNT         *NumericField
+	ROW_COUNT            *NumericField
+	SIZE_BYTES           *NumericField
+	IS_QUERY_PREVIEW     *BooleanField
+	QUERY_PREVIEW_CONFIG *KeywordField
+	ALIAS                *KeywordField
+	IS_TEMPORARY         *BooleanField
+	DEFINITION           *KeywordField
+	COLUMNS              *RelationField
+	ATLAN_SCHEMA         *RelationField
+}
+
+type ViewFields struct {
+	SQLFields
+	COLUMN_COUNT         *NumericField
+	ROW_COUNT            *NumericField
+	SIZE_BYTES           *NumericField
+	IS_QUERY_PREVIEW     *BooleanField
+	QUERY_PREVIEW_CONFIG *KeywordField
+	ALIAS                *KeywordField
+	IS_TEMPORARY         *BooleanField
+	DEFINITION           *KeywordField
+	COLUMNS              *RelationField
+	QUERIES              *RelationField
+	ATLAN_SCHEMA         *RelationField
 }
 
 // NewSearchTable returns a new AtlasTable object for Searching
@@ -543,6 +578,164 @@ func NewSearchGlossary() *AtlasGlossaryFields {
 			CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
 		},
 	}
+}
+
+func NewSearchMaterialisedView() *MaterialisedViewFields {
+	return &MaterialisedViewFields{
+		SQLFields: SQLFields{
+			CatalogFields: CatalogFields{
+				AssetFields: AssetFields{
+					AttributesFields: AttributesFields{
+						TYPENAME:              NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
+						GUID:                  NewKeywordField("guid", "__guid"),
+						CREATED_BY:            NewKeywordField("createdBy", "__createdBy"),
+						UPDATED_BY:            NewKeywordField("updatedBy", "__modifiedBy"),
+						STATUS:                NewKeywordField("status", "__state"),
+						ATLAN_TAGS:            NewKeywordTextField("classificationNames", "__traitNames", "__classificationsText"),
+						PROPOGATED_ATLAN_TAGS: NewKeywordTextField("classificationNames", "__propagatedTraitNames", "__classificationsText"),
+						ASSIGNED_TERMS:        NewKeywordTextField("meanings", "__meanings", "__meaningsText"),
+						SUPERTYPE_NAMES:       NewKeywordTextField("typeName", "__superTypeNames.keyword", "__superTypeNames"),
+						CREATE_TIME:           NewNumericField("createTime", "__timestamp"),
+						UPDATE_TIME:           NewNumericField("updateTime", "__modificationTimestamp"),
+						QUALIFIED_NAME:        NewKeywordTextField("qualifiedName", "qualifiedName", "qualifiedName.text"),
+					},
+					NAME:                       NewKeywordTextStemmedField("name", "name.keyword", "name", "name"),
+					DISPLAY_NAME:               NewKeywordTextField("displayName", "displayName.keyword", "displayName"),
+					DESCRIPTION:                NewKeywordTextField("description", "description", "description.text"),
+					USER_DESCRIPTION:           NewKeywordTextField("userDescription", "userDescription", "userDescription.text"),
+					TENET_ID:                   NewKeywordField("tenetId", "tenetId"),
+					CERTIFICATE_STATUS:         NewKeywordTextField("certificateStatus", "certificateStatus", "certificateStatus.text"),
+					CERTIFICATE_STATUS_MESSAGE: NewKeywordField("certificateStatusMessage", "certificateStatusMessage"),
+					CERTIFICATE_UPDATED_BY:     NewNumericField("certificateUpdatedBy", "certificateUpdatedBy"),
+					ANNOUNCEMENT_TITLE:         NewKeywordField("announcementTitle", "announcementTitle"),
+					ANNOUNCEMENT_MESSAGE:       NewKeywordTextField("announcementMessage", "announcementMessage", "announcementMessage.text"),
+					ANNOUNCEMENT_TYPE:          NewKeywordField("announcementType", "announcementType"),
+					ANNOUNCEMENT_UPDATED_AT:    NewNumericField("announcementUpdatedAt", "announcementUpdatedAt"),
+					ANNOUNCEMENT_UPDATED_BY:    NewKeywordField("announcementUpdatedBy", "announcementUpdatedBy"),
+					OWNER_USERS:                NewKeywordTextField("ownerUsers", "ownerUsers", "ownerUsers.text"),
+					ADMIN_USERS:                NewKeywordField("adminUsers", "adminUsers"),
+					VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
+					VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
+					CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+				},
+				INPUT_TO_PROCESSES:        NewRelationField("inputToProcesses"),
+				OUTPUT_FROM_AIRFLOW_TASKS: NewRelationField("outputFromAirflowTasks"),
+				INPUT_TO_AIRFLOW_TASKS:    NewRelationField("inputToAirflowTasks"),
+				OUTPUT_FROM_PROCESSES:     NewRelationField("outputFromProcesses"),
+			},
+			QUERY_COUNT:             NewNumericField("queryCount", "queryCount"),
+			QUERY_USER_COUNT:        NewNumericField("queryUserCount", "queryUserCount"),
+			QUERY_USER_MAP:          NewKeywordField("queryUserMap", "queryUserMap"),
+			QUERY_COUNT_UPDATED_AT:  NewNumericField("queryCountUpdatedAt", "queryCountUpdatedAt"),
+			DATABASE_NAME:           NewKeywordTextField("databaseName", "databaseName.keyword", "databaseName"),
+			DATABASE_QUALIFIED_NAME: NewKeywordField("databaseQualifiedName", "databaseQualifiedName"),
+			SCHEMA_NAME:             NewKeywordTextField("schemaName", "schemaName.keyword", "schemaName"),
+			SCHEMA_QUALIFIED_NAME:   NewKeywordField("schemaQualifiedName", "schemaQualifiedName"),
+			TABLE_NAME:              NewKeywordTextField("tableName", "tableName.keyword", "tableName"),
+			TABLE_QUALIFIED_NAME:    NewKeywordField("tableQualifiedName", "tableQualifiedName"),
+			VIEW_NAME:               NewKeywordTextField("viewName", "viewName.keyword", "viewName"),
+			VIEW_QUALIFIED_NAME:     NewKeywordField("viewQualifiedName", "viewQualifiedName"),
+			IS_PROFILED:             NewBooleanField("isProfiled", "isProfiled"),
+			LAST_PROFILED_AT:        NewNumericField("lastProfiledAt", "lastProfiledAt"),
+			DBT_SOURCES:             NewRelationField("dbtSources"),
+			SQL_DBT_MODELS:          NewRelationField("sqlDbtModels"),
+			SQL_DBT_SOURCES:         NewRelationField("sqlDBTSources"),
+			DBT_MODELS:              NewRelationField("dbtModels"),
+			DBT_TESTS:               NewRelationField("dbtTests"),
+		},
+		REFRESH_MODE:         NewKeywordField("refreshMode", "refreshMode"),
+		REFRESH_METHOD:       NewKeywordField("refreshMethod", "refreshMethod"),
+		STALENESS:            NewKeywordField("staleness", "staleness"),
+		STALE_SINCE_DATE:     NewNumericField("staleSinceDate", "staleSinceDate"),
+		COLUMN_COUNT:         NewNumericField("columnCount", "columnCount"),
+		ROW_COUNT:            NewNumericField("rowCount", "rowCount"),
+		SIZE_BYTES:           NewNumericField("sizeBytes", "sizeBytes"),
+		IS_QUERY_PREVIEW:     NewBooleanField("isQueryPreview", "isQueryPreview"),
+		QUERY_PREVIEW_CONFIG: NewKeywordField("queryPreviewConfig", "queryPreviewConfig"),
+		ALIAS:                NewKeywordField("alias", "alias"),
+		IS_TEMPORARY:         NewBooleanField("isTemporary", "isTemporary"),
+		DEFINITION:           NewKeywordField("definition", "definition"),
+		COLUMNS:              NewRelationField("columns"),
+		ATLAN_SCHEMA:         NewRelationField("atlanSchema"),
+	}
+}
+
+func NewSearchView() *ViewFields {
+	return &ViewFields{
+		SQLFields: SQLFields{
+			CatalogFields: CatalogFields{
+				AssetFields: AssetFields{
+					AttributesFields: AttributesFields{
+						TYPENAME:              NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
+						GUID:                  NewKeywordField("guid", "__guid"),
+						CREATED_BY:            NewKeywordField("createdBy", "__createdBy"),
+						UPDATED_BY:            NewKeywordField("updatedBy", "__modifiedBy"),
+						STATUS:                NewKeywordField("status", "__state"),
+						ATLAN_TAGS:            NewKeywordTextField("classificationNames", "__traitNames", "__classificationsText"),
+						PROPOGATED_ATLAN_TAGS: NewKeywordTextField("classificationNames", "__propagatedTraitNames", "__classificationsText"),
+						ASSIGNED_TERMS:        NewKeywordTextField("meanings", "__meanings", "__meaningsText"),
+						SUPERTYPE_NAMES:       NewKeywordTextField("typeName", "__superTypeNames.keyword", "__superTypeNames"),
+						CREATE_TIME:           NewNumericField("createTime", "__timestamp"),
+						UPDATE_TIME:           NewNumericField("updateTime", "__modificationTimestamp"),
+						QUALIFIED_NAME:        NewKeywordTextField("qualifiedName", "qualifiedName", "qualifiedName.text"),
+					},
+					NAME:                       NewKeywordTextStemmedField("name", "name.keyword", "name", "name"),
+					DISPLAY_NAME:               NewKeywordTextField("displayName", "displayName.keyword", "displayName"),
+					DESCRIPTION:                NewKeywordTextField("description", "description", "description.text"),
+					USER_DESCRIPTION:           NewKeywordTextField("userDescription", "userDescription", "userDescription.text"),
+					TENET_ID:                   NewKeywordField("tenetId", "tenetId"),
+					CERTIFICATE_STATUS:         NewKeywordTextField("certificateStatus", "certificateStatus", "certificateStatus.text"),
+					CERTIFICATE_STATUS_MESSAGE: NewKeywordField("certificateStatusMessage", "certificateStatusMessage"),
+					CERTIFICATE_UPDATED_BY:     NewNumericField("certificateUpdatedBy", "certificateUpdatedBy"),
+					ANNOUNCEMENT_TITLE:         NewKeywordField("announcementTitle", "announcementTitle"),
+					ANNOUNCEMENT_MESSAGE:       NewKeywordTextField("announcementMessage", "announcementMessage", "announcementMessage.text"),
+					ANNOUNCEMENT_TYPE:          NewKeywordField("announcementType", "announcementType"),
+					ANNOUNCEMENT_UPDATED_AT:    NewNumericField("announcementUpdatedAt", "announcementUpdatedAt"),
+					ANNOUNCEMENT_UPDATED_BY:    NewKeywordField("announcementUpdatedBy", "announcementUpdatedBy"),
+					OWNER_USERS:                NewKeywordTextField("ownerUsers", "ownerUsers", "ownerUsers.text"),
+					ADMIN_USERS:                NewKeywordField("adminUsers", "adminUsers"),
+					VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
+					VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
+					CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+				},
+				INPUT_TO_PROCESSES:        NewRelationField("inputToProcesses"),
+				OUTPUT_FROM_AIRFLOW_TASKS: NewRelationField("outputFromAirflowTasks"),
+				INPUT_TO_AIRFLOW_TASKS:    NewRelationField("inputToAirflowTasks"),
+				OUTPUT_FROM_PROCESSES:     NewRelationField("outputFromProcesses"),
+			},
+			QUERY_COUNT:             NewNumericField("queryCount", "queryCount"),
+			QUERY_USER_COUNT:        NewNumericField("queryUserCount", "queryUserCount"),
+			QUERY_USER_MAP:          NewKeywordField("queryUserMap", "queryUserMap"),
+			QUERY_COUNT_UPDATED_AT:  NewNumericField("queryCountUpdatedAt", "queryCountUpdatedAt"),
+			DATABASE_NAME:           NewKeywordTextField("databaseName", "databaseName.keyword", "databaseName"),
+			DATABASE_QUALIFIED_NAME: NewKeywordField("databaseQualifiedName", "databaseQualifiedName"),
+			SCHEMA_NAME:             NewKeywordTextField("schemaName", "schemaName.keyword", "schemaName"),
+			SCHEMA_QUALIFIED_NAME:   NewKeywordField("schemaQualifiedName", "schemaQualifiedName"),
+			TABLE_NAME:              NewKeywordTextField("tableName", "tableName.keyword", "tableName"),
+			TABLE_QUALIFIED_NAME:    NewKeywordField("tableQualifiedName", "tableQualifiedName"),
+			VIEW_NAME:               NewKeywordTextField("viewName", "viewName.keyword", "viewName"),
+			VIEW_QUALIFIED_NAME:     NewKeywordField("viewQualifiedName", "viewQualifiedName"),
+			IS_PROFILED:             NewBooleanField("isProfiled", "isProfiled"),
+			LAST_PROFILED_AT:        NewNumericField("lastProfiledAt", "lastProfiledAt"),
+			DBT_SOURCES:             NewRelationField("dbtSources"),
+			SQL_DBT_MODELS:          NewRelationField("sqlDbtModels"),
+			SQL_DBT_SOURCES:         NewRelationField("sqlDBTSources"),
+			DBT_MODELS:              NewRelationField("dbtModels"),
+			DBT_TESTS:               NewRelationField("dbtTests"),
+		},
+		COLUMN_COUNT:         NewNumericField("columnCount", "columnCount"),
+		ROW_COUNT:            NewNumericField("rowCount", "rowCount"),
+		SIZE_BYTES:           NewNumericField("sizeBytes", "sizeBytes"),
+		IS_QUERY_PREVIEW:     NewBooleanField("isQueryPreview", "isQueryPreview"),
+		QUERY_PREVIEW_CONFIG: NewKeywordField("queryPreviewConfig", "queryPreviewConfig"),
+		ALIAS:                NewKeywordField("alias", "alias"),
+		IS_TEMPORARY:         NewBooleanField("isTemporary", "isTemporary"),
+		DEFINITION:           NewKeywordField("definition", "definition"),
+		COLUMNS:              NewRelationField("columns"),
+		QUERIES:              NewRelationField("queries"),
+		ATLAN_SCHEMA:         NewRelationField("atlanSchema"),
+	}
+
 }
 
 // Methods on assets
