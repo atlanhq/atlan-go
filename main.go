@@ -15,22 +15,45 @@ func main() {
 	// TEST INTEGRATION ATLAN-CLI WITH GO-SDK
 
 	// Fluent-Search
+	/*
+		query := ctx.Table.QUALIFIED_NAME.Eq("default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/SELLER_HISTORY", nil)
+		//query2 := ctx.Column.TYPENAME.Eq("Column", nil)
 
-	query := ctx.Table.QUALIFIED_NAME.Eq("default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/SELLER_HISTORY", nil)
-	//query2 := ctx.Column.TYPENAME.Eq("Column", nil)
+		searchResult, err := client.NewFluentSearch().
+			PageSizes(50).
+			Where(query).
+			Execute()
 
-	searchResult, err := client.NewFluentSearch().
+		if err != nil {
+			fmt.Printf("Error executing search: %v\n", err)
+			return
+		}
+		fmt.Println("Search results:", *searchResult[0].Entities[0].DisplayName)
+	*/
+
+	// Fetch columns of table from Atlan using Qualified Name
+	qualifiedname := "default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/SELLER_HISTORY/ID"
+
+	columnResult, err := client.NewFluentSearch().
 		PageSizes(50).
-		Where(query).
+		ActiveAssets().
+		Where(ctx.Column.TYPENAME.Eq("Column", nil)).
+		Where(ctx.Column.QUALIFIED_NAME.Eq(qualifiedname, nil)).
 		Execute()
 
 	if err != nil {
 		fmt.Printf("Error executing search: %v\n", err)
 		return
 	}
-	fmt.Println("Search results:", *searchResult[0].Entities[0].DisplayName)
+
+	fmt.Println("Search results:", *columnResult[0].Entities[0].SearchAttributes.Name)
+	fmt.Println("Search results:", *columnResult[0].Entities[0].SearchAttributes.QualifiedName)
+	if columnResult[0].Entities[0].Description != nil {
+		fmt.Println("Search results:", *columnResult[0].Entities[0].Description)
+	}
+
 	/*
-		resp, err := client.GetAll()
+			resp, err := client.GetAll()
 		if err != nil {
 			fmt.Println(err)
 		}

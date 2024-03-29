@@ -1,6 +1,8 @@
 package assets
 
-import "time"
+import (
+	"time"
+)
 
 type Histogram string
 
