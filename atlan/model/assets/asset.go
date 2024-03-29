@@ -1,6 +1,6 @@
 package assets
 
-import "atlan-go/atlan"
+import "github.com/atlanhq/atlan-go/atlan"
 
 type AtlanAnnouncementType string
 

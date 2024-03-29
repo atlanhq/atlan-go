@@ -1,7 +1,7 @@
 package assets
 
 import (
-	"atlan-go/atlan"
+	"github.com/atlanhq/atlan-go/atlan"
 	"time"
 )
 

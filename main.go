@@ -2,8 +2,8 @@
 package main
 
 import (
-	"atlan-go/atlan/client"
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan/client"
 )
 
 func main() {

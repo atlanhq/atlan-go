@@ -3,8 +3,8 @@
 package model
 
 import (
-	"atlan-go/atlan"
-	"atlan-go/atlan/model/assets"
+	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/atlanhq/atlan-go/atlan/model/assets"
 )
 
 // Query is an interface that represents the base query behavior.

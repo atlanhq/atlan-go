@@ -1,8 +1,8 @@
 package assets
 
 import (
-	"atlan-go/atlan"
 	"encoding/json"
+	"github.com/atlanhq/atlan-go/atlan"
 )
 
 type _Glossary AtlasGlossary

@@ -1,11 +1,11 @@
 package client
 
 import (
-	"atlan-go/atlan"
-	"atlan-go/atlan/model"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/atlanhq/atlan-go/atlan/model"
 	"sync"
 )
 

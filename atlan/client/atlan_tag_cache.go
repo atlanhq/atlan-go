@@ -1,8 +1,8 @@
 package client
 
 import (
-	"atlan-go/atlan/model"
 	"encoding/json"
+	"github.com/atlanhq/atlan-go/atlan/model"
 	"sync"
 )
 

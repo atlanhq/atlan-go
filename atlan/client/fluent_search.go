@@ -1,9 +1,9 @@
 package client
 
 import (
-	"atlan-go/atlan"
-	"atlan-go/atlan/model"
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/atlanhq/atlan-go/atlan/model"
 )
 
 // FluentSearch is a struct that represents a fluent search query.
