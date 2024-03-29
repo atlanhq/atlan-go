@@ -1,7 +1,7 @@
 package model
 
 import (
-	"atlan-go/atlan/model/assets"
+	"github.com/atlanhq/atlan-go/atlan/model/assets"
 	"reflect"
 )
 

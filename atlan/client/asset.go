@@ -1,11 +1,11 @@
 package client
 
 import (
-	"atlan-go/atlan/model"
-	Assets2 "atlan-go/atlan/model/assets"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan/model"
+	Assets2 "github.com/atlanhq/atlan-go/atlan/model/assets"
 	"hash/fnv"
 	"strings"
 	"time"

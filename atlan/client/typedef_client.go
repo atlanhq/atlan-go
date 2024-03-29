@@ -1,10 +1,10 @@
 package client
 
 import (
-	"atlan-go/atlan"
-	"atlan-go/atlan/model"
 	"encoding/json"
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/atlanhq/atlan-go/atlan/model"
 )
 
 type TypeDefClient struct {

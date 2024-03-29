@@ -1,8 +1,8 @@
 package client
 
 import (
-	"atlan-go/atlan"
-	"atlan-go/atlan/model"
+	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/atlanhq/atlan-go/atlan/model"
 )
 
 // Interface for all AtlanField queries
