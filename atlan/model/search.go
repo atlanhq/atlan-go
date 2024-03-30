@@ -479,6 +479,7 @@ type SearchAssets struct {
 	assets.Table
 	assets.Column
 	SearchAttributes *SearchAttributes `json:"Attributes,omitempty"`
+	NotNull          *bool             `json:"notNull,omitempty"`
 }
 
 type SearchAttributes struct {
