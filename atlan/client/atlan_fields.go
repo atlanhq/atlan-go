@@ -123,7 +123,7 @@ func (kf *KeywordTextField) StartsWith(value string, caseInsensitive *bool) mode
 
 // Eq Returns a query that will match all assets whose field has a value that exactly matches
 // the provided string value.
-func (kf *KeywordTextField) Eq(value string, caseInsensitive *bool) model.Query {
+func (kf *KeywordTextField) Eq(value string) model.Query {
 	return &model.TermQuery{
 		Field: kf.KeywordFieldName,
 		Value: value,
@@ -136,6 +136,13 @@ func (kf *KeywordField) Within(values []string) model.Query {
 	return &model.Terms{
 		Field:  kf.KeywordFieldName,
 		Values: values,
+	}
+}
+
+func (kf *KeywordField) Eq(value string) model.Query {
+	return &model.TermQuery{
+		Field: kf.KeywordFieldName,
+		Value: value,
 	}
 }
 
@@ -317,7 +324,7 @@ func NewCustomMetadataField(setName, attributeName, elasticFieldName string) *Cu
 	}
 }
 
-func (cmf *CustomMetadataField) Eq(value string, caseInsensitive bool) model.Query {
+func (cmf *CustomMetadataField) Eq(value string) model.Query {
 	return &model.TermQuery{
 		Field: cmf.ElasticFieldName,
 		Value: value,

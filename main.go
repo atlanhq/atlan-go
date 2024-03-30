@@ -12,46 +12,58 @@ func main() {
 
 	ctx := client.NewContext()
 
+	assetQualifiedName := "default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/WAITLIST_PARTICIPANT"
+	columnSearchResponse, err := client.NewFluentSearch().
+		PageSizes(1000).
+		ActiveAssets().
+		Where(ctx.Column.TYPENAME.Eq("Column")).
+		Where(ctx.Column.TABLE_QUALIFIED_NAME.Eq(assetQualifiedName)).
+		Execute()
+	if err != nil {
+		return
+	}
+
+	fmt.Println("Search results:", *columnSearchResponse[0].Entities[2].DisplayName)
 	// TEST INTEGRATION ATLAN-CLI WITH GO-SDK
 
 	// Fluent-Search
-	/*
-		query := ctx.Table.QUALIFIED_NAME.Eq("default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/SELLER_HISTORY", nil)
-		//query2 := ctx.Column.TYPENAME.Eq("Column", nil)
 
-		searchResult, err := client.NewFluentSearch().
-			PageSizes(50).
-			Where(query).
-			Execute()
+	query := ctx.Table.QUALIFIED_NAME.Eq("default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/SELLER_HISTORY")
+	//query2 := ctx.Column.TYPENAME.Eq("Column", nil)
 
-		if err != nil {
-			fmt.Printf("Error executing search: %v\n", err)
-			return
-		}
-		fmt.Println("Search results:", *searchResult[0].Entities[0].DisplayName)
-	*/
-
-	// Fetch columns of table from Atlan using Qualified Name
-	qualifiedname := "default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/SELLER_HISTORY/ID"
-
-	columnResult, err := client.NewFluentSearch().
+	searchResult, err := client.NewFluentSearch().
 		PageSizes(50).
-		ActiveAssets().
-		Where(ctx.Column.TYPENAME.Eq("Column", nil)).
-		Where(ctx.Column.QUALIFIED_NAME.Eq(qualifiedname, nil)).
+		Where(query).
 		Execute()
 
 	if err != nil {
 		fmt.Printf("Error executing search: %v\n", err)
 		return
 	}
+	fmt.Println("Search results:", *searchResult[0].Entities[0].DisplayName)
 
-	fmt.Println("Search results:", *columnResult[0].Entities[0].SearchAttributes.Name)
-	fmt.Println("Search results:", *columnResult[0].Entities[0].SearchAttributes.QualifiedName)
-	if columnResult[0].Entities[0].Description != nil {
-		fmt.Println("Search results:", *columnResult[0].Entities[0].Description)
-	}
+	/*
+		// Fetch columns of table from Atlan using Qualified Name
+		qualifiedname := "default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/SELLER_HISTORY/ID"
 
+		columnResult, err := client.NewFluentSearch().
+			PageSizes(50).
+			ActiveAssets().
+			Where(ctx.Column.TYPENAME.Eq("Column", nil)).
+			Where(ctx.Column.QUALIFIED_NAME.Eq(qualifiedname, nil)).
+			Execute()
+
+		if err != nil {
+			fmt.Printf("Error executing search: %v\n", err)
+			return
+		}
+
+		fmt.Println("Search results:", *columnResult[0].Entities[0].SearchAttributes.Name)
+		fmt.Println("Search results:", *columnResult[0].Entities[0].SearchAttributes.QualifiedName)
+		if columnResult[0].Entities[0].Description != nil {
+			fmt.Println("Search results:", *columnResult[0].Entities[0].Description)
+		}
+	*/
 	/*
 			resp, err := client.GetAll()
 		if err != nil {
