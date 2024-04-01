@@ -48,7 +48,6 @@ func Init() error {
 	return nil
 }
 
-// Context creates a new AtlanClient instance.
 func Context(apiKey, baseURL string) (*AtlanClient, error) {
 	client := &http.Client{}
 	logger := log.New(os.Stdout, "AtlanClient: ", log.LstdFlags|log.Lshortfile)
@@ -58,7 +57,8 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 	} else {
 		logger = log.New(io.Discard, "", 0) // Logger that discards all log output
 	}
-	return &AtlanClient{
+
+	atlanClient := &AtlanClient{
 		Session: client,
 		host:    baseURL,
 		ApiKey:  apiKey,
@@ -80,7 +80,12 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 			View:             NewSearchView(),
 			// Add other methods
 		},
-	}, nil
+	}
+
+	// Initialize the default atlan client
+	DefaultAtlanClient = atlanClient
+
+	return atlanClient, nil
 }
 
 func NewContext() *AtlanClient {
