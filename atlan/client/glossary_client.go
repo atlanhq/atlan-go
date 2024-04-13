@@ -74,7 +74,7 @@ func GetGlossaryTermByGuid(glossaryGuid string) (*assets.AtlasGlossaryTerm, erro
 func (g *AtlasGlossary) Creator(name string, icon atlan.AtlanIcon) {
 	g.TypeName = assets.StringPtr("AtlasGlossary")
 	g.Name = assets.StringPtr(name)
-	g.QualifiedName = assets.StringPtr("CBtveYe0Avp5iwU8q3M7Y12")
+	g.QualifiedName = assets.StringPtr(name)
 	g.AssetIcon = atlan.AtlanIconPtr(icon)
 }
 
@@ -110,6 +110,10 @@ func (g *AtlasGlossary) MarshalJSON() ([]byte, error) {
 
 	if g.Guid != nil && *g.Guid != "" {
 		customJSON["guid"] = *g.Guid
+	}
+
+	if g.DisplayName != nil && *g.DisplayName != "" {
+		customJSON["attributes"].(map[string]interface{})["displayName"] = *g.DisplayName
 	}
 
 	// Marshal the custom JSON

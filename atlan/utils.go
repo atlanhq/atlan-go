@@ -3,18 +3,8 @@ package atlan
 import (
 	"fmt"
 	gonanoid "github.com/matoous/go-nanoid"
+	"time"
 )
-
-// TestID represents a test identifier
-type TestID struct {
-	sessionID string
-}
-
-// NewTestID generates a new TestID
-func NewTestID() *TestID {
-	sessionID := generateNanoid(5)
-	return &TestID{sessionID: sessionID}
-}
 
 // GenerateNanoid generates a random string of given length
 func generateNanoid(size int) string {
@@ -27,6 +17,13 @@ func generateNanoid(size int) string {
 }
 
 // MakeUnique creates a unique identifier using the input string and session ID
-func (t *TestID) MakeUnique(input string) string {
-	return fmt.Sprintf("gsdk_%s_%s", input, t.sessionID)
+func MakeUnique(input string) string {
+	return fmt.Sprintf("gsdk_%s_%s", input, generateNanoid(5))
+}
+
+var sNextID = int64(time.Now().UnixNano()/int64(time.Millisecond)) + 1
+
+func NextID() string {
+	sNextID++
+	return fmt.Sprintf("-%d", sNextID)
 }

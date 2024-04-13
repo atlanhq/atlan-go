@@ -359,6 +359,8 @@ type Asset struct {
 	Meanings *[]Meaning `json:"meanings,omitempty"`
 	// Unique identifiers (GUIDs) for any background tasks that are yet to operate on this asset.
 	PendingTasks *[]string `json:"pendingTasks,omitempty"`
+
+	DisplayText *string `json:"displayName,omitempty"`
 }
 
 type Relation struct {
