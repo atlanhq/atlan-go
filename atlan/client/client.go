@@ -107,9 +107,9 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 	}
 
 	if requestObj != nil {
-		fmt.Println("Request Object:", requestObj)
+		//fmt.Println("Request Object:", requestObj)
 		requestJSON, err := json.Marshal(requestObj)
-		fmt.Println("Request JSON:", string(requestJSON))
+		//fmt.Println("Request JSON:", string(requestJSON))
 		if err != nil {
 			return nil, fmt.Errorf("error marshaling request object: %v", err)
 		}
