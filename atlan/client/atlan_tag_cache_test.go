@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -32,9 +33,13 @@ func TestIntegrationAtlanTagCache_GetIDForName(t *testing.T) {
 	cache := NewAtlanTagCache(client)
 
 	// Ensure the cache is populated
-	_ = cache.RefreshCache()
+	resp, _ := GetAll()
+	tagName := resp.AtlanTagDefs[0].DisplayName
 
-	id, err := cache.GetIDForName("Hourly")
+	//_ = cache.RefreshCache()
+
+	fmt.Println("Tag Name: ", tagName)
+	id, err := cache.GetIDForName(tagName)
 
 	// Verify
 	assert.NoError(t, err)
