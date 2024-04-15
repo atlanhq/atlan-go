@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/atlanhq/atlan-go/atlan/model"
 	"sync"
 )
@@ -78,6 +79,7 @@ func (c *AtlanTagCache) RefreshCache() error {
 
 	response, err := DefaultAtlanClient.CallAPI(api, nil, nil)
 	if err != nil {
+		fmt.Printf("Error making API call: %v", err)
 		return err
 	}
 
@@ -85,7 +87,7 @@ func (c *AtlanTagCache) RefreshCache() error {
 	var atlanTags model.TypeDefResponse
 	err = json.Unmarshal(response, &atlanTags)
 	if err != nil {
-		return AtlanError{ErrorCode: errorCodes[EXPIRED_API_TOKEN]}
+		return fmt.Errorf("error unmarshalling response: %v", err)
 	}
 
 	c.cacheByID = make(map[string]model.AtlanTagDef)

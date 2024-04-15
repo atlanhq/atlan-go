@@ -4,44 +4,71 @@ package main
 import (
 	"fmt"
 	"github.com/atlanhq/atlan-go/atlan/client"
+	"log"
 )
 
 func main() {
 
-	client.LoggingEnabled = true
-	
-	//ctx, _ := client.Context("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIwNC1UVWs2Z3RCdmtBdmsxd19XVTZqd0pVXzdNX1pyV0JXWkJEMjZ2WHl3In0.eyJleHAiOjE3MTMwMzI5OTksImlhdCI6MTcxMDI3MjM4OCwianRpIjoiZTQ1ZTA5ODUtOTc0MS00YTI5LWFlYjgtYzlhMWE3NDEwNDI5IiwiaXNzIjoiaHR0cHM6Ly9kZXZ4OC5hdGxhbi5jb20vYXV0aC9yZWFsbXMvZGVmYXVsdCIsImF1ZCI6WyJyZWFsbS1tYW5hZ2VtZW50IiwiYWNjb3VudCJdLCJzdWIiOiI4OWNiMWY2Zi1lOWUyLTRkZDYtOTVhMC0xYWQ0Yjk5YTdmNmYiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJhcGlrZXktM2U1N2NmMjYtZjhiNi00MWNkLThhNzMtOTAzYmZhZTY3YjVkIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIiRndWVzdCIsIm9mZmxpbmVfYWNjZXNzIiwiZGVmYXVsdC1yb2xlcy1kZWZhdWx0IiwiJGFwaS10b2tlbi1kZWZhdWx0LWFjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsInJlYWxtLWFkbWluIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInF1ZXJ5LXJlYWxtcyIsInZpZXctYXV0aG9yaXphdGlvbiIsInF1ZXJ5LWNsaWVudHMiLCJxdWVyeS11c2VycyIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIiwicXVlcnktZ3JvdXBzIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6ImVtYWlsIHByb2ZpbGUgb2ZmbGluZV9hY2Nlc3MiLCJjcmVhdGVkQXQiOiIxNzEwMjcyMzg4MjM5IiwiY2xpZW50SWQiOiJhcGlrZXktM2U1N2NmMjYtZjhiNi00MWNkLThhNzMtOTAzYmZhZTY3YjVkIiwiY2xpZW50SG9zdCI6IjEwLjE1MC40My4yMDciLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImdyb3VwcyI6W10sInJlYWxtIjoiZGVmYXVsdCIsInByZWZlcnJlZF91c2VybmFtZSI6InNlcnZpY2UtYWNjb3VudC1hcGlrZXktM2U1N2NmMjYtZjhiNi00MWNkLThhNzMtOTAzYmZhZTY3YjVkIiwidXNlcklkIjoiODljYjFmNmYtZTllMi00ZGQ2LTk1YTAtMWFkNGI5OWE3ZjZmIiwiY2xpZW50QWRkcmVzcyI6IjEwLjE1MC40My4yMDciLCJ1c2VybmFtZSI6InNlcnZpY2UtYWNjb3VudC1hcGlrZXktM2U1N2NmMjYtZjhiNi00MWNkLThhNzMtOTAzYmZhZTY3YjVkIn0.Z2ItcUjf_RN11rbjknIljSfhxBLXyJBtkEqYX4EAVN_4oDOUaCZNBGrLxbCw3YrowPgfaLaOAxTH787hYXUJj9xYbQ-fTvu56Ia3KlJuFW-DDogKGR1aH0CahEyQh9ZrTWqQJKDo9UJf0lD4vVEdUh_bFcZUYNYYO8TcfdCi7SCLiCDu1Syll2qhU1b_DDYglfpn7axKkNKCKhvm_gDO8UQ-SWGV9KFapwz6W8y2bqaPTEoroyvnzYq31j9nCPDlrlWr-yrV0bvAsWGZA8cLPQDX5F90SVtI_2aeDINTRHLsN6syVAIxu36RK4Q_1JEvhx4gnNetdw0ZKg1JZNv7Fw", "https://devx8.atlan.com")
-	ctx := client.NewContext()
-	assetQualifiedName := "default/mssql/1711817247/WideWorldImporters/Purchasing/SupplierCategories_Archive"
-	columnSearchResponse, err := client.NewFluentSearch().
-		PageSizes(1000).
-		ActiveAssets().
-		Where(ctx.Column.TYPENAME.Eq("Column")).
-		Where(ctx.Column.TABLE_QUALIFIED_NAME.Eq(assetQualifiedName)).
-		Execute()
+	client.LoggingEnabled = false
+	client.NewContext()
+
+	client.GetAll()
+	client.GetAtlanTagCache().RefreshCache()
+	client.GetAtlanTagCache()
+	a, _ := client.GetAtlanTagIDForName("PII")
+	fmt.Printf("ID for name is : %s\n", a)
+
+	tagName := "Hourly"
+	tagID, err := client.GetAtlanTagIDForName(tagName)
 	if err != nil {
-		return
+		log.Fatal(err)
 	}
 
-	fmt.Println("Search results:", *columnSearchResponse[0].Entities[2].DisplayName)
-	// TEST INTEGRATION ATLAN-CLI WITH GO-SDK
+	fmt.Printf("Atlan tag ID for %s: %s\n", tagName, tagID)
 
-	// Fluent-Search
-
-	query := ctx.Table.QUALIFIED_NAME.Eq("default/mssql/1711817247/WideWorldImporters/Purchasing/SupplierCategories_Archive")
-	//query2 := ctx.Column.TYPENAME.Eq("Column", nil)
-
-	searchResult, err := client.NewFluentSearch().
-		PageSizes(50).
-		Where(query).
-		Execute()
-
+	tagID = "a3el9UemzJZqZAUFcsDjy4"
+	tagName, err = client.GetAtlanTagNameForID(tagID)
 	if err != nil {
-		fmt.Printf("Error executing search: %v\n", err)
-		return
+		log.Fatal(err)
 	}
-	fmt.Println("Search results:", *searchResult[0].Entities[0].DisplayName)
 
+	fmt.Printf("Atlan tag name for %s: %s\n", tagID, tagName)
+
+	/*
+		//ctx, _ := client.Context("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIwNC1UVWs2Z3RCdmtBdmsxd19XVTZqd0pVXzdNX1pyV0JXWkJEMjZ2WHl3In0.eyJleHAiOjE3MTMwMzI5OTksImlhdCI6MTcxMDI3MjM4OCwianRpIjoiZTQ1ZTA5ODUtOTc0MS00YTI5LWFlYjgtYzlhMWE3NDEwNDI5IiwiaXNzIjoiaHR0cHM6Ly9kZXZ4OC5hdGxhbi5jb20vYXV0aC9yZWFsbXMvZGVmYXVsdCIsImF1ZCI6WyJyZWFsbS1tYW5hZ2VtZW50IiwiYWNjb3VudCJdLCJzdWIiOiI4OWNiMWY2Zi1lOWUyLTRkZDYtOTVhMC0xYWQ0Yjk5YTdmNmYiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJhcGlrZXktM2U1N2NmMjYtZjhiNi00MWNkLThhNzMtOTAzYmZhZTY3YjVkIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIiRndWVzdCIsIm9mZmxpbmVfYWNjZXNzIiwiZGVmYXVsdC1yb2xlcy1kZWZhdWx0IiwiJGFwaS10b2tlbi1kZWZhdWx0LWFjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsInJlYWxtLWFkbWluIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInF1ZXJ5LXJlYWxtcyIsInZpZXctYXV0aG9yaXphdGlvbiIsInF1ZXJ5LWNsaWVudHMiLCJxdWVyeS11c2VycyIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIiwicXVlcnktZ3JvdXBzIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6ImVtYWlsIHByb2ZpbGUgb2ZmbGluZV9hY2Nlc3MiLCJjcmVhdGVkQXQiOiIxNzEwMjcyMzg4MjM5IiwiY2xpZW50SWQiOiJhcGlrZXktM2U1N2NmMjYtZjhiNi00MWNkLThhNzMtOTAzYmZhZTY3YjVkIiwiY2xpZW50SG9zdCI6IjEwLjE1MC40My4yMDciLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImdyb3VwcyI6W10sInJlYWxtIjoiZGVmYXVsdCIsInByZWZlcnJlZF91c2VybmFtZSI6InNlcnZpY2UtYWNjb3VudC1hcGlrZXktM2U1N2NmMjYtZjhiNi00MWNkLThhNzMtOTAzYmZhZTY3YjVkIiwidXNlcklkIjoiODljYjFmNmYtZTllMi00ZGQ2LTk1YTAtMWFkNGI5OWE3ZjZmIiwiY2xpZW50QWRkcmVzcyI6IjEwLjE1MC40My4yMDciLCJ1c2VybmFtZSI6InNlcnZpY2UtYWNjb3VudC1hcGlrZXktM2U1N2NmMjYtZjhiNi00MWNkLThhNzMtOTAzYmZhZTY3YjVkIn0.Z2ItcUjf_RN11rbjknIljSfhxBLXyJBtkEqYX4EAVN_4oDOUaCZNBGrLxbCw3YrowPgfaLaOAxTH787hYXUJj9xYbQ-fTvu56Ia3KlJuFW-DDogKGR1aH0CahEyQh9ZrTWqQJKDo9UJf0lD4vVEdUh_bFcZUYNYYO8TcfdCi7SCLiCDu1Syll2qhU1b_DDYglfpn7axKkNKCKhvm_gDO8UQ-SWGV9KFapwz6W8y2bqaPTEoroyvnzYq31j9nCPDlrlWr-yrV0bvAsWGZA8cLPQDX5F90SVtI_2aeDINTRHLsN6syVAIxu36RK4Q_1JEvhx4gnNetdw0ZKg1JZNv7Fw", "https://devx8.atlan.com")
+		ctx := client.NewContext()
+		assetQualifiedName := "default/mssql/1711817247/WideWorldImporters/Purchasing/SupplierCategories_Archive"
+		columnSearchResponse, err := client.NewFluentSearch().
+			PageSizes(1000).
+			ActiveAssets().
+			Where(ctx.Column.TYPENAME.Eq("Column")).
+			Where(ctx.Column.TABLE_QUALIFIED_NAME.Eq(assetQualifiedName)).
+			Execute()
+		if err != nil {
+			return
+		}
+
+		fmt.Println("Search results:", *columnSearchResponse[0].Entities[2].DisplayName)
+		// TEST INTEGRATION ATLAN-CLI WITH GO-SDK
+
+		// Fluent-Search
+
+		query := ctx.Table.QUALIFIED_NAME.Eq("default/mssql/1711817247/WideWorldImporters/Purchasing/SupplierCategories_Archive")
+		//query2 := ctx.Column.TYPENAME.Eq("Column", nil)
+
+		searchResult, err := client.NewFluentSearch().
+			PageSizes(50).
+			Where(query).
+			Execute()
+
+		if err != nil {
+			fmt.Printf("Error executing search: %v\n", err)
+			return
+		}
+		fmt.Println("Search results:", *searchResult[0].Entities[0].DisplayName)
+
+
+	*/
 	/*
 		// Fetch columns of table from Atlan using Qualified Name
 		qualifiedname := "default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/SELLER_HISTORY/ID"
