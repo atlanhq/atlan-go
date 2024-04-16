@@ -141,7 +141,7 @@ type AttributeDef struct {
 type CustomMetadataDefOptions struct {
 	Emoji     *string              `json:"emoji,omitempty"`
 	ImageID   *string              `json:"imageId,omitempty"`
-	IsLocked  *bool                `json:"isLocked,omitempty"`
+	IsLocked  string               `json:"isLocked,omitempty"`
 	LogoType  *string              `json:"logoType,omitempty"`
 	LogoURL   *string              `json:"logoUrl,omitempty"`
 	IconColor *atlan.AtlanTagColor `json:"iconColor,omitempty"`

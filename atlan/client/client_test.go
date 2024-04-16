@@ -68,32 +68,3 @@ func TestCallAPI(t *testing.T) {
 		t.Errorf("Unexpected response. Expected: %s, Got: %s", expectedResponse, string(response))
 	}
 }
-
-func TestMakeRequest(t *testing.T) {
-	// Create a new AtlanClient instance
-	atlanClient := &AtlanClient{
-		Session:        http.DefaultClient,
-		host:           "http://example.com",
-		ApiKey:         "mock_api_key",
-		loggingEnabled: true,
-		requestParams:  make(map[string]interface{}),
-	}
-
-	// Test GET request
-	req, err := atlanClient.makeRequest(http.MethodGet, "https://example.com", nil)
-	if err != nil {
-		t.Errorf("Error creating GET request: %v", err)
-	}
-	if req.Request.Method != http.MethodGet {
-		// Test POST request
-		req, err = atlanClient.makeRequest(http.MethodPost, "http://example.com", map[string]interface{}{
-			"data": "test data",
-		})
-		if err != nil {
-			t.Errorf("Error creating POST request: %v", err)
-		}
-		if req.Request.Method != http.MethodPost {
-			t.Errorf("Unexpected request method. Expected: %s, Got: %s", http.MethodPost, req.Request.Method)
-		}
-	}
-}

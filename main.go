@@ -4,44 +4,70 @@ package main
 import (
 	"fmt"
 	"github.com/atlanhq/atlan-go/atlan/client"
+	"log"
 )
 
 func main() {
 
-	client.LoggingEnabled = true
+	client.LoggingEnabled = false
+	client.NewContext()
 
-	ctx := client.NewContext()
+	client.GetAll()
+	client.GetAtlanTagCache().RefreshCache()
+	client.GetAtlanTagCache()
+	a, _ := client.GetAtlanTagIDForName("PII")
+	fmt.Printf("ID for name is : %s\n", a)
 
-	assetQualifiedName := "default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/WAITLIST_PARTICIPANT"
-	columnSearchResponse, err := client.NewFluentSearch().
-		PageSizes(1000).
-		ActiveAssets().
-		Where(ctx.Column.TYPENAME.Eq("Column")).
-		Where(ctx.Column.TABLE_QUALIFIED_NAME.Eq(assetQualifiedName)).
-		Execute()
+	tagName := "Hourly"
+	tagID, err := client.GetAtlanTagIDForName(tagName)
 	if err != nil {
-		return
+		log.Fatal(err)
 	}
 
-	fmt.Println("Search results:", *columnSearchResponse[0].Entities[2].DisplayName)
-	// TEST INTEGRATION ATLAN-CLI WITH GO-SDK
+	fmt.Printf("Atlan tag ID for %s: %s\n", tagName, tagID)
 
-	// Fluent-Search
-
-	query := ctx.Table.QUALIFIED_NAME.Eq("default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/SELLER_HISTORY")
-	//query2 := ctx.Column.TYPENAME.Eq("Column", nil)
-
-	searchResult, err := client.NewFluentSearch().
-		PageSizes(50).
-		Where(query).
-		Execute()
-
+	tagID = "a3el9UemzJZqZAUFcsDjy4"
+	tagName, err = client.GetAtlanTagNameForID(tagID)
 	if err != nil {
-		fmt.Printf("Error executing search: %v\n", err)
-		return
+		log.Fatal(err)
 	}
-	fmt.Println("Search results:", *searchResult[0].Entities[0].DisplayName)
 
+	fmt.Printf("Atlan tag name for %s: %s\n", tagID, tagName)
+
+	/*
+		ctx := client.NewContext()
+		assetQualifiedName := "default/mssql/1711817247/WideWorldImporters/Purchasing/SupplierCategories_Archive"
+		columnSearchResponse, err := client.NewFluentSearch().
+			PageSizes(1000).
+			ActiveAssets().
+			Where(ctx.Column.TYPENAME.Eq("Column")).
+			Where(ctx.Column.TABLE_QUALIFIED_NAME.Eq(assetQualifiedName)).
+			Execute()
+		if err != nil {
+			return
+		}
+
+		fmt.Println("Search results:", *columnSearchResponse[0].Entities[2].DisplayName)
+		// TEST INTEGRATION ATLAN-CLI WITH GO-SDK
+
+		// Fluent-Search
+
+		query := ctx.Table.QUALIFIED_NAME.Eq("default/mssql/1711817247/WideWorldImporters/Purchasing/SupplierCategories_Archive")
+		//query2 := ctx.Column.TYPENAME.Eq("Column", nil)
+
+		searchResult, err := client.NewFluentSearch().
+			PageSizes(50).
+			Where(query).
+			Execute()
+
+		if err != nil {
+			fmt.Printf("Error executing search: %v\n", err)
+			return
+		}
+		fmt.Println("Search results:", *searchResult[0].Entities[0].DisplayName)
+
+
+	*/
 	/*
 		// Fetch columns of table from Atlan using Qualified Name
 		qualifiedname := "default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/SELLER_HISTORY/ID"

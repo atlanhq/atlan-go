@@ -1,0 +1,31 @@
+name: Go Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  ATLAN_API_KEY: ${{ secrets.ATLAN_API_KEY }}
+  ATLAN_BASE_URL: ${{ secrets.ATLAN_BASE_URL }}
+
+jobs:
+  build:
+    name: Run Go Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22.2'
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+
+      - name: Install gotestsum
+        run: go install gotest.tools/gotestsum@latest
+
+      - name: Run tests
+        run: gotestsum --format testdox -- -v ./...

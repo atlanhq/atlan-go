@@ -1,8 +1,8 @@
 package assets
 
 import (
-	"atlan-go/atlan"
 	"encoding/json"
+	"github.com/atlanhq/atlan-go/atlan"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -48,13 +48,13 @@ func TestAtlasGlossaryMarshalling(t *testing.T) {
 	glossary := AtlasGlossary{
 		Asset: Asset{
 			Referenceable: Referenceable{
-				TypeName: StringPtr("AtlasGlossary"),
-				Guid:     StringPtr("fc36342b-ddb5-44ba-b774-4c90cc66d5a2"),
-				Status:   atlan.AtlanStatusPtr("ACTIVE"),
+				TypeName:      StringPtr("AtlasGlossary"),
+				Guid:          StringPtr("fc36342b-ddb5-44ba-b774-4c90cc66d5a2"),
+				Status:        atlan.AtlanStatusPtr("ACTIVE"),
+				QualifiedName: StringPtr("test_glossary"),
 			},
-			Name:          StringPtr("Test Glossary"),
-			QualifiedName: StringPtr("test_glossary"),
-			AssetIcon:     atlan.AtlanIconPtr(atlan.AtlanIconAirplaneInFlight),
+			Name:      StringPtr("Test Glossary"),
+			AssetIcon: atlan.AtlanIconPtr(atlan.AtlanIconAirplaneInFlight),
 		},
 		ShortDescription: StringPtr("Short description"),
 		LongDescription:  StringPtr("Long description"),
