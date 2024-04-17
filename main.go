@@ -4,35 +4,41 @@ package main
 import (
 	"fmt"
 	"github.com/atlanhq/atlan-go/atlan/client"
-	"log"
 )
 
 func main() {
 
-	client.LoggingEnabled = false
-	client.NewContext()
+	client.LoggingEnabled = true
+	ctx := client.NewContext()
 
-	client.GetAll()
-	client.GetAtlanTagCache().RefreshCache()
-	client.GetAtlanTagCache()
-	a, _ := client.GetAtlanTagIDForName("PII")
-	fmt.Printf("ID for name is : %s\n", a)
-
-	tagName := "Hourly"
-	tagID, err := client.GetAtlanTagIDForName(tagName)
+	client.GetCustomMetadataCache().RefreshCache()
+	id, err := client.GetCustomMetadataCache().GetIDForName("testcmgsdk")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("Error:", err)
 	}
+	name, _ := client.GetCustomMetadataCache().GetNameForID("cvhn5T7YwnsYXiMCKh9PoW")
+	attrID, _ := client.GetCustomMetadataCache().GetAttrIDForName("testcmgsdk", "gsdk")
+	attrName, _ := client.GetCustomMetadataCache().GetAttrNameForID("cvhn5T7YwnsYXiMCKh9PoW", "foYi4v02OVjKt0YzcTCKM3")
+	fmt.Println("ID for name is : ", id)
+	fmt.Println("Name fo ID is:", name)
+	fmt.Printf("\nAttrID for name is: %s\n", attrID)
+	fmt.Printf("\nAttrName for ID is: %s\n", attrName)
 
-	fmt.Printf("Atlan tag ID for %s: %s\n", tagName, tagID)
+	fmt.Println(client.GetCustomMetadataCache().GetAttributesForSearchResultsByName("testcmgsdk"))
+	customMetadata := client.GetCustomMetadataCache().GetAttributesForSearchResultsByName("testcmgsdk")
 
-	tagID = "a3el9UemzJZqZAUFcsDjy4"
-	tagName, err = client.GetAtlanTagNameForID(tagID)
-	if err != nil {
-		log.Fatal(err)
+	customMeta, _ := client.NewFluentSearch().
+		PageSizes(50).
+		ActiveAssets().
+		Where(ctx.Glossary.QUALIFIED_NAME.Eq("fW6NU2lWKaMy5ZyVlGYes")).
+		IncludeOnResults(customMetadata...).
+		IncludeOnResults("terms").
+		IncludeOnResults("tags").
+		Execute()
+
+	for _, entity := range customMeta[0].Entities {
+		fmt.Println("Entity:", *entity.DisplayName)
 	}
-
-	fmt.Printf("Atlan tag name for %s: %s\n", tagID, tagName)
 
 	/*
 		ctx := client.NewContext()
@@ -275,18 +281,41 @@ func main() {
 		//	return
 		//}
 
-		//client.GetCache().RefreshCache()
-		//client.GetCache()
-		//a, _ := client.GetCache().GetIDForName("PII")
-		//fmt.Printf("ID for name is : %s\n", a)
-		/*
-			tagName := "Hourly"
-			tagID, err := client.GetIDForName(tagName)
-			if err != nil {
-				log.Fatal(err)
-			}
+		client.GetAll()
+		client.GetAtlanTagCache().RefreshCache()
+		client.GetAtlanTagCache()
+		a, _ := client.GetAtlanTagIDForName("PII")
+		fmt.Printf("ID for name is : %s\n", a)
 
-			fmt.Printf("Atlan tag ID for %s: %s\n", tagName, tagID)
+		tagName := "Hourly"
+		tagID, err := client.GetAtlanTagIDForName(tagName)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("Atlan tag ID for %s: %s\n", tagName, tagID)
+
+		tagID = "a3el9UemzJZqZAUFcsDjy4"
+		tagName, err = client.GetAtlanTagNameForID(tagID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("Atlan tag name for %s: %s\n", tagID, tagName)
+
+	*/
+	//client.GetCache().RefreshCache()
+	//client.GetCache()
+	//a, _ := client.GetCache().GetIDForName("PII")
+	//fmt.Printf("ID for name is : %s\n", a)
+	/*
+		tagName := "Hourly"
+		tagID, err := client.GetIDForName(tagName)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("Atlan tag ID for %s: %s\n", tagName, tagID)
 	*/
 	/*
 		tagID = "a3el9UemzJZqZAUFcsDjy4"

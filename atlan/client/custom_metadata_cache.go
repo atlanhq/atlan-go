@@ -322,7 +322,7 @@ func (c *CustomMetadataCache) GetAttrNameForID(setID, attrID string) (string, er
 }
 
 func (c *CustomMetadataCache) GetAttributesForSearchResults(setID string) []string {
-	if subMap, ok := c.MapAttrNameToID[setID]; ok {
+	if subMap, ok := c.MapAttrIDToName[setID]; ok {
 		var dotNames []string
 		for idstr := range subMap {
 			dotNames = append(dotNames, fmt.Sprintf("%s.%s", setID, idstr))
