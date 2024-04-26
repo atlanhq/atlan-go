@@ -3,6 +3,7 @@
 package model
 
 import (
+	"encoding/json"
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/assets"
 )
@@ -455,29 +456,12 @@ type SearchParameters struct {
 	Query                 string                 `json:"query"`
 }
 
-// Entity represents an entity in the Atlas search response.
-type Entity struct {
-	TypeName            string                 `json:"typeName"`
-	Attributes          map[string]interface{} `json:"attributes"`
-	Guid                string                 `json:"guid"`
-	Status              string                 `json:"status"`
-	DisplayText         string                 `json:"displayText"`
-	ClassificationNames []string               `json:"classificationNames"`
-	Tags                []interface{}          `json:"classifications"`
-	MeaningNames        []interface{}          `json:"meaningNames"`
-	Meanings            []interface{}          `json:"meanings"`
-	IsIncomplete        bool                   `json:"isIncomplete"`
-	Labels              []interface{}          `json:"labels"`
-	CreatedBy           string                 `json:"createdBy"`
-	UpdatedBy           string                 `json:"updatedBy"`
-	CreateTime          int64                  `json:"createTime"`
-	UpdateTime          int64                  `json:"updateTime"`
-}
-
 type SearchAssets struct {
 	assets.Asset
 	assets.Table
 	assets.Column
+	QualifiedName    *string           `json:"qualifiedName,omitempty"`
+	Name             *string           `json:"name,omitempty"`
 	SearchAttributes *SearchAttributes `json:"Attributes,omitempty"`
 	NotNull          *bool             `json:"notNull,omitempty"`
 }
@@ -485,4 +469,37 @@ type SearchAssets struct {
 type SearchAttributes struct {
 	QualifiedName *string `json:"qualifiedName,omitempty"`
 	Name          *string `json:"name,omitempty"`
+}
+
+func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
+	// Define an auxiliary struct to decode the JSON
+	type AuxSearchAssets struct {
+		assets.Asset
+		assets.Table
+		assets.Column
+		QualifiedName    *string           `json:"qualifiedName,omitempty"`
+		Name             *string           `json:"name,omitempty"`
+		SearchAttributes *SearchAttributes `json:"attributes,omitempty"`
+		NotNull          *bool             `json:"notNull,omitempty"`
+	}
+
+	// Decode into the auxiliary struct
+	var aux AuxSearchAssets
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	// Copy fields from auxiliary struct to the main struct
+	sa.Asset = aux.Asset
+	sa.Table = aux.Table
+	sa.Column = aux.Column
+	sa.NotNull = aux.NotNull
+
+	// Check if any search attributes are present
+	if aux.SearchAttributes != nil {
+		sa.Name = aux.SearchAttributes.Name
+		sa.QualifiedName = aux.SearchAttributes.QualifiedName
+	}
+
+	return nil
 }

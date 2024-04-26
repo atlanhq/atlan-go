@@ -59,10 +59,12 @@ func TestIntegrationAtlanTagCache_GetNameForID(t *testing.T) {
 	cache := NewAtlanTagCache(client)
 
 	// Ensure the cache is populated
-	_ = cache.RefreshCache()
+	resp, _ := GetAll()
+	tagName := resp.AtlanTagDefs[0].DisplayName
+	id, err := cache.GetIDForName(tagName)
 
 	// Assuming "BBDjIBZUNHtKPExR1Z3a5I" is a valid GUID
-	name, err := cache.GetNameForID("BBDjIBZUNHtKPExR1Z3a5I")
+	name, err := cache.GetNameForID(id)
 
 	// Verify
 	assert.NoError(t, err)
