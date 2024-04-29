@@ -1,8 +1,15 @@
 package model
 
-import "github.com/atlanhq/atlan-go/atlan"
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/atlanhq/atlan-go/atlan"
+)
 
 type IndexType string
+
+// CustomBool is a custom type that implements the json.Unmarshaler interface
+type CustomBool bool
 
 type TypeDef interface {
 	GetCategory() atlan.AtlanTypeCategory
@@ -84,31 +91,31 @@ type AttributesDefsTags struct {
 
 // AttributeOptions represents options for customizing an attribute.
 type AttributeOptions struct {
-	CustomMetadataVersion       *string `json:"customMetadataVersion,omitempty"`
-	Description                 *string `json:"description,omitempty"`
-	ApplicableEntityTypes       *string `json:"applicableEntityTypes,omitempty"`
-	CustomApplicableEntityTypes *string `json:"customApplicableEntityTypes,omitempty"`
-	AllowSearch                 *string `json:"allowSearch,omitempty"`
-	MaxStrLength                *string `json:"maxStrLength,omitempty"`
-	AllowFiltering              *string `json:"allowFiltering,omitempty"`
-	MultiValueSelect            *string `json:"multiValueSelect,omitempty"`
-	ShowInOverview              *string `json:"showInOverview,omitempty"`
-	IsDeprecated                *string `json:"isDeprecated,omitempty"`
-	IsEnum                      *string `json:"isEnum,omitempty"`
-	EnumType                    *string `json:"enumType,omitempty"`
-	CustomType                  *string `json:"customType,omitempty"`
-	HasTimePrecision            *bool   `json:"hasTimePrecision,omitempty"`
-	IsArchived                  bool    `json:"isArchived,omitempty"`
-	ArchivedAt                  *int64  `json:"archivedAt,omitempty"` // Using int64 for timestamp
-	ArchivedBy                  *string `json:"archivedBy,omitempty"`
-	IsSoftReference             *string `json:"isSoftReference,omitempty"`
-	IsAppendOnPartialUpdate     *string `json:"isAppendOnPartialUpdate,omitempty"`
-	PrimitiveType               *string `json:"primitiveType,omitempty"`
-	ApplicableConnections       *string `json:"applicableConnections,omitempty"`
-	ApplicableGlossaries        *string `json:"applicableGlossaries,omitempty"`
-	ApplicableAssetTypes        *string `json:"assetTypesList,omitempty"`
-	ApplicableGlossaryTypes     *string `json:"glossaryTypeList,omitempty"`
-	ApplicableOtherAssetTypes   *string `json:"otherAssetTypeList,omitempty"`
+	CustomMetadataVersion       *string    `json:"customMetadataVersion,omitempty"`
+	Description                 *string    `json:"description,omitempty"`
+	ApplicableEntityTypes       *string    `json:"applicableEntityTypes,omitempty"`
+	CustomApplicableEntityTypes *string    `json:"customApplicableEntityTypes,omitempty"`
+	AllowSearch                 *string    `json:"allowSearch,omitempty"`
+	MaxStrLength                *string    `json:"maxStrLength,omitempty"`
+	AllowFiltering              *string    `json:"allowFiltering,omitempty"`
+	MultiValueSelect            *string    `json:"multiValueSelect,omitempty"`
+	ShowInOverview              *string    `json:"showInOverview,omitempty"`
+	IsDeprecated                *string    `json:"isDeprecated,omitempty"`
+	IsEnum                      *string    `json:"isEnum,omitempty"`
+	EnumType                    *string    `json:"enumType,omitempty"`
+	CustomType                  *string    `json:"customType,omitempty"`
+	HasTimePrecision            *bool      `json:"hasTimePrecision,omitempty"`
+	IsArchived                  CustomBool `json:"isArchived,omitempty"`
+	ArchivedAt                  *int64     `json:"archivedAt,omitempty"` // Using int64 for timestamp
+	ArchivedBy                  *string    `json:"archivedBy,omitempty"`
+	IsSoftReference             *string    `json:"isSoftReference,omitempty"`
+	IsAppendOnPartialUpdate     *string    `json:"isAppendOnPartialUpdate,omitempty"`
+	PrimitiveType               *string    `json:"primitiveType,omitempty"`
+	ApplicableConnections       *string    `json:"applicableConnections,omitempty"`
+	ApplicableGlossaries        *string    `json:"applicableGlossaries,omitempty"`
+	ApplicableAssetTypes        *string    `json:"assetTypesList,omitempty"`
+	ApplicableGlossaryTypes     *string    `json:"glossaryTypeList,omitempty"`
+	ApplicableOtherAssetTypes   *string    `json:"otherAssetTypeList,omitempty"`
 }
 
 // AttributeDef represents the definition of an attribute.
@@ -156,4 +163,31 @@ type CustomMetadataDef struct {
 	Category      *atlan.AtlanTypeCategory  `json:"category,omitempty"`
 	DisplayName   *string                   `json:"displayName,omitempty"`
 	Options       *CustomMetadataDefOptions `json:"options,omitempty"`
+}
+
+// Methods
+
+// UnmarshalJSON implements the json.Unmarshaler interface
+func (cb *CustomBool) UnmarshalJSON(data []byte) error {
+	var b bool
+	if err := json.Unmarshal(data, &b); err == nil {
+		*cb = CustomBool(b)
+		return nil
+	}
+
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+
+	switch s {
+	case "true":
+		*cb = CustomBool(true)
+	case "false":
+		*cb = CustomBool(false)
+	default:
+		return fmt.Errorf("invalid boolean value: %s", s)
+	}
+
+	return nil
 }
