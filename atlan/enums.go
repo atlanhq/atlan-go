@@ -2702,3 +2702,122 @@ func (q *QueryUsernameStrategy) UnmarshalJSON(data []byte) error {
 
 	return nil
 }
+
+type UTMTags struct {
+	Name string
+}
+
+func (u UTMTags) String() string {
+	return u.Name
+}
+
+var (
+	// PAGE_ entries indicate where the action was taken.
+
+	// Search was made from the home page.
+	PAGE_HOME = UTMTags{"page_home"}
+	// Search was made from the assets (discovery) page.
+	PAGE_ASSETS = UTMTags{"page_assets"}
+	// Asset was viewed from within a glossary.
+	PAGE_GLOSSARY = UTMTags{"page_glossary"}
+	// Asset was viewed from within insights.
+	PAGE_INSIGHTS = UTMTags{"page_insights"}
+
+	// PROJECT_ entries indicate how (via what application) the action was taken.
+
+	// Search was made via the webapp (UI)
+	PROJECT_WEBAPP = UTMTags{"project_webapp"}
+	// Search was made via the Java SDK.
+	PROJECT_SDK_JAVA = UTMTags{"project_sdk_java"}
+	// Search was made via the Python SDK.
+	PROJECT_SDK_PYTHON = UTMTags{"project_sdk_python"}
+	// Search was made via the Go SDK.
+	PROJECT_SDK_GO = UTMTags{"project_sdk_go"}
+	// Search was made via the atlan cli.
+	PROJECT_SDK_CLI = UTMTags{"project_sdk_cli"}
+
+	// ACTION_ entries dictate the specific action that was taken.
+
+	// Assets were searched.
+	ACTION_SEARCHED = UTMTags{"action_searched"}
+	// Search was run through the Cmd-K popup.
+	ACTION_CMD_K = UTMTags{"action_cmd_k"}
+	// Search was through changing a filter in the UI (discovery).
+	ACTION_FILTER_CHANGED = UTMTags{"action_filter_changed"}
+	// Search was through changing a type filter (pill) in the UI (discovery)
+	ACTION_ASSET_TYPE_CHANGED = UTMTags{"action_asset_type_changed"}
+	// Asset was viewed, rather than an explicit search.
+	ACTION_ASSET_VIEWED = UTMTags{"action_asset_viewed"}
+
+	// Others indicate any special mechanisms used for the action.
+
+	// Search was run using the UI popup searchbar.
+	UI_POPUP_SEARCHBAR = UTMTags{"ui_popup_searchbar"}
+	// Search was through a UI filter (discovery).
+	UI_FILTERS = UTMTags{"ui_filters"}
+	// View was done via the UI's sidebar.
+	UI_SIDEBAR = UTMTags{"ui_sidebar"}
+	// View was done of the full asset profile, not only sidebar.
+	UI_PROFILE = UTMTags{"ui_profile"}
+	// Listing of assets, usually by a particular type, in the discovery page.
+	UI_MAIN_LIST = UTMTags{"ui_main_list"}
+)
+
+func (u UTMTags) MarshalJSON() ([]byte, error) {
+	return json.Marshal(u.Name)
+}
+
+func (u *UTMTags) UnmarshalJSON(data []byte) error {
+	var UtmTags string
+	if err := json.Unmarshal(data, &UtmTags); err != nil {
+		return err
+	}
+
+	switch UtmTags {
+	case "page_home":
+		*u = PAGE_HOME
+		switch UtmTags {
+		case "page_home":
+			*u = PAGE_HOME
+		case "page_assets":
+			*u = PAGE_ASSETS
+		case "page_glossary":
+			*u = PAGE_GLOSSARY
+		case "page_insights":
+			*u = PAGE_INSIGHTS
+		case "project_webapp":
+			*u = PROJECT_WEBAPP
+		case "project_sdk_java":
+			*u = PROJECT_SDK_JAVA
+		case "project_sdk_python":
+			*u = PROJECT_SDK_PYTHON
+		case "project_sdk_go":
+			*u = PROJECT_SDK_GO
+		case "project_sdk_cli":
+			*u = PROJECT_SDK_CLI
+		case "action_searched":
+			*u = ACTION_SEARCHED
+		case "action_cmd_k":
+			*u = ACTION_CMD_K
+		case "action_filter_changed":
+			*u = ACTION_FILTER_CHANGED
+		case "action_asset_type_changed":
+			*u = ACTION_ASSET_TYPE_CHANGED
+		case "action_asset_viewed":
+			*u = ACTION_ASSET_VIEWED
+		case "ui_popup_searchbar":
+			*u = UI_POPUP_SEARCHBAR
+		case "ui_filters":
+			*u = UI_FILTERS
+		case "ui_sidebar":
+			*u = UI_SIDEBAR
+		case "ui_profile":
+			*u = UI_PROFILE
+		case "ui_main_list":
+			*u = UI_MAIN_LIST
+		default:
+			*u = UTMTags{Name: UtmTags}
+		}
+	}
+	return nil
+}

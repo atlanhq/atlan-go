@@ -52,10 +52,14 @@ func FindGlossaryByName(glossaryName string) (*model.IndexSearchResponse, error)
 			TrackTotalHits: true,
 			Sort:           sortItemsJSON,
 		},
-		SuppressLogs:           true,
-		ShowSearchScore:        false,
-		ExcludeMeanings:        false,
-		ExcludeClassifications: false,
+		SuppressLogs:     true,
+		ShowSearchScore:  false,
+		ExcludeMeanings:  false,
+		ExcludeAtlanTags: false,
+		Metadata: model.Metadata{
+			SaveSearchLog: true,
+			UtmTags:       []string{atlan.PROJECT_SDK_GO.String()},
+		},
 	}
 
 	iterator := NewIndexSearchIterator(pageSize, request)
@@ -98,10 +102,10 @@ func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*mod
 			Query:          boolQuery.ToJSON(),
 			TrackTotalHits: true,
 		},
-		SuppressLogs:           true,
-		ShowSearchScore:        false,
-		ExcludeMeanings:        false,
-		ExcludeClassifications: false,
+		SuppressLogs:     true,
+		ShowSearchScore:  false,
+		ExcludeMeanings:  false,
+		ExcludeAtlanTags: false,
 	}
 
 	iterator := NewIndexSearchIterator(pageSize, request)

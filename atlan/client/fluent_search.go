@@ -183,6 +183,10 @@ func (fs *FluentSearch) ToRequest() *model.IndexSearchRequest {
 			Aggregation:    fs.Aggregations,
 			TrackTotalHits: true,
 		},
+		Metadata: model.Metadata{
+			SaveSearchLog: true,
+			UtmTags:       []string{atlan.PROJECT_SDK_GO.String()},
+		},
 	}
 
 	// Add Wheres to Query
