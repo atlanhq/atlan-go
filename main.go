@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/client"
 )
 
@@ -11,35 +12,85 @@ func main() {
 	client.LoggingEnabled = true
 	ctx := client.NewContext()
 
-	client.GetCustomMetadataCache().RefreshCache()
-	id, err := client.GetCustomMetadataCache().GetIDForName("testcmgsdk")
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
-	name, _ := client.GetCustomMetadataCache().GetNameForID("cvhn5T7YwnsYXiMCKh9PoW")
-	attrID, _ := client.GetCustomMetadataCache().GetAttrIDForName("testcmgsdk", "gsdk")
-	attrName, _ := client.GetCustomMetadataCache().GetAttrNameForID("cvhn5T7YwnsYXiMCKh9PoW", "foYi4v02OVjKt0YzcTCKM3")
-	fmt.Println("ID for name is : ", id)
-	fmt.Println("Name fo ID is:", name)
-	fmt.Printf("\nAttrID for name is: %s\n", attrID)
-	fmt.Printf("\nAttrName for ID is: %s\n", attrName)
+	// Fetch columns of table from Atlan using Qualified Name
+	qualifiedname := "default/snowflake/1714501359/ANALYTICS/WIDE_WORLD_IMPORTERS/CUSTOMERR/ID"
 
-	fmt.Println(client.GetCustomMetadataCache().GetAttributesForSearchResultsByName("testcmgsdk"))
-	customMetadata := client.GetCustomMetadataCache().GetAttributesForSearchResultsByName("testcmgsdk")
-
-	customMeta, _ := client.NewFluentSearch().
+	columnResult := client.NewFluentSearch().
 		PageSizes(50).
 		ActiveAssets().
-		Where(ctx.Glossary.QUALIFIED_NAME.Eq("fW6NU2lWKaMy5ZyVlGYes")).
-		IncludeOnResults(customMetadata...).
-		IncludeOnResults("terms").
-		IncludeOnResults("tags").
-		Execute()
+		Where(ctx.Column.TYPENAME.Eq("Column")).
+		Where(ctx.Column.QUALIFIED_NAME.Eq(qualifiedname)).
+		ToRequest()
 
-	for _, entity := range customMeta[0].Entities {
-		fmt.Println("Entity:", *entity.DisplayName)
+	columnResult.Metadata.UtmTags = []string{atlan.PROJECT_SDK_CLI.String()}
+
+	iterator := client.NewIndexSearchIterator(columnResult.Size, *columnResult)
+
+	for iterator.HasMoreResults() {
+		responses, _ := iterator.IteratePages()
+		for _, response := range responses {
+			fmt.Println(response)
+			break
+		}
+		break
 	}
 
+	/*
+		if err != nil {
+			fmt.Printf("Error executing search: %v\n", err)
+			return
+		}
+
+		fmt.Println("Search results:", *columnResult[0].Entities[0].Name)
+		fmt.Println("Search results:", *columnResult[0].Entities[0].QualifiedName)
+
+
+	*/
+	//client.GetAll()
+
+	/*
+		dc := &client.DataContract{}
+		dc.Creator("DataContractLatestCertified")
+		response, err := client.Save()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println("response", response)
+
+
+	*/
+	/*
+		client.GetCustomMetadataCache().RefreshCache()
+		id, err := client.GetCustomMetadataCache().GetIDForName("testcmgsdk")
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+		name, _ := client.GetCustomMetadataCache().GetNameForID("cvhn5T7YwnsYXiMCKh9PoW")
+		attrID, _ := client.GetCustomMetadataCache().GetAttrIDForName("testcmgsdk", "gsdk")
+		attrName, _ := client.GetCustomMetadataCache().GetAttrNameForID("cvhn5T7YwnsYXiMCKh9PoW", "foYi4v02OVjKt0YzcTCKM3")
+		fmt.Println("ID for name is : ", id)
+		fmt.Println("Name fo ID is:", name)
+		fmt.Printf("\nAttrID for name is: %s\n", attrID)
+		fmt.Printf("\nAttrName for ID is: %s\n", attrName)
+
+		fmt.Println(client.GetCustomMetadataCache().GetAttributesForSearchResultsByName("testcmgsdk"))
+		customMetadata := client.GetCustomMetadataCache().GetAttributesForSearchResultsByName("testcmgsdk")
+
+		customMeta, _ := client.NewFluentSearch().
+			PageSizes(50).
+			ActiveAssets().
+			Where(ctx.Glossary.QUALIFIED_NAME.Eq("fW6NU2lWKaMy5ZyVlGYes")).
+			IncludeOnResults(customMetadata...).
+			IncludeOnResults("terms").
+			IncludeOnResults("tags").
+			Execute()
+
+		for _, entity := range customMeta[0].Entities {
+			fmt.Println("Entity:", *entity.AssetDbtJobNextRunHumanized)
+		}
+
+
+	*/
 	/*
 		ctx := client.NewContext()
 		assetQualifiedName := "default/mssql/1711817247/WideWorldImporters/Purchasing/SupplierCategories_Archive"

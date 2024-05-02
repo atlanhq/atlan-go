@@ -58,6 +58,13 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 		logger = log.New(io.Discard, "", 0) // Logger that discards all log output
 	}
 
+	VERSION := "0.0"
+	headers := map[string]string{
+		"x-atlan-agent":    "sdk",
+		"x-atlan-agent-id": "go",
+		"User-Agent":       fmt.Sprintf("Atlan-GOSDK/%s", VERSION),
+	}
+
 	atlanClient := &AtlanClient{
 		Session: client,
 		host:    baseURL,
@@ -80,6 +87,11 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 			View:             NewSearchView(),
 			// Add other methods
 		},
+	}
+
+	// Merge the provided headers with existing headers
+	for key, value := range headers {
+		atlanClient.requestParams["headers"].(map[string]string)[key] = value
 	}
 
 	// Initialize the default atlan client
@@ -213,6 +225,7 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 		req.URL.RawQuery = query
 	}
 
+	fmt.Println(req.Header)
 	return ac.Session.Do(req)
 }
 

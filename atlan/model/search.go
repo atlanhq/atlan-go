@@ -411,15 +411,22 @@ type SearchRequest struct {
 	RelationsAttributes []string `json:"relationsAttributes,omitempty"`
 }
 
+type Metadata struct {
+	SaveSearchLog bool     `json:"saveSearchLog,omitempty"`
+	UtmTags       []string `json:"utmTags,omitempty"`
+}
+
 // IndexSearchRequest represents a search request in the Atlas search DSL.
 type IndexSearchRequest struct {
 	SearchRequest
-	Dsl                    Dsl      `json:"dsl"`
-	RelationAttributes     []string `json:"relationAttributes,omitempty"`
-	SuppressLogs           bool     `json:"suppressLogs"`
-	ShowSearchScore        bool     `json:"showSearchScore"`
-	ExcludeMeanings        bool     `json:"excludeMeanings"`
-	ExcludeClassifications bool     `json:"excludeClassifications"`
+	Dsl                   Dsl      `json:"dsl"`
+	RelationAttributes    []string `json:"relationAttributes,omitempty"`
+	SuppressLogs          bool     `json:"suppressLogs,omitempty"`
+	ShowSearchScore       bool     `json:"showSearchScore,omitempty"`
+	ExcludeMeanings       bool     `json:"excludeMeanings,omitempty"`
+	ExcludeAtlanTags      bool     `json:"excludeClassifications,omitempty"`
+	AllowDeletedRelations bool     `json:"allowDeletedRelations,omitempty"`
+	Metadata              Metadata `json:"requestMetadata,omitempty"`
 }
 
 // Dsl represents the DSL for the Atlas search request.
@@ -445,15 +452,15 @@ type IndexSearchResponse struct {
 
 // SearchParameters represents the search parameters in the Atlas search response.
 type SearchParameters struct {
-	ShowSearchScore       bool                   `json:"showSearchScore"`
-	SuppressLogs          bool                   `json:"suppressLogs"`
-	ExcludeMeanings       bool                   `json:"excludeMeanings"`
-	ExcludeAtlanTags      bool                   `json:"excludeClassifications"`
-	AllowDeletedRelations bool                   `json:"allowDeletedRelations"`
-	SaveSearchLog         bool                   `json:"saveSearchLog"`
-	RequestMetadata       map[string]interface{} `json:"requestMetadata"`
-	Dsl                   Dsl                    `json:"dsl"`
-	Query                 string                 `json:"query"`
+	ShowSearchScore       bool     `json:"showSearchScore"`
+	SuppressLogs          bool     `json:"suppressLogs"`
+	ExcludeMeanings       bool     `json:"excludeMeanings"`
+	ExcludeAtlanTags      bool     `json:"excludeClassifications"`
+	AllowDeletedRelations bool     `json:"allowDeletedRelations"`
+	SaveSearchLog         bool     `json:"saveSearchLog"`
+	RequestMetadata       Metadata `json:"requestMetadata"`
+	Dsl                   Dsl      `json:"dsl"`
+	Query                 string   `json:"query"`
 }
 
 type SearchAssets struct {
