@@ -3,7 +3,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/client"
 )
 
@@ -12,29 +11,32 @@ func main() {
 	client.LoggingEnabled = true
 	ctx := client.NewContext()
 
-	// Fetch columns of table from Atlan using Qualified Name
-	qualifiedname := "default/snowflake/1714501359/ANALYTICS/WIDE_WORLD_IMPORTERS/CUSTOMERR/ID"
+	qualifiedName := "default/snowflake/1714501359/RAW/WIDEWORLDIMPORTERS_SALESFORCE/WAITLIST_WORK_TYPE_HISTORY"
 
-	columnResult := client.NewFluentSearch().
+	TableResponse, _ := client.NewFluentSearch().
 		PageSizes(50).
 		ActiveAssets().
-		Where(ctx.Column.TYPENAME.Eq("Column")).
-		Where(ctx.Column.QUALIFIED_NAME.Eq(qualifiedname)).
-		ToRequest()
+		Where(ctx.Table.TYPENAME.Eq("Table")).
+		Where(ctx.Table.QUALIFIED_NAME.Eq(qualifiedName)).
+		IncludeOnResults("userDescription", "ownerUsers", "ownerGroups", "certificateStatus").
+		Execute()
 
-	columnResult.Metadata.UtmTags = []string{atlan.PROJECT_SDK_CLI.String()}
+	fmt.Println(*TableResponse[0].Entities[0].UserDescription)
+	/*
+		// Fetch columns of table from Atlan using Qualified Name
+		qualifiedname := "default/snowflake/1714501359/RAW/WIDEWORLDIMPORTERS_SALESFORCE/WAITLIST_WORK_TYPE_HISTORY/ID"
 
-	iterator := client.NewIndexSearchIterator(columnResult.Size, *columnResult)
+		columnResult, _ := client.NewFluentSearch().
+			PageSizes(50).
+			ActiveAssets().
+			Where(ctx.Column.TYPENAME.Eq("Column")).
+			Where(ctx.Column.QUALIFIED_NAME.Eq(qualifiedname)).
+			IncludeOnResults("userDescription", "dataType", "isPrimary", "isNullable").
+			Execute()
 
-	for iterator.HasMoreResults() {
-		responses, _ := iterator.IteratePages()
-		for _, response := range responses {
-			fmt.Println(response)
-			break
-		}
-		break
-	}
+		fmt.Println(*columnResult[0].Entities[0].IsPrimary)
 
+	*/
 	/*
 		if err != nil {
 			fmt.Printf("Error executing search: %v\n", err)
