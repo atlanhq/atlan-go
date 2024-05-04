@@ -474,12 +474,15 @@ type SearchAssets struct {
 }
 
 type SearchAttributes struct {
-	QualifiedName   *string `json:"qualifiedName,omitempty"`
-	Name            *string `json:"name,omitempty"`
-	UserDescription *string `json:"userDescription,omitempty"`
-	DataType        *string `json:"dataType,omitempty"`
-	IsPrimary       *bool   `json:"isPrimary,omitempty"`
-	IsNullable      *bool   `json:"isNullable,omitempty"`
+	QualifiedName     *string                   `json:"qualifiedName,omitempty"`
+	Name              *string                   `json:"name,omitempty"`
+	UserDescription   *string                   `json:"userDescription,omitempty"`
+	DataType          *string                   `json:"dataType,omitempty"`
+	IsPrimary         *bool                     `json:"isPrimary,omitempty"`
+	IsNullable        *bool                     `json:"isNullable,omitempty"`
+	OwnerGroups       *[]string                 `json:"ownerGroups,omitempty"`
+	OwnerUsers        *[]string                 `json:"ownerUsers,omitempty"`
+	CertificateStatus *assets.CertificateStatus `json:"certificateStatus,omitempty"`
 }
 
 func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
@@ -514,6 +517,9 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		sa.UserDescription = aux.SearchAttributes.UserDescription
 		sa.IsPrimary = aux.SearchAttributes.IsPrimary
 		sa.IsNullable = aux.SearchAttributes.IsNullable
+		sa.OwnerGroups = aux.SearchAttributes.OwnerGroups
+		sa.OwnerUsers = aux.SearchAttributes.OwnerUsers
+		sa.CertificateStatus = aux.SearchAttributes.CertificateStatus
 	}
 
 	return nil
