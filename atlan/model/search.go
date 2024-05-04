@@ -474,8 +474,12 @@ type SearchAssets struct {
 }
 
 type SearchAttributes struct {
-	QualifiedName *string `json:"qualifiedName,omitempty"`
-	Name          *string `json:"name,omitempty"`
+	QualifiedName   *string `json:"qualifiedName,omitempty"`
+	Name            *string `json:"name,omitempty"`
+	UserDescription *string `json:"userDescription,omitempty"`
+	DataType        *string `json:"dataType,omitempty"`
+	IsPrimary       *bool   `json:"isPrimary,omitempty"`
+	IsNullable      *bool   `json:"isNullable,omitempty"`
 }
 
 func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
@@ -506,6 +510,10 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 	if aux.SearchAttributes != nil {
 		sa.Name = aux.SearchAttributes.Name
 		sa.QualifiedName = aux.SearchAttributes.QualifiedName
+		sa.DataType = aux.SearchAttributes.DataType
+		sa.UserDescription = aux.SearchAttributes.UserDescription
+		sa.IsPrimary = aux.SearchAttributes.IsPrimary
+		sa.IsNullable = aux.SearchAttributes.IsNullable
 	}
 
 	return nil
