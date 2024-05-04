@@ -225,7 +225,6 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 		req.URL.RawQuery = query
 	}
 
-	fmt.Println(req.Header)
 	return ac.Session.Do(req)
 }
 

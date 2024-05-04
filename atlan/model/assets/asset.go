@@ -350,7 +350,7 @@ type Asset struct {
 	// Details on the handler used for deletion of the asset.
 	DeleteHandler *string `json:"deleteHandler,omitempty"`
 	// Names of the Atlan tags that exist on the asset.
-	AtlanTagNames *[]string `json:"atlanTagNames,omitempty"`
+	AtlanTagNames *[]string `json:"classificationNames,omitempty"`
 	// Unused.
 	IsIncomplete *bool `json:"isIncomplete,omitempty"`
 	// Names of terms that have been linked to this asset.
