@@ -16,12 +16,9 @@ func TestEnvConfig(t *testing.T) {
 	apiKey := "your_api_key"
 	baseURL := "your_base_url"
 
-	os.Setenv("ATLAN_API_KEY", apiKey)
-	os.Setenv("ATLAN_BASE_URL", baseURL)
-
-	//defer os.Unsetenv("ATLAN_API_KEY")
-	//defer os.Unsetenv("ATLAN_BASE_URL")
-
+	os.Getenv("ATLAN_API_KEY")
+	os.Getenv("ATLAN_BASE_URL")
+	
 	// Initialize client
 	err := Init()
 	assert.NoError(t, err)
