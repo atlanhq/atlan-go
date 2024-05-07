@@ -769,7 +769,7 @@ func RetrieveMinimal(guid string) (*Assets2.Asset, error) {
 		return nil, fmt.Errorf("error unmarshalling asset response: %v", err)
 	}
 
-	DefaultAtlanClient.logger.Infof("Asset retrieved successfully with GUID: %s", guid)
+	DefaultAtlanClient.logger.Debugf("Asset retrieved successfully with GUID: %s", guid)
 
 	api.Path = originalPath // Reset the api.Path to its original value
 	return &assetresponse, nil

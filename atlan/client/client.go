@@ -88,7 +88,7 @@ func configureClient() (*http.Client, *logger.Logger) {
 		loggerInstance = &DefaultAtlanClient.logger
 	} else {
 		// Configure logger with default values
-		loggerCfg := &logger.LoggerConfig{Level: "info", Enabled: false}
+		loggerCfg := &logger.LoggerConfig{Level: "info", Enabled: true}
 		newLogger := logger.NewLogger(loggerCfg)
 		loggerInstance = &newLogger
 	}
