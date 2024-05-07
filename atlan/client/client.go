@@ -12,6 +12,12 @@ import (
 	"strings"
 )
 
+// LoggerConfig defines the configuration for logging.
+type LoggerConfig struct {
+	Level   string
+	Enabled bool
+}
+
 // AtlanClient defines the Atlan API client structure.
 type AtlanClient struct {
 	Session        *http.Client
@@ -23,41 +29,78 @@ type AtlanClient struct {
 	SearchAssets
 }
 
-var LoggingEnabled = true
-var DefaultAtlanClient *AtlanClient
-var DefaultAtlanTagCache *AtlanTagCache
+// DefaultAtlanClient represents the default AtlanClient instance.
+var (
+	LoggingEnabled       = true
+	DefaultAtlanClient   *AtlanClient
+	DefaultAtlanTagCache *AtlanTagCache
+)
 
 // Init initializes the default AtlanClient.
 func Init() error {
-	apiKey := os.Getenv("ATLAN_API_KEY")
-	if apiKey == "" {
-		return fmt.Errorf("ATLAN_API_KEY not provided in environmental variables")
-	}
+	apiKey, baseURL := retrieveAPIConfig()
 
-	baseURL := os.Getenv("ATLAN_BASE_URL")
-	if baseURL == "" {
-		return fmt.Errorf("ATLAN_BASE_URL not provided in environmental variables")
-	}
+	// Configure client and logger
+	client, logger := configureClient()
 
-	var err error
-	DefaultAtlanClient, err = Context(apiKey, baseURL)
-	if err != nil {
-		return err
+	// Initialize default AtlanClient
+	DefaultAtlanClient = &AtlanClient{
+		Session:        client,
+		host:           baseURL,
+		ApiKey:         apiKey,
+		requestParams:  defaultRequestParams(apiKey),
+		logger:         logger,
+		loggingEnabled: LoggingEnabled,
+		SearchAssets:   newDefaultSearchAssets(),
 	}
 
 	return nil
 }
 
+// Context creates a new AtlanClient with provided API key and base URL.
 func Context(apiKey, baseURL string) (*AtlanClient, error) {
+	// Configure client and logger
+	client, logger := configureClient()
+
+	atlanClient := &AtlanClient{
+		Session:        client,
+		host:           baseURL,
+		ApiKey:         apiKey,
+		requestParams:  defaultRequestParams(apiKey),
+		logger:         logger,
+		loggingEnabled: LoggingEnabled,
+		SearchAssets:   newDefaultSearchAssets(),
+	}
+
+	// Set as default AtlanClient
+	DefaultAtlanClient = atlanClient
+
+	return atlanClient, nil
+}
+
+// NewContext initializes a new AtlanClient instance.
+func NewContext() *AtlanClient {
+	if err := Init(); err != nil {
+		panic(fmt.Sprintf("Failed to initialize AtlanClient: %v", err))
+	}
+
+	return DefaultAtlanClient
+}
+
+// configureClient configures HTTP client and logger.
+func configureClient() (*http.Client, *log.Logger) {
 	client := &http.Client{}
 	logger := log.New(os.Stdout, "AtlanClient: ", log.LstdFlags|log.Lshortfile)
 
-	if LoggingEnabled {
-		logger = log.New(os.Stdout, "AtlanClient: ", log.LstdFlags|log.Lshortfile)
-	} else {
-		logger = log.New(io.Discard, "", 0) // Logger that discards all log output
+	if !LoggingEnabled {
+		logger = log.New(io.Discard, "", 0)
 	}
 
+	return client, logger
+}
+
+// defaultRequestParams returns default request parameters.
+func defaultRequestParams(apiKey string) map[string]interface{} {
 	VERSION := "0.0"
 	headers := map[string]string{
 		"x-atlan-agent":    "sdk",
@@ -65,48 +108,40 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 		"User-Agent":       fmt.Sprintf("Atlan-GOSDK/%s", VERSION),
 	}
 
-	atlanClient := &AtlanClient{
-		Session: client,
-		host:    baseURL,
-		ApiKey:  apiKey,
-		requestParams: map[string]interface{}{
-			"headers": map[string]string{
-				"Authorization": "Bearer " + apiKey,
-				"Accept":        "application/json",
-				"Content-type":  "application/json",
-			},
-		},
-		logger:         logger,
-		loggingEnabled: LoggingEnabled,
-		SearchAssets: SearchAssets{
-			Glossary:         NewSearchGlossary(),
-			Table:            NewSearchTable(),
-			Column:           NewSearchColumn(),
-			Connection:       NewSearchConnection(),
-			MaterialisedView: NewSearchMaterialisedView(),
-			View:             NewSearchView(),
-			// Add other methods
-		},
+	headers["Authorization"] = "Bearer " + apiKey
+	headers["Accept"] = "application/json"
+	headers["Content-type"] = "application/json"
+
+	return map[string]interface{}{
+		"headers": headers,
 	}
-
-	// Merge the provided headers with existing headers
-	for key, value := range headers {
-		atlanClient.requestParams["headers"].(map[string]string)[key] = value
-	}
-
-	// Initialize the default atlan client
-	DefaultAtlanClient = atlanClient
-
-	return atlanClient, nil
 }
 
-func NewContext() *AtlanClient {
-	err := Init()
-	if err != nil {
-		panic(fmt.Sprintf("Failed to initialize AtlanClient: %v", err))
+// newDefaultSearchAssets initializes default SearchAssets for AtlanClient.
+func newDefaultSearchAssets() SearchAssets {
+	return SearchAssets{
+		Glossary:         NewSearchGlossary(),
+		Table:            NewSearchTable(),
+		Column:           NewSearchColumn(),
+		Connection:       NewSearchConnection(),
+		MaterialisedView: NewSearchMaterialisedView(),
+		View:             NewSearchView(),
+	}
+}
+
+// retrieveAPIConfig retrieves API configuration from environment variables.
+func retrieveAPIConfig() (apiKey, baseURL string) {
+	apiKey = os.Getenv("ATLAN_API_KEY")
+	if apiKey == "" {
+		panic("ATLAN_API_KEY not provided in environmental variables")
 	}
 
-	return DefaultAtlanClient
+	baseURL = os.Getenv("ATLAN_BASE_URL")
+	if baseURL == "" {
+		panic("ATLAN_BASE_URL not provided in environmental variables")
+	}
+
+	return apiKey, baseURL
 }
 
 // CallAPI makes a generic API call.
