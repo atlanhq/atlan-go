@@ -12,7 +12,6 @@ func TestIntegrationFluentSearch(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	LoggingEnabled = false
 	ctx := NewContext()
 
 	// Create a glossary

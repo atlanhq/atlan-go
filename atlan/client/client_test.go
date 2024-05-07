@@ -1,70 +1,122 @@
 package client
 
 import (
+	"bytes"
+	"encoding/json"
+	"github.com/stretchr/testify/assert"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 )
 
-func TestInit(t *testing.T) {
-	// Backup and clear environmental variables
-	apiKey := os.Getenv("ATLAN_API_KEY")
-	baseURL := os.Getenv("ATLAN_BASE_URL")
-	defer func() {
-		os.Setenv("ATLAN_API_KEY", apiKey)
-		os.Setenv("ATLAN_BASE_URL", baseURL)
-	}()
-	os.Setenv("ATLAN_API_KEY", "mock_api_key")
-	os.Setenv("ATLAN_BASE_URL", "https://example.com")
+func TestEnvConfig(t *testing.T) {
+	// Save the current environment variables
+	originalAPIKey := os.Getenv("ATLAN_API_KEY")
+	originalBaseURL := os.Getenv("ATLAN_BASE_URL")
 
+	// Set up environment variables for the duration of the test
+	os.Setenv("ATLAN_API_KEY", "your_api_key")
+	os.Setenv("ATLAN_BASE_URL", "your_base_url")
+
+	// Clean up environment variables after the test
+	defer func() {
+		os.Setenv("ATLAN_API_KEY", originalAPIKey)
+		os.Setenv("ATLAN_BASE_URL", originalBaseURL)
+	}()
+
+	// Initialize client
 	err := Init()
-	if err != nil {
-		t.Errorf("Unexpected error initializing AtlanClient: %v", err)
-	}
-	if DefaultAtlanClient == nil {
-		t.Error("DefaultAtlanClient is not initialized")
-	}
+	assert.NoError(t, err)
+
+	// Assert API key and base URL are correctly set
+	assert.Equal(t, "your_api_key", DefaultAtlanClient.ApiKey)
+	assert.Equal(t, "your_base_url", DefaultAtlanClient.host)
+}
+
+func TestEnvConfigUsingContext(t *testing.T) {
+	// Set up environment variables
+	apiKey := "your_api_key"
+	baseURL := "your_base_url"
+
+	// Initialize client
+	ctx, err := Context(apiKey, baseURL)
+
+	assert.NoError(t, err)
+
+	// Assert API key and base URL are correctly set
+	assert.Equal(t, apiKey, ctx.ApiKey)
+	assert.Equal(t, baseURL, ctx.host)
+}
+
+func TestLoggerConfig(t *testing.T) {
+	ctx, _ := Context("api_key", "baseurl")
+
+	// Initialize logger with enabled logging
+	ctx.SetLogger(true, "info")
+
+	// Verify that logger is created and logging is enabled
+	assert.NotNil(t, ctx.logger.Log)
+
+	// Verify that logs are produced when logging is enabled
+	var buf bytes.Buffer
+	handler := slog.NewJSONHandler(&buf, nil)
+	logger := slog.New(handler)
+	ctx.logger.Log = logger
+	ctx.logger.Infof("Test log message")
+	assert.Contains(t, buf.String(), "Test log message")
+
+	// Reset buffer
+	buf.Reset()
+
+	// Initialize logger with disabled logging
+	ctx.SetLogger(false, "")
+	ctx.DisableLogging()
+
+	// Verify that logger is created and logging is disabled
+	assert.NotNil(t, ctx.logger.Log)
+
+	// Verify that no logs are produced when logging is disabled
+	ctx.logger.Infof("Test log message")
+	assert.Empty(t, buf.String())
 }
 
 func TestCallAPI(t *testing.T) {
-	// Mock server to simulate API responses
-	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// Create a new test server
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Respond with a sample JSON response
+		response := map[string]string{"message": "success"}
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{"message": "success"}`))
+		json.NewEncoder(w).Encode(response)
 	}))
-	defer mockServer.Close()
+	defer ts.Close()
 
-	//logger := log.New(os.Stdout, "Test Logger: ", log.LstdFlags)
+	// Initialize AtlanClient with the test server URL
+	ctx, _ := Context("api_key", ts.URL)
 
-	// Create a new AtlanClient instance
-	atlanClient := &AtlanClient{
-		Session:        http.DefaultClient,
-		host:           mockServer.URL,
-		ApiKey:         "mock_api_key",
-		loggingEnabled: false,
-		//	logger:         logger,
-		requestParams: make(map[string]interface{}),
-	}
-
-	// Define an API struct for testing
+	// Define a sample API object
 	api := &API{
 		Method:   http.MethodGet,
-		Path:     "/test",
+		Endpoint: Endpoint{Atlas: "/test"},
+		Path:     "/endpoint",
 		Status:   http.StatusOK,
-		Endpoint: struct{ Atlas string }{Atlas: "/v1"},
 	}
 
-	// Make a call to the API
-	response, err := atlanClient.CallAPI(api, nil, nil)
-	if err != nil {
-		t.Errorf("Error making API call: %v", err)
-	}
+	// Call the API
+	response, err := ctx.CallAPI(api, nil, nil)
 
-	// Check if the response is correct
-	expectedResponse := `{"message": "success"}`
-	if string(response) != expectedResponse {
-		t.Errorf("Unexpected response. Expected: %s, Got: %s", expectedResponse, string(response))
-	}
+	// Check if there's no error
+	assert.NoError(t, err)
+
+	// Define expected response as JSON object
+	expectedResponse := map[string]string{"message": "success"}
+
+	// Unmarshal actual response into JSON object
+	var actualResponse map[string]string
+	err = json.Unmarshal(response, &actualResponse)
+	assert.NoError(t, err)
+
+	// Compare expected and actual responses
+	assert.Equal(t, expectedResponse, actualResponse)
 }

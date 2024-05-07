@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan/logger"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -14,50 +14,90 @@ import (
 
 // AtlanClient defines the Atlan API client structure.
 type AtlanClient struct {
-	Session        *http.Client
-	host           string
-	ApiKey         string
-	loggingEnabled bool
-	requestParams  map[string]interface{}
-	logger         *log.Logger
+	Session       *http.Client
+	host          string
+	ApiKey        string
+	requestParams map[string]interface{}
+	logger        logger.Logger
 	SearchAssets
 }
 
-var LoggingEnabled = true
-var DefaultAtlanClient *AtlanClient
-var DefaultAtlanTagCache *AtlanTagCache
+// DefaultAtlanClient represents the default AtlanClient instance.
+var (
+	DefaultAtlanClient   *AtlanClient
+	DefaultAtlanTagCache *AtlanTagCache
+)
 
 // Init initializes the default AtlanClient.
 func Init() error {
-	apiKey := os.Getenv("ATLAN_API_KEY")
-	if apiKey == "" {
-		return fmt.Errorf("ATLAN_API_KEY not provided in environmental variables")
-	}
+	apiKey, baseURL := retrieveAPIConfig()
 
-	baseURL := os.Getenv("ATLAN_BASE_URL")
-	if baseURL == "" {
-		return fmt.Errorf("ATLAN_BASE_URL not provided in environmental variables")
-	}
+	// Configure client and logger
+	client, logger := configureClient()
 
-	var err error
-	DefaultAtlanClient, err = Context(apiKey, baseURL)
-	if err != nil {
-		return err
+	// Initialize default AtlanClient
+	DefaultAtlanClient = &AtlanClient{
+		Session:       client,
+		host:          baseURL,
+		ApiKey:        apiKey,
+		requestParams: defaultRequestParams(apiKey),
+		logger:        *logger,
+		SearchAssets:  newDefaultSearchAssets(),
 	}
 
 	return nil
 }
 
+// Context creates a new AtlanClient with provided API key and base URL.
 func Context(apiKey, baseURL string) (*AtlanClient, error) {
-	client := &http.Client{}
-	logger := log.New(os.Stdout, "AtlanClient: ", log.LstdFlags|log.Lshortfile)
+	// Configure client and logger
+	client, logger := configureClient()
 
-	if LoggingEnabled {
-		logger = log.New(os.Stdout, "AtlanClient: ", log.LstdFlags|log.Lshortfile)
-	} else {
-		logger = log.New(io.Discard, "", 0) // Logger that discards all log output
+	atlanClient := &AtlanClient{
+		Session:       client,
+		host:          baseURL,
+		ApiKey:        apiKey,
+		requestParams: defaultRequestParams(apiKey),
+		logger:        *logger,
+		SearchAssets:  newDefaultSearchAssets(),
 	}
 
+	// Set as default AtlanClient
+	DefaultAtlanClient = atlanClient
+
+	return atlanClient, nil
+}
+
+// NewContext initializes a new AtlanClient instance.
+func NewContext() *AtlanClient {
+	if err := Init(); err != nil {
+		panic(fmt.Sprintf("Failed to initialize AtlanClient: %v", err))
+	}
+
+	return DefaultAtlanClient
+}
+
+// configureClient configures HTTP client and logger.
+func configureClient() (*http.Client, *logger.Logger) {
+	client := &http.Client{}
+
+	var loggerInstance *logger.Logger
+
+	// Check if the logger is already set by the user
+	if DefaultAtlanClient != nil && DefaultAtlanClient.logger.Log != nil {
+		loggerInstance = &DefaultAtlanClient.logger
+	} else {
+		// Configure logger with default values
+		loggerCfg := &logger.LoggerConfig{Level: "info", Enabled: true}
+		newLogger := logger.NewLogger(loggerCfg)
+		loggerInstance = &newLogger
+	}
+
+	return client, loggerInstance
+}
+
+// defaultRequestParams returns default request parameters.
+func defaultRequestParams(apiKey string) map[string]interface{} {
 	VERSION := "0.0"
 	headers := map[string]string{
 		"x-atlan-agent":    "sdk",
@@ -65,48 +105,63 @@ func Context(apiKey, baseURL string) (*AtlanClient, error) {
 		"User-Agent":       fmt.Sprintf("Atlan-GOSDK/%s", VERSION),
 	}
 
-	atlanClient := &AtlanClient{
-		Session: client,
-		host:    baseURL,
-		ApiKey:  apiKey,
-		requestParams: map[string]interface{}{
-			"headers": map[string]string{
-				"Authorization": "Bearer " + apiKey,
-				"Accept":        "application/json",
-				"Content-type":  "application/json",
-			},
-		},
-		logger:         logger,
-		loggingEnabled: LoggingEnabled,
-		SearchAssets: SearchAssets{
-			Glossary:         NewSearchGlossary(),
-			Table:            NewSearchTable(),
-			Column:           NewSearchColumn(),
-			Connection:       NewSearchConnection(),
-			MaterialisedView: NewSearchMaterialisedView(),
-			View:             NewSearchView(),
-			// Add other methods
-		},
+	headers["Authorization"] = "Bearer " + apiKey
+	headers["Accept"] = "application/json"
+	headers["Content-type"] = "application/json"
+
+	return map[string]interface{}{
+		"headers": headers,
 	}
-
-	// Merge the provided headers with existing headers
-	for key, value := range headers {
-		atlanClient.requestParams["headers"].(map[string]string)[key] = value
-	}
-
-	// Initialize the default atlan client
-	DefaultAtlanClient = atlanClient
-
-	return atlanClient, nil
 }
 
-func NewContext() *AtlanClient {
-	err := Init()
-	if err != nil {
-		panic(fmt.Sprintf("Failed to initialize AtlanClient: %v", err))
+// newDefaultSearchAssets initializes default SearchAssets for AtlanClient.
+func newDefaultSearchAssets() SearchAssets {
+	return SearchAssets{
+		Glossary:         NewSearchGlossary(),
+		Table:            NewSearchTable(),
+		Column:           NewSearchColumn(),
+		Connection:       NewSearchConnection(),
+		MaterialisedView: NewSearchMaterialisedView(),
+		View:             NewSearchView(),
+	}
+}
+
+// retrieveAPIConfig retrieves API configuration from environment variables.
+func retrieveAPIConfig() (apiKey, baseURL string) {
+	apiKey = os.Getenv("ATLAN_API_KEY")
+	if apiKey == "" {
+		logger.Log.Error("ATLAN_API_KEY not provided in environmental variables")
+		panic("ATLAN_API_KEY not provided in environmental variables")
 	}
 
-	return DefaultAtlanClient
+	baseURL = os.Getenv("ATLAN_BASE_URL")
+	if baseURL == "" {
+		logger.Log.Error("ATLAN_BASE_URL not provided in environmental variables")
+		panic("ATLAN_BASE_URL not provided in environmental variables")
+	}
+
+	return apiKey, baseURL
+}
+
+// SetLogger enables or disables logging and sets the log level.
+func (ac *AtlanClient) SetLogger(enabled bool, level string) {
+	// Create a new logger configuration
+	loggerCfg := &logger.LoggerConfig{
+		Level:   level,
+		Enabled: enabled,
+	}
+	// Create a new logger instance
+	ac.logger = logger.NewLogger(loggerCfg)
+}
+
+// EnableLogging enables logging with the specified log level.
+func (ac *AtlanClient) EnableLogging(level string) {
+	ac.SetLogger(true, level)
+}
+
+// DisableLogging disables logging.
+func (ac *AtlanClient) DisableLogging() {
+	ac.SetLogger(false, "")
 }
 
 // CallAPI makes a generic API call.
@@ -123,6 +178,7 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 		requestJSON, err := json.Marshal(requestObj)
 		//fmt.Println("Request JSON:", string(requestJSON))
 		if err != nil {
+			ac.logger.Errorf("error marshaling request object: %v", err)
 			return nil, fmt.Errorf("error marshaling request object: %v", err)
 		}
 		params["data"] = bytes.NewBuffer(requestJSON)
@@ -229,32 +285,25 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 }
 
 func (ac *AtlanClient) logAPICall(method, path string) {
-	if ac.loggingEnabled {
-		ac.logger.Println("------------------------------------------------------")
-		ac.logger.Printf("Call         : %s %s\n", method, path)
-		ac.logger.Printf("Content-type : application/json\n")
-		ac.logger.Printf("Accept       : application/json\n")
-	}
+	ac.logger.Info("------------------------------------------------------")
+	ac.logger.Infof("Call         : %s %s", method, path)
+	ac.logger.Infof("Content-type : application/json")
+	ac.logger.Infof("Accept       : application/json")
 }
 
 func (ac *AtlanClient) logHTTPStatus(response *http.Response) {
-	if ac.loggingEnabled {
-		ac.logger.Printf("HTTP Status: %s\n", response.Status)
-		if response.StatusCode < 200 || response.StatusCode >= 300 {
-			// Read the response body for the error message
-			errorMessage, err := ioutil.ReadAll(response.Body)
-			if err != nil {
-				ac.logger.Printf("Error reading response body: %v\n", err)
-			}
-			ac.logger.Printf("Error: %s\n", handleApiError(response, string(errorMessage)))
+	ac.logger.Infof("HTTP Status: %s", response.Status)
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		errorMessage, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			ac.logger.Errorf("Error reading response body: %v", err)
 		}
+		ac.logger.Errorf("Error: %s", handleApiError(response, string(errorMessage)))
 	}
 }
 
 func (ac *AtlanClient) logResponse(responseJSON []byte) {
-	if ac.loggingEnabled {
-		ac.logger.Println("<== __call_api", string(responseJSON))
-	}
+	ac.logger.Debugf("<== __call_api %s", string(responseJSON))
 }
 
 func deepCopy(original map[string]interface{}) map[string]interface{} {
