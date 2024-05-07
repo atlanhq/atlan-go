@@ -756,6 +756,7 @@ func RetrieveMinimal(guid string) (*Assets2.Asset, error) {
 	queryParams["min_ext_info"] = "true"
 	queryParams["ignore_relationships"] = "true"
 
+	DefaultAtlanClient.logger.Infof("Retrieving Asset with GUID: %s", guid)
 	response, err := DefaultAtlanClient.CallAPI(api, queryParams, nil)
 	if err != nil {
 		return nil, err
@@ -767,6 +768,8 @@ func RetrieveMinimal(guid string) (*Assets2.Asset, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling asset response: %v", err)
 	}
+
+	DefaultAtlanClient.logger.Infof("Asset retrieved successfully with GUID: %s", guid)
 
 	api.Path = originalPath // Reset the api.Path to its original value
 	return &assetresponse, nil
@@ -790,16 +793,22 @@ func PurgeByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	// Add the comma-separated string of GUIDs to the query parameters
 	queryParams["guid"] = guidString
 
+	DefaultAtlanClient.logger.Infof("Purging assets with GUIDs: %v", guids)
+
 	// Call the API
 	resp, err := DefaultAtlanClient.CallAPI(api, queryParams, nil)
 	if err != nil {
+		DefaultAtlanClient.logger.Errorf("Error purging assets: %v", err)
 		return nil, err
 	}
+
+	DefaultAtlanClient.logger.Info("Assets purged successfully")
 
 	// Unmarshal the response into the AssetMutationResponse struct
 	var response model.AssetMutationResponse
 	err = json.Unmarshal(resp, &response)
 	if err != nil {
+		DefaultAtlanClient.logger.Errorf("Error unmarshalling response: %v", err)
 		return nil, fmt.Errorf("error unmarshaling response: %v", err)
 	}
 
@@ -813,13 +822,16 @@ func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	}
 
 	for _, guid := range guids {
+		DefaultAtlanClient.logger.Infof("Deleting asset with GUID: %s", guid)
 		asset, err := RetrieveMinimal(guid)
 		if err != nil {
+			DefaultAtlanClient.logger.Errorf("Error retrieving asset: %v", err)
 			return nil, fmt.Errorf("error retrieving asset: %v", err)
 		}
 
 		// Assuming the asset has a CanBeArchived field that indicates if it can be archived
 		if *asset.TypeName == "AtlasGlossaryCategory" {
+			DefaultAtlanClient.logger.Errorf("Asset %s of type %s cannot be archived", guid, *asset.TypeName)
 			return nil, fmt.Errorf("asset %s of type %s cannot be archived", guid, *asset.TypeName)
 		}
 	}
@@ -837,16 +849,23 @@ func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	queryParams["guid"] = guidString
 
 	fmt.Println("Query Params:", queryParams)
+
+	DefaultAtlanClient.logger.Infof("Soft deleting assets with GUIDs: %v", guids)
+
 	// Call the API
 	resp, err := DefaultAtlanClient.CallAPI(api, queryParams, nil)
 	if err != nil {
+		DefaultAtlanClient.logger.Errorf("Error soft deleting assets: %v", err)
 		return nil, err
 	}
+
+	DefaultAtlanClient.logger.Info("Assets soft deleted successfully")
 
 	// Unmarshal the response into the AssetMutationResponse struct
 	var response model.AssetMutationResponse
 	err = json.Unmarshal(resp, &response)
 	if err != nil {
+		DefaultAtlanClient.logger.Errorf("Error unmarshalling response: %v", err)
 		return nil, fmt.Errorf("error unmarshaling response: %v", err)
 	}
 
@@ -854,6 +873,7 @@ func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	for _, guid := range guids {
 		err = WaitTillDeleted(guid)
 		if err != nil {
+			DefaultAtlanClient.logger.Errorf("Error waiting for asset deletion: %v", err)
 			return nil, err
 		}
 	}
@@ -863,16 +883,20 @@ func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 
 // WaitTillDeleted waits for an asset to be deleted.
 func WaitTillDeleted(guid string) error {
+	DefaultAtlanClient.logger.Infof("Waiting for asset with GUID %s to be deleted", guid)
 	for i := 0; i < MaxRetries; i++ {
 		asset, err := RetrieveMinimal(guid)
 		if err != nil {
+			DefaultAtlanClient.logger.Errorf("Error retrieving asset: %v", err)
 			return fmt.Errorf("error retrieving asset: %v", err)
 		}
 
 		if *asset.Status == "DELETED" {
+			DefaultAtlanClient.logger.Infof("Asset with GUID %s is deleted", guid)
 			return nil
 		}
 
+		DefaultAtlanClient.logger.Errorf("Retry limit overrun waiting for asset with GUID %s to be deleted", guid)
 		// If the asset is not deleted, wait for a while before retrying
 		time.Sleep(RetryInterval)
 	}
@@ -887,6 +911,7 @@ type SaveRequest struct {
 
 // Save saves the assets in memory to the Atlas server.
 func Save(assets ...AtlanObject) (*model.AssetMutationResponse, error) {
+	DefaultAtlanClient.logger.Infof("Saving assets: %v", assets)
 	request := SaveRequest{
 		Entities: assets,
 	}
@@ -897,9 +922,12 @@ func Save(assets ...AtlanObject) (*model.AssetMutationResponse, error) {
 		return nil, err
 	}
 
+	DefaultAtlanClient.logger.Info("Assets saved successfully")
+
 	var response model.AssetMutationResponse
 	err = json.Unmarshal(resp, &response)
 	if err != nil {
+		DefaultAtlanClient.logger.Errorf("Error unmarshalling response: %v", err)
 		return nil, err
 	}
 
