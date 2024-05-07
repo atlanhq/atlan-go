@@ -756,7 +756,7 @@ func RetrieveMinimal(guid string) (*Assets2.Asset, error) {
 	queryParams["min_ext_info"] = "true"
 	queryParams["ignore_relationships"] = "true"
 
-	DefaultAtlanClient.logger.Infof("Retrieving Asset with GUID: %s", guid)
+	DefaultAtlanClient.logger.Debugf("Retrieving Asset with GUID: %s", guid)
 	response, err := DefaultAtlanClient.CallAPI(api, queryParams, nil)
 	if err != nil {
 		return nil, err
@@ -793,7 +793,7 @@ func PurgeByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	// Add the comma-separated string of GUIDs to the query parameters
 	queryParams["guid"] = guidString
 
-	DefaultAtlanClient.logger.Infof("Purging assets with GUIDs: %v", guids)
+	DefaultAtlanClient.logger.Debugf("Purging assets with GUIDs: %v", guids)
 
 	// Call the API
 	resp, err := DefaultAtlanClient.CallAPI(api, queryParams, nil)
@@ -802,7 +802,7 @@ func PurgeByGuid(guids []string) (*model.AssetMutationResponse, error) {
 		return nil, err
 	}
 
-	DefaultAtlanClient.logger.Info("Assets purged successfully")
+	DefaultAtlanClient.logger.Debugf("Assets purged successfully")
 
 	// Unmarshal the response into the AssetMutationResponse struct
 	var response model.AssetMutationResponse
@@ -822,7 +822,7 @@ func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	}
 
 	for _, guid := range guids {
-		DefaultAtlanClient.logger.Infof("Deleting asset with GUID: %s", guid)
+		DefaultAtlanClient.logger.Debugf("Deleting asset with GUID: %s", guid)
 		asset, err := RetrieveMinimal(guid)
 		if err != nil {
 			DefaultAtlanClient.logger.Errorf("Error retrieving asset: %v", err)
@@ -850,7 +850,7 @@ func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 
 	fmt.Println("Query Params:", queryParams)
 
-	DefaultAtlanClient.logger.Infof("Soft deleting assets with GUIDs: %v", guids)
+	DefaultAtlanClient.logger.Debugf("Soft deleting assets with GUIDs: %v", guids)
 
 	// Call the API
 	resp, err := DefaultAtlanClient.CallAPI(api, queryParams, nil)
@@ -859,7 +859,7 @@ func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 		return nil, err
 	}
 
-	DefaultAtlanClient.logger.Info("Assets soft deleted successfully")
+	DefaultAtlanClient.logger.Debugf("Assets soft deleted successfully")
 
 	// Unmarshal the response into the AssetMutationResponse struct
 	var response model.AssetMutationResponse
@@ -883,7 +883,7 @@ func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 
 // WaitTillDeleted waits for an asset to be deleted.
 func WaitTillDeleted(guid string) error {
-	DefaultAtlanClient.logger.Infof("Waiting for asset with GUID %s to be deleted", guid)
+	DefaultAtlanClient.logger.Debugf("Waiting for asset with GUID %s to be deleted", guid)
 	for i := 0; i < MaxRetries; i++ {
 		asset, err := RetrieveMinimal(guid)
 		if err != nil {
@@ -892,7 +892,7 @@ func WaitTillDeleted(guid string) error {
 		}
 
 		if *asset.Status == "DELETED" {
-			DefaultAtlanClient.logger.Infof("Asset with GUID %s is deleted", guid)
+			DefaultAtlanClient.logger.Debugf("Asset with GUID %s is deleted", guid)
 			return nil
 		}
 
@@ -911,7 +911,7 @@ type SaveRequest struct {
 
 // Save saves the assets in memory to the Atlas server.
 func Save(assets ...AtlanObject) (*model.AssetMutationResponse, error) {
-	DefaultAtlanClient.logger.Infof("Saving assets: %v", assets)
+	DefaultAtlanClient.logger.Debugf("Saving assets: %v", assets)
 	request := SaveRequest{
 		Entities: assets,
 	}
@@ -922,7 +922,7 @@ func Save(assets ...AtlanObject) (*model.AssetMutationResponse, error) {
 		return nil, err
 	}
 
-	DefaultAtlanClient.logger.Info("Assets saved successfully")
+	DefaultAtlanClient.logger.Debugf("Assets saved successfully")
 
 	var response model.AssetMutationResponse
 	err = json.Unmarshal(resp, &response)
