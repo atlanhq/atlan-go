@@ -3,9 +3,7 @@ package client
 import (
 	"fmt"
 	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/logger"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
 	"time"
 )
@@ -14,9 +12,6 @@ func TestIntegrationFluentSearch(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	time.Sleep(100)
-	envValue := os.Getenv("ATLAN_BASE_URL")
-	logger.Log.Errorf("ATLAN_API_KEY : %s", envValue)
 	ctx := NewContext()
 
 	// Create a glossary
