@@ -14,7 +14,6 @@ func TestIntegrationGlossary(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	LoggingEnabled = false
 	NewContext()
 
 	glossaryGUID := testCreateGlossary(t)

@@ -303,7 +303,7 @@ func (ac *AtlanClient) logHTTPStatus(response *http.Response) {
 }
 
 func (ac *AtlanClient) logResponse(responseJSON []byte) {
-	ac.logger.Infof("<== __call_api", string(responseJSON))
+	ac.logger.Infof("<== __call_api %s", string(responseJSON))
 }
 
 func deepCopy(original map[string]interface{}) map[string]interface{} {

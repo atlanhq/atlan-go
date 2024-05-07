@@ -40,11 +40,10 @@ func TestCallAPI(t *testing.T) {
 
 	// Create a new AtlanClient instance
 	atlanClient := &AtlanClient{
-		Session:        http.DefaultClient,
-		host:           mockServer.URL,
-		ApiKey:         "mock_api_key",
-		loggingEnabled: false,
-		//	logger:         logger,
+		Session: http.DefaultClient,
+		host:    mockServer.URL,
+		ApiKey:  "mock_api_key",
+		//logger:        logger,
 		requestParams: make(map[string]interface{}),
 	}
 

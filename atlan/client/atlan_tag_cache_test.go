@@ -10,7 +10,6 @@ func TestIntegrationAtlanTagCache_RefreshCache(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	LoggingEnabled = false
 	client := NewContext()
 	cache := NewAtlanTagCache(client)
 
@@ -27,7 +26,6 @@ func TestIntegrationAtlanTagCache_GetIDForName(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	LoggingEnabled = false
 
 	client := NewContext()
 	cache := NewAtlanTagCache(client)
@@ -54,7 +52,6 @@ func TestIntegrationAtlanTagCache_GetNameForID(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	LoggingEnabled = false
 	client := NewContext()
 	cache := NewAtlanTagCache(client)
 

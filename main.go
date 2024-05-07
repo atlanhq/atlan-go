@@ -8,8 +8,9 @@ import (
 
 func main() {
 
-	client.LoggingEnabled = true
 	ctx := client.NewContext()
+
+	ctx.SetLogger(true, "info")
 
 	qualifiedName := "default/snowflake/1714501359/RAW/WIDEWORLDIMPORTERS_SALESFORCE/WAITLIST_WORK_TYPE_HISTORY"
 
