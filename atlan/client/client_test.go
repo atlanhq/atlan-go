@@ -12,20 +12,27 @@ import (
 )
 
 func TestEnvConfig(t *testing.T) {
-	// Set up environment variables
-	apiKey := "your_api_key"
-	baseURL := "your_base_url"
+	// Save the current environment variables
+	originalAPIKey := os.Getenv("ATLAN_API_KEY")
+	originalBaseURL := os.Getenv("ATLAN_BASE_URL")
 
-	os.Getenv("ATLAN_API_KEY")
-	os.Getenv("ATLAN_BASE_URL")
-	
+	// Set up environment variables for the duration of the test
+	os.Setenv("ATLAN_API_KEY", "your_api_key")
+	os.Setenv("ATLAN_BASE_URL", "your_base_url")
+
+	// Clean up environment variables after the test
+	defer func() {
+		os.Setenv("ATLAN_API_KEY", originalAPIKey)
+		os.Setenv("ATLAN_BASE_URL", originalBaseURL)
+	}()
+
 	// Initialize client
 	err := Init()
 	assert.NoError(t, err)
 
 	// Assert API key and base URL are correctly set
-	assert.Equal(t, apiKey, DefaultAtlanClient.ApiKey)
-	assert.Equal(t, baseURL, DefaultAtlanClient.host)
+	assert.Equal(t, "your_api_key", DefaultAtlanClient.ApiKey)
+	assert.Equal(t, "your_base_url", DefaultAtlanClient.host)
 }
 
 func TestEnvConfigUsingContext(t *testing.T) {
