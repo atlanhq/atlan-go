@@ -18,6 +18,18 @@ type FluentSearch struct {
 	Aggregations        map[string]interface{}
 	IncludesOnResults   []string
 	IncludesOnRelations []string
+	UtmTags             []string
+}
+
+// SetUtmTags sets the UTM tags for tracking the source of requests.
+func (fs *FluentSearch) SetUtmTags(tags ...atlan.UTMTags) *FluentSearch {
+	// Convert UTMTags to string before assigning to UtmTags
+	strTags := make([]string, len(tags))
+	for i, tag := range tags {
+		strTags[i] = tag.String()
+	}
+	fs.UtmTags = strTags
+	return fs
 }
 
 type Aggregation struct {
@@ -172,6 +184,7 @@ func (fs *FluentSearch) SortByGuidDefault() *FluentSearch {
 
 // ToRequest converts FluentSearch to IndexSearchRequest.
 func (fs *FluentSearch) ToRequest() *model.IndexSearchRequest {
+
 	// Create a new IndexSearchRequest and set its properties based on FluentSearch
 	request := &model.IndexSearchRequest{
 		SearchRequest: model.SearchRequest{
@@ -237,6 +250,11 @@ func (fs *FluentSearch) ToRequest() *model.IndexSearchRequest {
 			sortItemsJSON[i] = item.ToJSON()
 		}
 		request.Dsl.Sort = sortItemsJSON
+	}
+
+	// Set UtmTags specified by user
+	if fs.UtmTags != nil {
+		request.Metadata.UtmTags = fs.UtmTags
 	}
 
 	return request

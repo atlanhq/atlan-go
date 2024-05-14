@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/client"
 )
 
@@ -21,14 +22,11 @@ func main() {
 		Where(ctx.Column.TYPENAME.Eq("Column")).
 		Where(ctx.Column.TABLE_QUALIFIED_NAME.Eq(assetQualifiedName)).
 		IncludeOnResults("userDescription", "dataType", "isPrimary").
+		SetUtmTags(atlan.PROJECT_SDK_CLI).
 		Execute()
 
-	//fmt.Println(*columnSearchResponse[0].Entities[0].Name)
+	fmt.Println(*columnSearchResponse[0].Entities[0].Name)
 	//fmt.Println(*columnSearchResponse[0].Entities[0].DataType)
-
-	for _, entity := range columnSearchResponse[0].Entities {
-		fmt.Println(entity)
-	}
 
 	qualifiedname := "default/snowflake/1715371897/RAW/WIDEWORLDIMPORTERS_SALESFORCE/FIVETRAN_API_CALL"
 
