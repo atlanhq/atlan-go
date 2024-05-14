@@ -470,7 +470,15 @@ type SearchAssets struct {
 	QualifiedName    *string           `json:"qualifiedName,omitempty"`
 	Name             *string           `json:"name,omitempty"`
 	SearchAttributes *SearchAttributes `json:"Attributes,omitempty"`
+	SearchMeanings   []Meanings        `json:"meanings,omitempty"` // If meanings as json is already defined in Asset struct then defining the meanings here would result in an empty response.
 	NotNull          *bool             `json:"notNull,omitempty"`
+}
+
+type Meanings struct {
+	Guid         string `json:"termGuid,omitempty"`
+	RelationGuid string `json:"relationGuid,omitempty"`
+	DisplayText  string `json:"displayText,omitempty"`
+	Confidence   int    `json:"confidence,omitempty"`
 }
 
 type SearchAttributes struct {
@@ -494,6 +502,7 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		QualifiedName    *string           `json:"qualifiedName,omitempty"`
 		Name             *string           `json:"name,omitempty"`
 		SearchAttributes *SearchAttributes `json:"attributes,omitempty"`
+		SearchMeanings   []Meanings        `json:"meanings,omitempty"`
 		NotNull          *bool             `json:"notNull,omitempty"`
 	}
 
@@ -503,11 +512,22 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
+	// Directly handling the SearchMeanings if present (This is done because Meanings in IndexSearchResponse conflicits with meanings of type AtlasGlossaryTerm defined in /assets/asset.go .
+	type SearchMeaningsData struct {
+		SearchMeanings []Meanings `json:"meanings,omitempty"`
+	}
+
+	var meaningsData SearchMeaningsData
+	if err := json.Unmarshal(data, &meaningsData); err != nil {
+		return err
+	}
+
 	// Copy fields from auxiliary struct to the main struct
 	sa.Asset = aux.Asset
 	sa.Table = aux.Table
 	sa.Column = aux.Column
 	sa.NotNull = aux.NotNull
+	sa.SearchMeanings = meaningsData.SearchMeanings
 
 	// Check if any search attributes are present
 	if aux.SearchAttributes != nil {
@@ -522,5 +542,7 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		sa.CertificateStatus = aux.SearchAttributes.CertificateStatus
 	}
 
+	if len(aux.SearchMeanings) > 0 {
+	}
 	return nil
 }

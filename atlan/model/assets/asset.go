@@ -356,7 +356,7 @@ type Asset struct {
 	// Names of terms that have been linked to this asset.
 	MeaningNames *[]string `json:"meaningNames,omitempty"`
 	// Details of terms that have been linked to this asset.
-	Meanings *[]Meaning `json:"meanings,omitempty"`
+	Meanings *[]AtlasGlossaryTerm `json:"meanings,omitempty"`
 	// Unique identifiers (GUIDs) for any background tasks that are yet to operate on this asset.
 	PendingTasks *[]string `json:"pendingTasks,omitempty"`
 
