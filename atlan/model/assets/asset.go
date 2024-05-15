@@ -16,7 +16,7 @@ type Referenceable struct {
 	// Type of the asset. For example Table, Column, and so on.
 	TypeName *string `json:"typeName"`
 	// Globally unique identifier (GUID) of any object in Atlan.
-	Guid *string `json:"guid"`
+	Guid *string `json:"guid,omitempty"`
 	// Atlan user who created this asset.
 	CreatedBy *string `json:"createdBy,omitempty"`
 	// Atlan user who last updated this asset.
