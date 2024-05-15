@@ -188,9 +188,11 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 
 	response, err := ac.makeRequest(api.Method, path, params)
 	if err != nil {
-		fmt.Println(err)
-		errorMessage, _ := ioutil.ReadAll(response.Body)
-		return nil, handleApiError(response, string(errorMessage))
+		if response != nil && response.Body != nil {
+			errorMessage, _ := ioutil.ReadAll(response.Body)
+			return nil, handleApiError(response, string(errorMessage))
+		}
+		return nil, err
 	}
 
 	ac.logHTTPStatus(response)
