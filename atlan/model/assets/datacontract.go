@@ -2,9 +2,9 @@ package assets
 
 type DataContract struct {
 	Catalog
-	DataContractJson *string `json:"dataContractJson,omitempty"`
-	Version          *string `json:"dataContractVersion,omitempty"`
-	AssetGuid        *string `json:"dataContractAssetGuid,omitempty"`
+	Version    *string                 `json:"dataContractVersion,omitempty"`
+	AssetGuid  *string                 `json:"dataContractAssetGuid,omitempty"`
+	Attributes *DataContractAttributes `json:"attributes,omitempty"`
 	// Relationships
 	LatestCertified         *[]Asset        `json:"dataContractLatestCertified,omitempty"`
 	ContractAssetCertified  *[]DataContract `json:"dataContractAssetCertified,omitempty"`
@@ -12,6 +12,13 @@ type DataContract struct {
 	ContractAssetLatest     *[]DataContract `json:"dataContractAssetLatest,omitempty"`
 	ContractPreviousVersion *[]DataContract `json:"dataContractPreviousVersion,omitempty"`
 	ContractNextVersion     *[]DataContract `json:"dataContractNextVersion,omitempty"`
+}
+
+type DataContractAttributes struct {
+	Name              *string `json:"name,omitempty"`
+	CertificateStatus *string `json:"certificateStatus,omitempty"`
+	QualifiedName     *string `json:"qualifiedName,omitempty"`
+	DataContractJson  *string `json:"dataContractJson,omitempty"`
 }
 
 /*
