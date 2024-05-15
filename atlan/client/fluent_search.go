@@ -3,7 +3,6 @@ package client
 import (
 	"fmt"
 	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/logger"
 	"github.com/atlanhq/atlan-go/atlan/model"
 )
 
@@ -159,7 +158,6 @@ func (fs *FluentSearch) Execute() ([]*model.IndexSearchResponse, error) {
 
 		}
 	}
-	logger.Log.Debugf("Executed search successfully")
 	return responses, nil
 }
 
