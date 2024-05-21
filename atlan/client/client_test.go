@@ -93,7 +93,7 @@ func TestCallAPI(t *testing.T) {
 	defer ts.Close()
 
 	// Initialize AtlanClient with the test server URL
-	ctx, _ := Context("api_key", ts.URL)
+	ctx, _ := Context(ts.URL, "api_key")
 
 	// Define a sample API object
 	api := &API{
