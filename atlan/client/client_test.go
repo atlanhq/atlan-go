@@ -41,7 +41,7 @@ func TestEnvConfigUsingContext(t *testing.T) {
 	baseURL := "your_base_url"
 
 	// Initialize client
-	ctx, err := Context(apiKey, baseURL)
+	ctx, err := Context(baseURL, apiKey)
 
 	assert.NoError(t, err)
 
