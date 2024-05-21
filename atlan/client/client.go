@@ -49,7 +49,7 @@ func Init() error {
 }
 
 // Context creates a new AtlanClient with provided API key and base URL.
-func Context(apiKey, baseURL string) (*AtlanClient, error) {
+func Context(baseURL, apiKey string) (*AtlanClient, error) {
 	// Configure client and logger
 	client, logger := configureClient()
 

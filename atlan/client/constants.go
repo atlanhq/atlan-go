@@ -27,11 +27,11 @@ type API struct {
 }
 
 type Endpoint struct {
-	Endpoint string
+	Atlas string
 }
 
 var AtlasEndpoint = Endpoint{
-	Endpoint: "/api/meta/",
+	Atlas: "/api/meta/",
 }
 
 // API calls for Atlas
