@@ -104,7 +104,7 @@ type AttributeOptions struct {
 	IsEnum                      *string    `json:"isEnum,omitempty"`
 	EnumType                    *string    `json:"enumType,omitempty"`
 	CustomType                  *string    `json:"customType,omitempty"`
-	HasTimePrecision            *bool      `json:"hasTimePrecision,omitempty"`
+	HasTimePrecision            CustomBool `json:"hasTimePrecision,omitempty"`
 	IsArchived                  CustomBool `json:"isArchived,omitempty"`
 	ArchivedAt                  *string    `json:"archivedAt,omitempty"` // Using int64 for timestamp
 	ArchivedBy                  *string    `json:"archivedBy,omitempty"`
