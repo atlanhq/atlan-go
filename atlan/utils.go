@@ -27,3 +27,13 @@ func NextID() string {
 	sNextID++
 	return fmt.Sprintf("-%d", sNextID)
 }
+
+// Helper function to check if a slice Contains a string
+func Contains(slice []string, item string) bool {
+	for _, v := range slice {
+		if v == item {
+			return true
+		}
+	}
+	return false
+}

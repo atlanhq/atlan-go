@@ -1,4 +1,3 @@
-// main.go
 package main
 
 import (
@@ -11,42 +10,50 @@ func main() {
 
 	ctx := client.NewContext()
 
+	//ctx, _ := client.Context("API_KEY", "BASE_URL")
 	ctx.SetLogger(true, "debug")
 
-	// Fetch columns of table from Atlan using Qualified Name
-	assetQualifiedName := "default/snowflake/1715371897/RAW/WIDEWORLDIMPORTERS_SALESFORCE/FIVETRAN_API_CALL"
-
-	columnSearchResponse, _ := client.NewFluentSearch().
-		PageSizes(1000).
-		ActiveAssets().
-		Where(ctx.Column.TYPENAME.Eq("Column")).
-		Where(ctx.Column.TABLE_QUALIFIED_NAME.Eq(assetQualifiedName)).
-		IncludeOnResults("userDescription", "dataType", "isPrimary").
-		SetUtmTags(atlan.PROJECT_SDK_CLI).
-		Execute()
-
-	fmt.Println(*columnSearchResponse[0].Entities[0].Name)
-	//fmt.Println(*columnSearchResponse[0].Entities[0].DataType)
-
-	qualifiedname := "default/snowflake/1715371897/RAW/WIDEWORLDIMPORTERS_SALESFORCE/FIVETRAN_API_CALL"
-
-	response, atlanErr := client.NewFluentSearch().
-		PageSizes(10).
-		ActiveAssets().
-		Where(ctx.Table.QUALIFIED_NAME.Eq(qualifiedname)).
-		IncludeOnResults("userDescription", "ownerUsers", "ownerGroups", "certificateStatus", "tags").
-		Execute()
-
-	if atlanErr != nil {
-		fmt.Println(atlanErr)
-	}
-
-	fmt.Println(response[0].Entities[0].SearchMeanings[0].Guid)
+	response, _ := client.Get(atlan.AtlanTypeCategoryClassification)
+	fmt.Println(response.AtlanTagDefs[0].GUID)
 
 	/*
+		client.GetAll()
+
+		// Fetch columns of table from Atlan using Qualified Name
+		assetQualifiedName := "default/snowflake/1715371897/RAW/WIDEWORLDIMPORTERS_SALESFORCE/FIVETRAN_API_CALL"
+
+		columnSearchResponse, _ := client.NewFluentSearch().
+			PageSizes(1000).
+			ActiveAssets().
+			Where(ctx.Column.TYPENAME.Eq("Column")).
+			Where(ctx.Column.TABLE_QUALIFIED_NAME.Eq(assetQualifiedName)).
+			IncludeOnResults("userDescription", "dataType", "isPrimary").
+			SetUtmTags(atlan.PROJECT_SDK_CLI).
+			Execute()
+
+		fmt.Println(*columnSearchResponse[0].Entities[0].Name)
+		//fmt.Println(*columnSearchResponse[0].Entities[0].DataType)
+
+		qualifiedname := "default/snowflake/1715371897/RAW/WIDEWORLDIMPORTERS_SALESFORCE/FIVETRAN_API_CALL"
+
+		response, atlanErr := client.NewFluentSearch().
+			PageSizes(10).
+			ActiveAssets().
+			Where(ctx.Table.QUALIFIED_NAME.Eq(qualifiedname)).
+			IncludeOnResults("userDescription", "ownerUsers", "ownerGroups", "certificateStatus", "tags").
+			Execute()
+
+		if atlanErr != nil {
+			fmt.Println(atlanErr)
+		}
+
+		fmt.Println(response[0].Entities[0].SearchMeanings[0].Guid)
+
+		/*
 
 
-	 */
+	*/
+
 	/*
 		// Fetch columns of table from Atlan using Qualified Name
 		qualifiedname := "default/snowflake/1714501359/RAW/WIDEWORLDIMPORTERS_SALESFORCE/WAITLIST_WORK_TYPE_HISTORY/ID"

@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -165,12 +166,28 @@ func (ac *AtlanClient) DisableLogging() {
 }
 
 // CallAPI makes a generic API call.
-func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestObj interface{}) ([]byte, error) {
+func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj interface{}) ([]byte, error) {
 	params := deepCopy(ac.requestParams)
 	path := ac.host + api.Endpoint.Atlas + api.Path
 
-	if queryParams != nil {
+	query := url.Values{}
+	switch v := queryParams.(type) {
+	case map[string]string:
+		for key, value := range v {
+			query.Add(key, value)
+		}
+	case map[string][]string:
+		for key, values := range v {
+			for _, value := range values {
+				query.Add(key, value)
+			}
+		}
+	default:
 		params["params"] = queryParams
+	}
+
+	if len(query) > 0 {
+		path += "?" + query.Encode()
 	}
 
 	if requestObj != nil {
@@ -186,6 +203,7 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams map[string]string, requestO
 
 	ac.logAPICall(api.Method, path)
 
+	//logger.Log.Debugf("Params: %v", params)
 	response, err := ac.makeRequest(api.Method, path, params)
 	if err != nil {
 		if response != nil && response.Body != nil {
