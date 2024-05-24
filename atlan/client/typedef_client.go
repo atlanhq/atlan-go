@@ -57,11 +57,11 @@ func buildTypeDefRequest(typedef model.TypeDef) (model.TypeDefResponse, error) {
 func NewTypeDefResponse(rawJSON []byte) (*model.TypeDefResponse, error) {
 	var response model.TypeDefResponse
 	if err := json.Unmarshal(rawJSON, &response); err != nil {
-		//fmt.Println(response)
 		return nil, err
 	}
 	return &response, nil
 }
+
 func RefreshCaches(typedef model.TypeDef) error {
 
 	switch t := typedef.(type) {
@@ -89,13 +89,55 @@ func GetAll() (*model.TypeDefResponse, error) {
 }
 
 // Get retrieves a TypeDefResponse object that contains a list of the specified category type definitions in Atlan.
-func Get(typeCategory atlan.AtlanTypeCategory) (*model.TypeDefResponse, error) {
-	queryParams := map[string]string{"type": typeCategory.String()}
+func Get(typeCategory interface{}) (*model.TypeDefResponse, error) {
+	var categories []string
+	hasStruct := false
+
+	switch v := typeCategory.(type) {
+	case atlan.AtlanTypeCategory:
+		if v == atlan.AtlanTypeCategoryStruct {
+			hasStruct = true
+		}
+		categories = append(categories, v.String())
+	case []atlan.AtlanTypeCategory:
+		for _, tc := range v {
+			if tc == atlan.AtlanTypeCategoryStruct {
+				hasStruct = true
+			}
+			categories = append(categories, tc.String())
+		}
+	default:
+		return nil, fmt.Errorf("invalid type category")
+	}
+
+	if !hasStruct {
+		categories = append(categories, atlan.AtlanTypeCategoryStruct.String())
+	}
+
+	queryParams := map[string][]string{
+		"type": categories,
+	}
+
 	rawJSON, err := DefaultAtlanClient.CallAPI(&GET_ALL_TYPE_DEFS, queryParams, nil)
+	if err != nil {
+		return nil, AtlanError{
+			ErrorCode: errorCodes[CONNECTION_ERROR],
+			Args:      []interface{}{"IOException"},
+		}
+	}
+
+	response, err := NewTypeDefResponse(rawJSON)
 	if err != nil {
 		return nil, err
 	}
-	return NewTypeDefResponse(rawJSON)
+
+	if atlan.Contains(categories, atlan.AtlanTypeCategoryStruct.String()) {
+		if response == nil || response.StructDefs == nil || len(response.StructDefs) == 0 {
+			return nil, AtlanError{ErrorCode: errorCodes[EXPIRED_API_TOKEN]}
+		}
+	}
+
+	return response, nil
 }
 
 func (c *TypeDefClient) Create(typedef model.TypeDef) (*model.TypeDefResponse, error) {

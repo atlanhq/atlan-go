@@ -1,8 +1,8 @@
 package client
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model"
 	"strings"
 	"sync"
@@ -88,21 +88,12 @@ func (c *CustomMetadataCache) RefreshCache() error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	api := &GET_ALL_TYPE_DEFS
-
-	response, err := DefaultAtlanClient.CallAPI(api, nil, nil)
+	response, err := Get(atlan.AtlanTypeCategoryBusinessMetadata)
 	if err != nil {
 		return err
 	}
 
-	// Parse the response and populate the cacheByID, mapIDToName, mapNameToID accordingly
-	var customMetadataDefs model.TypeDefResponse
-	err = json.Unmarshal(response, &customMetadataDefs)
-	if err != nil {
-		return err
-	}
-
-	if response == nil || len(customMetadataDefs.CustomMetadataDefs) == 0 {
+	if response == nil || len(response.CustomMetadataDefs) == 0 {
 		return AuthenticationError{AtlanError{ErrorCode: errorCodes[EXPIRED_API_TOKEN]}}
 	}
 
@@ -115,7 +106,7 @@ func (c *CustomMetadataCache) RefreshCache() error {
 	c.archivedAttrIds = make(map[string]string)
 
 	// Populate the cache with the fetched custom metadata structures and their attributes
-	for _, cmDef := range customMetadataDefs.CustomMetadataDefs {
+	for _, cmDef := range response.CustomMetadataDefs {
 		typeID := cmDef.Name
 		typeName := cmDef.DisplayName
 
