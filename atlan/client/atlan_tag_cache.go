@@ -1,8 +1,8 @@
 package client
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model"
 	"sync"
 )
@@ -75,26 +75,17 @@ func (c *AtlanTagCache) RefreshCache() error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	api := &GET_ALL_TYPE_DEFS
-
-	response, err := DefaultAtlanClient.CallAPI(api, nil, nil)
+	response, err := Get(atlan.AtlanTypeCategoryClassification)
 	if err != nil {
 		fmt.Printf("Error making API call: %v", err)
 		return err
-	}
-
-	// Parse the response and populate the cacheByID, mapIDToName, mapNameToID accordingly
-	var atlanTags model.TypeDefResponse
-	err = json.Unmarshal(response, &atlanTags)
-	if err != nil {
-		return fmt.Errorf("error unmarshalling response: %v", err)
 	}
 
 	c.cacheByID = make(map[string]model.AtlanTagDef)
 	c.mapIDToName = make(map[string]string)
 	c.mapNameToID = make(map[string]string)
 
-	for _, atlanTag := range atlanTags.AtlanTagDefs {
+	for _, atlanTag := range response.AtlanTagDefs {
 		c.cacheByID[atlanTag.TypeDefBase.GUID] = atlanTag
 		c.mapIDToName[atlanTag.Name] = atlanTag.DisplayName
 		c.mapNameToID[atlanTag.DisplayName] = atlanTag.Name
