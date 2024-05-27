@@ -133,6 +133,7 @@ const (
 	RETRIES_INTERRUPTED
 	RETRY_OVERRUN
 	TYPEDEF_NOT_FOUND_BY_NAME
+	UNMARSHALLING_ERROR
 )
 
 var errorCodes = map[ErrorCode]ErrorInfo{
@@ -403,7 +404,7 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	AUTHENTICATION_PASSTHROUGH: {
 		HTTPErrorCode: 401,
 		ErrorID:       "ATLAN-GO-401-000",
-		ErrorMessage:  "Server responded with %s: %s",
+		ErrorMessage:  "Server responded with authentication error",
 		UserAction:    "Check the details of the server's message to correct your request.",
 	},
 	NO_API_TOKEN: {
@@ -429,6 +430,12 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 		ErrorID:       "ATLAN-GO-401-004",
 		ErrorMessage:  "Your API token is no longer valid, it can no longer lookup base Atlan structures.",
 		UserAction:    "You can double-check your API token from the Atlan Admin Center. See https://ask.atlan.com/hc/en-us/articles/8312649180049 for details or contact support at https://ask.atlan.com/hc/en-us/requests/new if you have any questions.",
+	},
+	UNMARSHALLING_ERROR: {
+		HTTPErrorCode: 401,
+		ErrorID:       "ATLAN-GO-401-006",
+		ErrorMessage:  "Failed to unmarshal response into json structure",
+		UserAction:    "Please raise an issue on the Go SDK GitHub repository providing context in which this error occurred.",
 	},
 	PERMISSION_PASSTHROUGH: {
 		HTTPErrorCode: 403,
@@ -678,27 +685,53 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	},
 }
 
-func handleApiError(response *http.Response, originalError string) error {
+func handleApiError(response *http.Response, originalError error) error {
 	if response == nil {
-		return ApiConnectionError{AtlanError{ErrorCode: errorCodes[CONNECTION_ERROR]}}
+		return ThrowAtlanError(originalError, CONNECTION_ERROR, nil)
 	}
 	rc := response.StatusCode
 
 	switch rc {
 	case 400:
-		return InvalidRequestError{AtlanError{ErrorCode: errorCodes[INVALID_REQUEST_PASSTHROUGH], OriginalError: originalError}}
+		return ThrowAtlanError(originalError, INVALID_REQUEST_PASSTHROUGH, nil)
 	case 404:
-		return NotFoundError{AtlanError{ErrorCode: errorCodes[NOT_FOUND_PASSTHROUGH], OriginalError: originalError}}
+		return ThrowAtlanError(originalError, NOT_FOUND_PASSTHROUGH, nil)
 	case 401:
-		return AuthenticationError{AtlanError{ErrorCode: errorCodes[AUTHENTICATION_PASSTHROUGH], OriginalError: originalError}}
+		return ThrowAtlanError(originalError, AUTHENTICATION_PASSTHROUGH, nil)
 	case 403:
-		return PermissionError{AtlanError{ErrorCode: errorCodes[PERMISSION_PASSTHROUGH], OriginalError: originalError}}
+		return ThrowAtlanError(originalError, PERMISSION_PASSTHROUGH, nil)
 	case 409:
-		return ConflictError{AtlanError{ErrorCode: errorCodes[CONFLICT_PASSTHROUGH], OriginalError: originalError}}
+		return ThrowAtlanError(originalError, CONFLICT_PASSTHROUGH, nil)
 	case 429:
-		return RateLimitError{AtlanError{ErrorCode: errorCodes[RATE_LIMIT_PASSTHROUGH], OriginalError: originalError}}
+		return ThrowAtlanError(originalError, RATE_LIMIT_PASSTHROUGH, nil)
 	default:
-		return ApiError{AtlanError{ErrorCode: errorCodes[ERROR_PASSTHROUGH], OriginalError: originalError}}
+		return ThrowAtlanError(originalError, ERROR_PASSTHROUGH, nil)
 	}
 	return nil
+}
+
+func ThrowAtlanError(err error, sdkError ErrorCode, suggestion *string, args ...interface{}) *AtlanError {
+	atlanError := AtlanError{
+		ErrorCode: errorCodes[sdkError],
+	}
+
+	if err != nil {
+		atlanError.OriginalError = err.Error()
+	}
+
+	if args != nil {
+		atlanError.Args = args
+	}
+
+	if suggestion != nil {
+		atlanError.ErrorCode.UserAction = *suggestion
+	}
+
+	if len(args) != 0 {
+		atlanError.ErrorCode.ErrorMessage = fmt.Sprintf(
+			atlanError.ErrorCode.ErrorMessage, atlanError.Args...,
+		)
+	}
+
+	return &atlanError
 }

@@ -17,14 +17,14 @@ func Search(request model.IndexSearchRequest) (*model.IndexSearchResponse, error
 	// Call the API
 	responseBytes, err := DefaultAtlanClient.CallAPI(api, nil, &request)
 	if err != nil {
-		return nil, fmt.Errorf("error calling API: %v", err)
+		return nil, err
 	}
 
 	// Unmarshal the response
 	var response model.IndexSearchResponse
 	err = json.Unmarshal(responseBytes, &response)
 	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling response: %v", err)
+		return nil, err
 	}
 
 	return &response, nil
