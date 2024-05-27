@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/atlanhq/atlan-go/atlan/logger"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -206,11 +205,7 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 	//logger.Log.Debugf("Params: %v", params)
 	response, err := ac.makeRequest(api.Method, path, params)
 	if err != nil {
-		if response != nil && response.Body != nil {
-			errorMessage, _ := ioutil.ReadAll(response.Body)
-			return nil, handleApiError(response, string(errorMessage))
-		}
-		return nil, err
+		return nil, handleApiError(response, err)
 	}
 
 	ac.logHTTPStatus(response)
@@ -222,7 +217,7 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 	}
 
 	if response.StatusCode != api.Status {
-		return nil, fmt.Errorf("unexpected HTTP status: %s", response.Status)
+		return nil, handleApiError(response, err)
 	}
 
 	ac.logResponse(responseJSON)
@@ -237,12 +232,18 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 	switch method {
 	case http.MethodGet:
 		req, err = http.NewRequest(method, path, nil)
+		if err != nil {
+			ThrowAtlanError(err, CONNECTION_ERROR, nil)
+		}
 	case http.MethodPost, http.MethodPut:
 		body, ok := params["data"].(io.Reader)
 		if !ok {
 			return nil, fmt.Errorf("missing or invalid 'data' parameter for POST/PUT/DELETE request")
 		}
 		req, err = http.NewRequest(method, path, body)
+		if err != nil {
+			ThrowAtlanError(err, CONNECTION_ERROR, nil)
+		}
 		req.Header.Set("Content-Type", "application/json")
 	case http.MethodDelete:
 		// DELETE requests may not always have a body.
@@ -254,7 +255,9 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 			}
 		}
 		req, err = http.NewRequest(method, path, body)
-
+		if err != nil {
+			ThrowAtlanError(err, CONNECTION_ERROR, nil)
+		}
 		if body != nil {
 			req.Header.Set("Content-Type", "application/json")
 		}
@@ -313,13 +316,6 @@ func (ac *AtlanClient) logAPICall(method, path string) {
 
 func (ac *AtlanClient) logHTTPStatus(response *http.Response) {
 	ac.logger.Debugf("HTTP Status: %s", response.Status)
-	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		errorMessage, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			ac.logger.Errorf("Error reading response body: %v", err)
-		}
-		ac.logger.Errorf("Error: %s", handleApiError(response, string(errorMessage)))
-	}
 }
 
 func (ac *AtlanClient) logResponse(responseJSON []byte) {
