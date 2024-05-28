@@ -233,16 +233,16 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 	case http.MethodGet:
 		req, err = http.NewRequest(method, path, nil)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create GET request: %w", err)
+			return nil, ThrowAtlanError(err, CONNECTION_ERROR, nil)
 		}
 	case http.MethodPost, http.MethodPut:
 		body, ok := params["data"].(io.Reader)
 		if !ok {
-			return nil, fmt.Errorf("missing or invalid 'data' parameter for POST/PUT/DELETE request")
+			return nil, ThrowAtlanError(err, CONNECTION_ERROR, nil)
 		}
 		req, err = http.NewRequest(method, path, body)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create POST/PUT request: %w", err)
+			return nil, ThrowAtlanError(err, CONNECTION_ERROR, nil)
 		}
 		req.Header.Set("Content-Type", "application/json")
 	case http.MethodDelete:
