@@ -233,7 +233,7 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 	case http.MethodGet:
 		req, err = http.NewRequest(method, path, nil)
 		if err != nil {
-			ThrowAtlanError(err, CONNECTION_ERROR, nil)
+			return nil, ThrowAtlanError(err, CONNECTION_ERROR, nil)
 		}
 	case http.MethodPost, http.MethodPut:
 		body, ok := params["data"].(io.Reader)
@@ -242,7 +242,7 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 		}
 		req, err = http.NewRequest(method, path, body)
 		if err != nil {
-			ThrowAtlanError(err, CONNECTION_ERROR, nil)
+			return nil, ThrowAtlanError(err, CONNECTION_ERROR, nil)
 		}
 		req.Header.Set("Content-Type", "application/json")
 	case http.MethodDelete:
@@ -256,7 +256,7 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 		}
 		req, err = http.NewRequest(method, path, body)
 		if err != nil {
-			ThrowAtlanError(err, CONNECTION_ERROR, nil)
+			return nil, ThrowAtlanError(err, CONNECTION_ERROR, nil)
 		}
 		if body != nil {
 			req.Header.Set("Content-Type", "application/json")

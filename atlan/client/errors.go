@@ -710,7 +710,7 @@ func handleApiError(response *http.Response, originalError error) error {
 	return nil
 }
 
-func ThrowAtlanError(err error, sdkError ErrorCode, suggestion *string, args ...interface{}) *AtlanError {
+func ThrowAtlanError(err error, sdkError ErrorCode, suggestion *string, args ...interface{}) error {
 	atlanError := AtlanError{
 		ErrorCode: errorCodes[sdkError],
 	}
