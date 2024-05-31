@@ -107,13 +107,10 @@ func (gt *AtlasGlossaryTerm) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func FromJSONTerm(data []byte) (*AtlasGlossaryTerm, error) {
-	var glossaryResponse AtlasGlossaryTerm
-	err := json.Unmarshal(data, &glossaryResponse)
-
-	return &glossaryResponse, err
+func (ag *AtlasGlossaryTerm) FromJSON(data []byte) error {
+	return json.Unmarshal(data, ag)
 }
 
-func ToJSONTerm(glossary *AtlasGlossaryTerm) ([]byte, error) {
-	return json.Marshal(glossary)
+func (gt *AtlasGlossaryTerm) ToJSON() ([]byte, error) {
+	return json.Marshal(gt)
 }
