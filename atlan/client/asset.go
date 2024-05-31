@@ -7,12 +7,19 @@ import (
 	"github.com/atlanhq/atlan-go/atlan/model"
 	Assets2 "github.com/atlanhq/atlan-go/atlan/model/assets"
 	"hash/fnv"
+	"reflect"
 	"strings"
 	"time"
 )
 
+// AtlanObject is an interface that all asset types should implement
 type AtlanObject interface {
-	MarshalJSON() ([]byte, error)
+	MarshalJSON() ([]byte, error) // Used for CRUD operation in Assets
+}
+
+// Asset is an interface that all asset types should implement
+type Asset interface {
+	FromJSON(data []byte) error // Used for Retrieval of an Asset using GUID
 }
 
 // SearchAssets Struct to represent assets for searching
@@ -739,6 +746,35 @@ func NewSearchView() *ViewFields {
 }
 
 // Methods on assets
+
+// GetbyGuid retrieves an asset by guid
+func GetByGuid[T Asset](guid string) (T, error) {
+
+	var asset T
+
+	if DefaultAtlanClient == nil {
+		return asset, fmt.Errorf("default AtlanClient not initialized")
+	}
+
+	api := &GET_ENTITY_BY_GUID
+	api.Path += guid
+
+	response, err := DefaultAtlanClient.CallAPI(api, nil, nil)
+	if err != nil {
+		return asset, err
+	}
+
+	// Create a new instance of T using reflection
+	assetType := reflect.TypeOf(asset).Elem()
+	newAsset := reflect.New(assetType).Interface().(T)
+
+	err = newAsset.FromJSON(response)
+	if err != nil {
+		return asset, err
+	}
+
+	return newAsset, nil
+}
 
 // RetrieveMinimal retrieves an asset by its GUID, without any of its relationships.
 func RetrieveMinimal(guid string) (*Assets2.Asset, error) {

@@ -3,7 +3,6 @@ package client
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/assets"
 	"time"
@@ -24,50 +23,6 @@ type GlossaryClient struct {
 // NewGlossaryClient creates a new GlossaryClient instance.
 func NewGlossaryClient(ac *AtlanClient) *GlossaryClient {
 	return &GlossaryClient{client: ac}
-}
-
-// GetGlossaryByGuid retrieves a glossary by its GUID.
-func GetGlossaryByGuid(glossaryGuid string) (*assets.AtlasGlossary, error) {
-	if DefaultAtlanClient == nil {
-		return nil, fmt.Errorf("default AtlanClient not initialized")
-	}
-
-	api := &GET_ENTITY_BY_GUID
-	api.Path += glossaryGuid
-
-	response, err := DefaultAtlanClient.CallAPI(api, nil, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	g, err := assets.FromJSON(response)
-	if err != nil {
-		return nil, err
-	}
-
-	return g, nil
-}
-
-// GetGlossaryTermByGuid retrieves a glossary term by its GUID.
-func GetGlossaryTermByGuid(glossaryGuid string) (*assets.AtlasGlossaryTerm, error) {
-	if DefaultAtlanClient == nil {
-		return nil, fmt.Errorf("default AtlanClient not initialized")
-	}
-
-	api := &GET_ENTITY_BY_GUID
-	api.Path += glossaryGuid
-
-	response, err := DefaultAtlanClient.CallAPI(api, nil, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	gt, err := assets.FromJSONTerm(response)
-	if err != nil {
-		return nil, err
-	}
-
-	return gt, nil
 }
 
 // Creator is used to create a new glossary asset in memory.

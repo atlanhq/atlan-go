@@ -47,8 +47,6 @@ type CertificateStatus string
 
 type PopularityInsights int
 
-type Link string
-
 type MCIncident string
 
 type MCMonitor string
@@ -451,6 +449,17 @@ type AtlanTag struct {
 	Propagate                         bool   `json:"propagate"`
 	RemovePropagationsOnEntityDelete  bool   `json:"removePropagationsOnEntityDelete"`
 	RestrictPropagationThroughLineage bool   `json:"restrictPropagationThroughLineage"`
+}
+
+type Link struct {
+	Guid                   string                 `json:"guid"`
+	TypeName               string                 `json:"typeName"`
+	EntityStatus           string                 `json:"entityStatus"`
+	DisplayText            string                 `json:"displayText"`
+	RelationshipType       string                 `json:"relationshipType"`
+	RelationshipGuid       string                 `json:"relationshipGuid"`
+	RelationshipStatus     string                 `json:"relationshipStatus"`
+	RelationshipAttributes map[string]interface{} `json:"relationshipAttributes"`
 }
 
 func StringPtr(s string) *string {
