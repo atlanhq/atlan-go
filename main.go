@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/client"
-	"github.com/atlanhq/atlan-go/atlan/model/assets"
 )
 
 func main() {
@@ -13,11 +13,21 @@ func main() {
 	//ctx, _ := client.Context("API_KEY", "BASE_URL")
 	ctx.SetLogger(true, "debug")
 
-	glossary, err := client.GetByGuid[*assets.AtlasGlossaryTerm]("a034e099-bbba-4c1d-84d8-ca3f3a406124")
+	glossary, err := client.GetByGuid[*client.AtlasGlossary]("a034e099-bbba-4c1d-84d8-ca3f3a406124")
 	if err != nil {
 		fmt.Println("Error:", err)
 	} else {
 		fmt.Println("Response:", *glossary.TypeName)
+	}
+
+	g := &client.AtlasGlossary{}
+	g.Creator("go-sdk-test2", atlan.AtlanIconAirplaneInFlight)
+	response, err := client.Save(g)
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, entity := range response.MutatedEntities.CREATE {
+		fmt.Println(entity.DisplayText)
 	}
 
 	/*

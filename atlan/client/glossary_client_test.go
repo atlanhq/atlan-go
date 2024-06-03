@@ -3,7 +3,6 @@ package client
 import (
 	"fmt"
 	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/model/assets"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -59,7 +58,7 @@ func testUpdateGlossary(t *testing.T, glossaryGUID string) {
 }
 
 func testRetrieveGlossary(t *testing.T, glossaryGUID string) {
-	glossary, err := GetByGuid[*assets.AtlasGlossary](glossaryGUID)
+	glossary, err := GetByGuid[*AtlasGlossary](glossaryGUID)
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
