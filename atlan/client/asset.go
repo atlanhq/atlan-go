@@ -15,11 +15,11 @@ import (
 // AtlanObject is an interface that all asset types should implement
 type AtlanObject interface {
 	MarshalJSON() ([]byte, error) // Used for CRUD operation in Assets
+	FromJSON(data []byte) error   // Used for Retrieval of an Asset using GUID
 }
 
 // Asset is an interface that all asset types should implement
 type Asset interface {
-	FromJSON(data []byte) error // Used for Retrieval of an Asset using GUID
 }
 
 // SearchAssets Struct to represent assets for searching
@@ -748,7 +748,7 @@ func NewSearchView() *ViewFields {
 // Methods on assets
 
 // GetbyGuid retrieves an asset by guid
-func GetByGuid[T Asset](guid string) (T, error) {
+func GetByGuid[T AtlanObject](guid string) (T, error) {
 
 	var asset T
 

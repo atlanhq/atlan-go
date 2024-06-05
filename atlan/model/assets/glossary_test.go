@@ -3,6 +3,7 @@ package assets
 import (
 	"encoding/json"
 	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/atlanhq/atlan-go/atlan/client"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,7 @@ func TestAtlasGlossaryUnmarshalling(t *testing.T) {
 	}`)
 
 	// Unmarshal the JSON data into an AtlasGlossary object
-	var glossary AtlasGlossary
+	var glossary client.AtlasGlossary
 	err := glossary.UnmarshalJSON(jsonData)
 
 	// Assert that there is no error during unmarshalling
@@ -45,7 +46,7 @@ func TestAtlasGlossaryUnmarshalling(t *testing.T) {
 
 func TestAtlasGlossaryMarshalling(t *testing.T) {
 	// Define a sample AtlasGlossary object
-	glossary := AtlasGlossary{
+	glossary := client.AtlasGlossary{
 		Asset: Asset{
 			Referenceable: Referenceable{
 				TypeName:      StringPtr("AtlasGlossary"),
