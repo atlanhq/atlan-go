@@ -1,4 +1,4 @@
-package assets
+package structs
 
 import "github.com/atlanhq/atlan-go/atlan"
 
@@ -40,7 +40,7 @@ type Referenceable struct {
 }
 
 /*
- * Base class for all assets.
+ * Base class for all structs.
  */
 
 type CertificateStatus string
@@ -331,9 +331,9 @@ type Asset struct {
 	UserDescription *string `json:"userDescription,omitempty"`
 	// View score for this asset.
 	ViewScore *float64 `json:"viewScore,omitempty"`
-	// List of groups who can view assets contained in a collection.
+	// List of groups who can view structs contained in a collection.
 	ViewerGroups *[]string `json:"viewerGroups,omitempty"`
-	// List of users who can view assets contained in a collection.
+	// List of users who can view structs contained in a collection.
 	ViewerUsers *[]string `json:"viewerUsers,omitempty"`
 	// Internal tracking of fields that should be serialized with null values.
 	NullFields *[]string `json:"nullFields,omitempty"`
@@ -362,11 +362,11 @@ type Asset struct {
 }
 
 type Relation struct {
-	displayText            *string            `json:"displayText,omitempty"`
-	entityStatus           *string            `json:"entityStatus,omitempty"`
-	relationshipType       *string            `json:"relationshipType,omitempty"`
-	relationshipGuid       *string            `json:"relationshipGuid,omitempty"`
-	relationshipStatus     *atlan.AtlanStatus `json:"relationshipStatus,omitempty"`
+	DisplayText            *string            `json:"displayText,omitempty"`
+	EntityStatus           *string            `json:"entityStatus,omitempty"`
+	RelationshipType       *string            `json:"relationshipType,omitempty"`
+	RelationshipGuid       *string            `json:"relationshipGuid,omitempty"`
+	RelationshipStatus     *atlan.AtlanStatus `json:"relationshipStatus,omitempty"`
 	relationshipAttributes *[]interface{}     `json:"relationshipAttributes,omitempty"`
 	uniqueAttributes       *string            `json:"uniqueAttributes,omitempty"`
 }

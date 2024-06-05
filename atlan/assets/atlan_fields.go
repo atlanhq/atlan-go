@@ -1,4 +1,4 @@
-package client
+package assets
 
 import (
 	"github.com/atlanhq/atlan-go/atlan"
@@ -51,7 +51,7 @@ func (sf *SearchableField) GetInternalFieldName() string {
 	return sf.InternalFieldName
 }
 
-// HasAnyValue Returns a query that will only match assets that have some non-null, non-empty value
+// HasAnyValue Returns a query that will only match structs that have some non-null, non-empty value
 // (no matter what actual value) for the field.
 func (sf *SearchableField) HasAnyValue() model.Query {
 	return &model.Exists{sf.ElasticFieldName}
@@ -72,7 +72,7 @@ type BooleanField struct {
 	BooleanFieldName string
 }
 
-// NewBooleanField Returns a query that will match all assets whose field has a value that exactly equals
+// NewBooleanField Returns a query that will match all structs whose field has a value that exactly equals
 // the provided boolean value.
 func NewBooleanField(atlanFieldName, booleanFieldName string) *BooleanField {
 	searchableField := NewSearchableField(atlanFieldName, booleanFieldName)
@@ -111,7 +111,7 @@ func (kf *KeywordField) GetKeywordFieldName() string {
 	return kf.KeywordFieldName
 }
 
-// StartsWith Returns a query that will match all assets whose field has a value that starts with
+// StartsWith Returns a query that will match all structs whose field has a value that starts with
 // the provided value. Note that this can also be a case-insensitive match.
 func (kf *KeywordTextField) StartsWith(value string, caseInsensitive *bool) model.Query {
 	return &model.PrefixQuery{
@@ -121,7 +121,7 @@ func (kf *KeywordTextField) StartsWith(value string, caseInsensitive *bool) mode
 	}
 }
 
-// Eq Returns a query that will match all assets whose field has a value that exactly matches
+// Eq Returns a query that will match all structs whose field has a value that exactly matches
 // the provided string value.
 func (kf *KeywordTextField) Eq(value string) model.Query {
 	return &model.TermQuery{
@@ -130,7 +130,7 @@ func (kf *KeywordTextField) Eq(value string) model.Query {
 	}
 }
 
-// Within Returns a query that will match all assets whose field has a value that exactly matches
+// Within Returns a query that will match all structs whose field has a value that exactly matches
 // at least one of the provided string values.
 func (kf *KeywordField) Within(values []string) model.Query {
 	return &model.Terms{
@@ -210,7 +210,7 @@ func (nf *NumericField) GetNumericFieldName() string {
 	return nf.NumericFieldName
 }
 
-// Eq Returns a query that will match all assets whose field has a value that exactly
+// Eq Returns a query that will match all structs whose field has a value that exactly
 // matches the provided numeric value.
 func (nf *NumericField) Eq(value interface{}) model.Query {
 	return &model.TermQuery{
@@ -219,7 +219,7 @@ func (nf *NumericField) Eq(value interface{}) model.Query {
 	}
 }
 
-// Gt Returns a query that will match all assets whose field has a value that is strictly
+// Gt Returns a query that will match all structs whose field has a value that is strictly
 // greater than the provided numeric value.
 func (nf *NumericField) Gt(value *float64) model.Query {
 	return &model.RangeQuery{
@@ -228,7 +228,7 @@ func (nf *NumericField) Gt(value *float64) model.Query {
 	}
 }
 
-// Gte Returns a query that will match all assets whose field has a value that is greater
+// Gte Returns a query that will match all structs whose field has a value that is greater
 // than or equal to the provided numeric value.
 func (nf *NumericField) Gte(value *float64) model.Query {
 	return &model.RangeQuery{
@@ -237,7 +237,7 @@ func (nf *NumericField) Gte(value *float64) model.Query {
 	}
 }
 
-// Lt Returns a query that will match all assets whose field has a value that is strictly
+// Lt Returns a query that will match all structs whose field has a value that is strictly
 // less than the provided numeric value.
 func (nf *NumericField) Lt(value *float64) model.Query {
 	return &model.RangeQuery{
@@ -246,7 +246,7 @@ func (nf *NumericField) Lt(value *float64) model.Query {
 	}
 }
 
-// Lte Returns a query that will match all assets whose field has a value that is less
+// Lte Returns a query that will match all structs whose field has a value that is less
 // than or equal to the provided numeric value.
 func (nf *NumericField) Lte(value *float64) model.Query {
 	return &model.RangeQuery{
@@ -255,7 +255,7 @@ func (nf *NumericField) Lte(value *float64) model.Query {
 	}
 }
 
-// Between Returns a query that will match all assets whose field has a value between the minimum and
+// Between Returns a query that will match all structs whose field has a value between the minimum and
 // maximum specified values, inclusive.
 func (nf *NumericField) Between(minimum, maximum *float64) model.Query {
 	return &model.RangeQuery{

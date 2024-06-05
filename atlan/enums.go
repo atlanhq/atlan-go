@@ -2716,7 +2716,7 @@ var (
 
 	// Search was made from the home page.
 	PAGE_HOME = UTMTags{"page_home"}
-	// Search was made from the assets (discovery) page.
+	// Search was made from the structs (discovery) page.
 	PAGE_ASSETS = UTMTags{"page_assets"}
 	// Asset was viewed from within a glossary.
 	PAGE_GLOSSARY = UTMTags{"page_glossary"}
@@ -2759,7 +2759,7 @@ var (
 	UI_SIDEBAR = UTMTags{"ui_sidebar"}
 	// View was done of the full asset profile, not only sidebar.
 	UI_PROFILE = UTMTags{"ui_profile"}
-	// Listing of assets, usually by a particular type, in the discovery page.
+	// Listing of structs, usually by a particular type, in the discovery page.
 	UI_MAIN_LIST = UTMTags{"ui_main_list"}
 )
 

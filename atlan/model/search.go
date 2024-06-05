@@ -5,7 +5,7 @@ package model
 import (
 	"encoding/json"
 	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/model/assets"
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
 // Query is an interface that represents the base query behavior.
@@ -464,9 +464,9 @@ type SearchParameters struct {
 }
 
 type SearchAssets struct {
-	assets.Asset
-	assets.Table
-	assets.Column
+	structs.Asset
+	structs.Table
+	structs.Column
 	QualifiedName    *string           `json:"qualifiedName,omitempty"`
 	Name             *string           `json:"name,omitempty"`
 	SearchAttributes *SearchAttributes `json:"Attributes,omitempty"`
@@ -482,23 +482,23 @@ type Meanings struct {
 }
 
 type SearchAttributes struct {
-	QualifiedName     *string                   `json:"qualifiedName,omitempty"`
-	Name              *string                   `json:"name,omitempty"`
-	UserDescription   *string                   `json:"userDescription,omitempty"`
-	DataType          *string                   `json:"dataType,omitempty"`
-	IsPrimary         *bool                     `json:"isPrimary,omitempty"`
-	IsNullable        *bool                     `json:"isNullable,omitempty"`
-	OwnerGroups       *[]string                 `json:"ownerGroups,omitempty"`
-	OwnerUsers        *[]string                 `json:"ownerUsers,omitempty"`
-	CertificateStatus *assets.CertificateStatus `json:"certificateStatus,omitempty"`
+	QualifiedName     *string                    `json:"qualifiedName,omitempty"`
+	Name              *string                    `json:"name,omitempty"`
+	UserDescription   *string                    `json:"userDescription,omitempty"`
+	DataType          *string                    `json:"dataType,omitempty"`
+	IsPrimary         *bool                      `json:"isPrimary,omitempty"`
+	IsNullable        *bool                      `json:"isNullable,omitempty"`
+	OwnerGroups       *[]string                  `json:"ownerGroups,omitempty"`
+	OwnerUsers        *[]string                  `json:"ownerUsers,omitempty"`
+	CertificateStatus *structs.CertificateStatus `json:"certificateStatus,omitempty"`
 }
 
 func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 	// Define an auxiliary struct to decode the JSON
 	type AuxSearchAssets struct {
-		assets.Asset
-		assets.Table
-		assets.Column
+		structs.Asset
+		structs.Table
+		structs.Column
 		QualifiedName    *string           `json:"qualifiedName,omitempty"`
 		Name             *string           `json:"name,omitempty"`
 		SearchAttributes *SearchAttributes `json:"attributes,omitempty"`
@@ -512,7 +512,7 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	// Directly handling the SearchMeanings if present (This is done because Meanings in IndexSearchResponse conflicits with meanings of type AtlasGlossaryTerm defined in /assets/asset.go .
+	// Directly handling the SearchMeanings if present (This is done because Meanings in IndexSearchResponse conflicits with meanings of type AtlasGlossaryTerm defined in /structs/asset.go .
 	type SearchMeaningsData struct {
 		SearchMeanings []Meanings `json:"meanings,omitempty"`
 	}

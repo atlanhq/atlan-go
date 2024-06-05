@@ -1,4 +1,4 @@
-package assets
+package structs
 
 type AtlasGlossaryAttributes AtlasGlossary
 

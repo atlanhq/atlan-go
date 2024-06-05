@@ -1,11 +1,11 @@
-package client
+package assets
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/atlanhq/atlan-go/atlan/model"
-	Assets2 "github.com/atlanhq/atlan-go/atlan/model/assets"
+	Assets2 "github.com/atlanhq/atlan-go/atlan/model/structs"
 	"hash/fnv"
 	"reflect"
 	"strings"
@@ -18,11 +18,7 @@ type AtlanObject interface {
 	FromJSON(data []byte) error   // Used for Retrieval of an Asset using GUID
 }
 
-// Asset is an interface that all asset types should implement
-type Asset interface {
-}
-
-// SearchAssets Struct to represent assets for searching
+// SearchAssets Struct to represent structs for searching
 type SearchAssets struct {
 	Glossary         *AtlasGlossaryFields
 	Table            *AtlasTableFields
@@ -30,7 +26,7 @@ type SearchAssets struct {
 	Connection       *ConnectionFields
 	MaterialisedView *MaterialisedViewFields
 	View             *ViewFields
-	// Add other assets here
+	// Add other structs here
 }
 
 type AttributesFields struct {
@@ -745,7 +741,7 @@ func NewSearchView() *ViewFields {
 
 }
 
-// Methods on assets
+// Methods on structs
 
 // GetbyGuid retrieves an asset by guid
 func GetByGuid[T AtlanObject](guid string) (T, error) {
@@ -808,7 +804,7 @@ func RetrieveMinimal(guid string) (*Assets2.Asset, error) {
 	return &assetresponse, nil
 }
 
-// PurgeByGuid HARD deletes assets by their GUIDs.
+// PurgeByGuid HARD deletes structs by their GUIDs.
 func PurgeByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	if len(guids) == 0 {
 		return nil, fmt.Errorf("no GUIDs provided for deletion")
@@ -842,7 +838,7 @@ func PurgeByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	return &response, nil
 }
 
-// DeleteByGuid SOFT deletes assets by their GUIDs.
+// DeleteByGuid SOFT deletes structs by their GUIDs.
 func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	if len(guids) == 0 {
 		return nil, fmt.Errorf("no GUIDs provided for deletion")
@@ -877,7 +873,7 @@ func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	// Call the API
 	resp, err := DefaultAtlanClient.CallAPI(api, queryParams, nil)
 	if err != nil {
-		DefaultAtlanClient.logger.Errorf("Error soft deleting assets: %v", err)
+		DefaultAtlanClient.logger.Errorf("Error soft deleting structs: %v", err)
 		return nil, err
 	}
 
@@ -923,7 +919,7 @@ type SaveRequest struct {
 	Entities []AtlanObject `json:"entities"`
 }
 
-// Save saves the assets in memory to the Atlas server.
+// Save saves the structs in memory to the Atlas server.
 func Save(assets ...AtlanObject) (*model.AssetMutationResponse, error) {
 	request := SaveRequest{
 		Entities: assets,

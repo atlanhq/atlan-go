@@ -1,4 +1,4 @@
-package client
+package assets
 
 import (
 	"fmt"
@@ -248,14 +248,14 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	MISSING_GUID_FOR_DELETE: {
 		HTTPErrorCode: 400,
 		ErrorID:       "ATLAN-GO-400-017",
-		ErrorMessage:  "Insufficient information provided to delete assets.",
+		ErrorMessage:  "Insufficient information provided to delete structs.",
 		UserAction:    "You must provide the GUID of the asset(s) to be deleted.",
 	},
 	MISSING_REQUIRED_UPDATE_PARAM: {
 		HTTPErrorCode: 400,
 		ErrorID:       "ATLAN-GO-400-018",
 		ErrorMessage:  "One or more required parameters to update %s are missing: %s.",
-		UserAction:    "You must provide all of the parameters listed to update assets of this type.",
+		UserAction:    "You must provide all of the parameters listed to update structs of this type.",
 	},
 	JSON_ERROR: {
 		HTTPErrorCode: 400,
@@ -273,7 +273,7 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 		HTTPErrorCode: 400,
 		ErrorID:       "ATLAN-GO-400-021",
 		ErrorMessage:  "One or more required parameters to query %s are missing: %s.",
-		UserAction:    "You must provide all of the parameters listed to query assets of this type.",
+		UserAction:    "You must provide all of the parameters listed to query structs of this type.",
 	},
 	NO_CONNECTION_ADMIN: {
 		HTTPErrorCode: 400,
@@ -368,14 +368,14 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	NO_ATLAN_CLIENT: {
 		HTTPErrorCode: 400,
 		ErrorID:       "ATLAN-GO-400-037",
-		ErrorMessage:  "No Atlan client has been provided.",
-		UserAction:    "You must provide an Atlan client to this operation, or it has no information about which Atlan tenant to run against.",
+		ErrorMessage:  "No Atlan structs has been provided.",
+		UserAction:    "You must provide an Atlan structs to this operation, or it has no information about which Atlan tenant to run against.",
 	},
 	MISSING_REQUIRED_RELATIONSHIP_PARAM: {
 		HTTPErrorCode: 400,
 		ErrorID:       "ATLAN-GO-400-038",
 		ErrorMessage:  "One or more required parameters to create a relationship to %s are missing: %s.",
-		UserAction:    "You must provide all of the parameters listed to relate to assets of this type.",
+		UserAction:    "You must provide all of the parameters listed to relate to structs of this type.",
 	},
 	INVALID_QUERY: {
 		HTTPErrorCode: 400,

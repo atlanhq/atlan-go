@@ -1,4 +1,4 @@
-package client
+package assets
 
 import (
 	"github.com/atlanhq/atlan-go/atlan"
@@ -33,7 +33,7 @@ func (fs *FluentSearch) SetUtmTags(tags ...atlan.UTMTags) *FluentSearch {
 type Aggregation struct {
 }
 
-// ActiveAssets Returns a query that will only match assets that are active in Atlan.
+// ActiveAssets Returns a query that will only match structs that are active in Atlan.
 func (fs *FluentSearch) ActiveAssets() *FluentSearch {
 	activeAssetsCondition := &model.TermQuery{
 		Field: STATE,
@@ -43,7 +43,7 @@ func (fs *FluentSearch) ActiveAssets() *FluentSearch {
 	return fs
 }
 
-// ArchivedAssets Returns a query that will only match assets that are archived (soft-deleted) in Atlan.
+// ArchivedAssets Returns a query that will only match structs that are archived (soft-deleted) in Atlan.
 func (fs *FluentSearch) ArchivedAssets() *FluentSearch {
 	archivedAssetsCondition := &model.TermQuery{
 		Field: STATE,
@@ -53,7 +53,7 @@ func (fs *FluentSearch) ArchivedAssets() *FluentSearch {
 	return fs
 }
 
-// AssetType Returns a query that will only match assets of the type provided.
+// AssetType Returns a query that will only match structs of the type provided.
 func (fs *FluentSearch) AssetType(of string) *FluentSearch {
 	assetTypeCondition := &model.TermQuery{
 		Field: TYPE_NAME,
@@ -63,7 +63,7 @@ func (fs *FluentSearch) AssetType(of string) *FluentSearch {
 	return fs
 }
 
-// AssetTypes Returns a query that will only match assets that are one of the types provided.
+// AssetTypes Returns a query that will only match structs that are one of the types provided.
 func (fs *FluentSearch) AssetTypes(oneOf []string) *FluentSearch {
 	assetTypesCondition := &model.TermQuery{
 		Field: TYPE_NAME,

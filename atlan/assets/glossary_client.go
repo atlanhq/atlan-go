@@ -1,10 +1,10 @@
-package client
+package assets
 
 import (
 	"encoding/json"
 	"errors"
 	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/model/assets"
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"time"
 )
 
@@ -13,23 +13,13 @@ const (
 	RetryInterval = time.Second * 5
 )
 
-type AtlasGlossary assets.AtlasGlossary
-
-// GlossaryClient defines the client for interacting with the model API.
-type GlossaryClient struct {
-	client *AtlanClient
-}
-
-// NewGlossaryClient creates a new GlossaryClient instance.
-func NewGlossaryClient(ac *AtlanClient) *GlossaryClient {
-	return &GlossaryClient{client: ac}
-}
+type AtlasGlossary structs.AtlasGlossary
 
 // Creator is used to create a new glossary asset in memory.
 func (g *AtlasGlossary) Creator(name string, icon atlan.AtlanIcon) {
-	g.TypeName = assets.StringPtr("AtlasGlossary")
-	g.Name = assets.StringPtr(name)
-	g.QualifiedName = assets.StringPtr(name)
+	g.TypeName = structs.StringPtr("AtlasGlossary")
+	g.Name = structs.StringPtr(name)
+	g.QualifiedName = structs.StringPtr(name)
 	g.AssetIcon = atlan.AtlanIconPtr(icon)
 }
 
@@ -39,10 +29,10 @@ func (g *AtlasGlossary) Updater(name string, qualifiedName string, glossary_guid
 		return errors.New("name, qualified_name, and glossary_guid are required fields")
 	}
 
-	g.TypeName = assets.StringPtr("AtlasGlossary")
-	g.Name = assets.StringPtr(name)
-	g.Guid = assets.StringPtr(glossary_guid)
-	g.QualifiedName = assets.StringPtr(qualifiedName)
+	g.TypeName = structs.StringPtr("AtlasGlossary")
+	g.Name = structs.StringPtr(name)
+	g.Guid = structs.StringPtr(glossary_guid)
+	g.QualifiedName = structs.StringPtr(qualifiedName)
 
 	return nil
 }
@@ -63,18 +53,18 @@ func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
 			UpdateTime             int64             `json:"updateTime"`
 			Version                int               `json:"version"`
 			RelationshipAttributes struct {
-				SchemaRegistrySubjects []assets.SchemaRegistrySubject `json:"schemaRegistrySubjects"`
-				McMonitors             []assets.MCMonitor             `json:"mcMonitors"`
-				Terms                  []assets.AtlasGlossaryTerm     `json:"terms"`
-				OutputPortDataProducts []string                       `json:"outputPortDataProducts"`
-				Files                  []assets.File                  `json:"files"`
-				McIncidents            []assets.MCIncident            `json:"mcIncidents"`
-				Links                  []assets.Link                  `json:"links"`
-				Categories             []assets.AtlasGlossaryCategory `json:"categories"`
-				Metrics                []assets.Metric                `json:"metrics"`
-				Readme                 []assets.Readme                `json:"readme"`
-				Meanings               []assets.Meaning               `json:"meanings"`
-				SodaChecks             []assets.SodaCheck             `json:"sodaChecks"`
+				SchemaRegistrySubjects []structs.SchemaRegistrySubject `json:"schemaRegistrySubjects"`
+				McMonitors             []structs.MCMonitor             `json:"mcMonitors"`
+				Terms                  []structs.AtlasGlossaryTerm     `json:"terms"`
+				OutputPortDataProducts []string                        `json:"outputPortDataProducts"`
+				Files                  []structs.File                  `json:"files"`
+				McIncidents            []structs.MCIncident            `json:"mcIncidents"`
+				Links                  []structs.Link                  `json:"links"`
+				Categories             []structs.AtlasGlossaryCategory `json:"categories"`
+				Metrics                []structs.Metric                `json:"metrics"`
+				Readme                 []structs.Readme                `json:"readme"`
+				Meanings               []structs.Meaning               `json:"meanings"`
+				SodaChecks             []structs.SodaCheck             `json:"sodaChecks"`
 			} `json:"relationshipAttributes"`
 			Labels []interface{} `json:"labels"`
 		} `json:"entity"`
@@ -95,7 +85,7 @@ func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
 	ag.CreateTime = &temp.Entity.CreateTime
 	ag.UpdateTime = &temp.Entity.UpdateTime
 
-	var asset assets.AtlasGlossaryAttributes
+	var asset structs.AtlasGlossaryAttributes
 	if err := json.Unmarshal(temp.Entity.AttributesJSON, &asset); err != nil {
 		return err
 	}
