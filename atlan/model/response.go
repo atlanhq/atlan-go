@@ -5,8 +5,8 @@ import (
 	"reflect"
 )
 
-// Add Mutated structs for Response in Creation, Updation and Deletion
-// Unmarshal on structs changed the unmarshalling for the whole sdk asset structure
+// Add Mutated assets for Response in Creation, Updation and Deletion
+// Unmarshal on assets changed the unmarshalling for the whole sdk asset structure
 type MutatedAssets struct {
 	TypeName            string        `json:"typeName"`
 	Attributes          structs.Asset `json:"attributes"`
@@ -24,35 +24,35 @@ type MutatedAssets struct {
 	UpdateTime          int64         `json:"updateTime"`
 }
 
-// Unmarshalling for structs from JSON
+// Unmarshalling for assets from JSON
 // Used in RetrieveMinimal Function
 
 type MutatedEntities struct {
-	//structs that were assets_updated. The detailed properties of the returned asset will vary based on
-	//the type of asset, but listed in the example are the common set of properties across structs.
+	//assets that were assets_updated. The detailed properties of the returned asset will vary based on
+	//the type of asset, but listed in the example are the common set of properties across assets.
 	UPDATE []*MutatedAssets `json:"UPDATE"`
 
-	// structs that were created. The detailed properties of the returned asset will vary based on the
-	// type of asset, but listed in the example are the common set of properties across structs.
+	// assets that were created. The detailed properties of the returned asset will vary based on the
+	// type of asset, but listed in the example are the common set of properties across assets.
 	CREATE []*MutatedAssets `json:"CREATE"`
 
-	// structs that were deleted. The detailed properties of the returned asset will vary based on the
-	// type of asset, but listed in the example are the common set of properties across structs.
+	// assets that were deleted. The detailed properties of the returned asset will vary based on the
+	// type of asset, but listed in the example are the common set of properties across assets.
 	DELETE []*MutatedAssets `json:"DELETE"`
 
-	// structs that were partially updated. The detailed properties of the returned asset will
-	// vary based on the type of asset, but listed in the example are the common set of properties across structs.
+	// assets that were partially updated. The detailed properties of the returned asset will
+	// vary based on the type of asset, but listed in the example are the common set of properties across assets.
 	PARTIAL_UPDATE []*MutatedAssets `json:"PARTIAL_UPDATE"`
 }
 
 type AssetMutationResponse struct {
-	// Map of assigned unique identifiers for the changed structs.
+	// Map of assigned unique identifiers for the changed assets.
 	GuidAssignments map[string]string `json:"guidAssignments,omitempty"`
 
-	// structs that were changed.
+	// assets that were changed.
 	MutatedEntities *MutatedEntities `json:"mutatedEntities"`
 
-	// structs that were partially updated.
+	// assets that were partially updated.
 	PartialUpdatedEntities []*MutatedAssets `json:"partialUpdatedEntities,omitempty"`
 }
 

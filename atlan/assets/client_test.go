@@ -26,7 +26,7 @@ func TestEnvConfig(t *testing.T) {
 		os.Setenv("ATLAN_BASE_URL", originalBaseURL)
 	}()
 
-	// Initialize structs
+	// Initialize client
 	err := Init()
 	assert.NoError(t, err)
 
@@ -40,7 +40,7 @@ func TestEnvConfigUsingContext(t *testing.T) {
 	apiKey := "your_api_key"
 	baseURL := "your_base_url"
 
-	// Initialize structs
+	// Initialize client
 	ctx, err := Context(baseURL, apiKey)
 
 	assert.NoError(t, err)

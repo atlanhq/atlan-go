@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/atlanhq/atlan-go/atlan/model"
-	Assets2 "github.com/atlanhq/atlan-go/atlan/model/structs"
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"hash/fnv"
 	"reflect"
 	"strings"
@@ -18,7 +18,7 @@ type AtlanObject interface {
 	FromJSON(data []byte) error   // Used for Retrieval of an Asset using GUID
 }
 
-// SearchAssets Struct to represent structs for searching
+// SearchAssets Struct to represent assets for searching
 type SearchAssets struct {
 	Glossary         *AtlasGlossaryFields
 	Table            *AtlasTableFields
@@ -26,7 +26,7 @@ type SearchAssets struct {
 	Connection       *ConnectionFields
 	MaterialisedView *MaterialisedViewFields
 	View             *ViewFields
-	// Add other structs here
+	// Add other assets here
 }
 
 type AttributesFields struct {
@@ -741,7 +741,7 @@ func NewSearchView() *ViewFields {
 
 }
 
-// Methods on structs
+// Methods on assets
 
 // GetbyGuid retrieves an asset by guid
 func GetByGuid[T AtlanObject](guid string) (T, error) {
@@ -773,7 +773,7 @@ func GetByGuid[T AtlanObject](guid string) (T, error) {
 }
 
 // RetrieveMinimal retrieves an asset by its GUID, without any of its relationships.
-func RetrieveMinimal(guid string) (*Assets2.Asset, error) {
+func RetrieveMinimal(guid string) (*structs.Asset, error) {
 	if DefaultAtlanClient == nil {
 		return nil, fmt.Errorf("default AtlanClient not initialized")
 	}
@@ -794,7 +794,7 @@ func RetrieveMinimal(guid string) (*Assets2.Asset, error) {
 	}
 
 	// Unmarshal the response into asset json structure
-	var assetresponse Assets2.Asset
+	var assetresponse structs.Asset
 	err = json.Unmarshal(response, &assetresponse)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling asset response: %v", err)
@@ -804,7 +804,7 @@ func RetrieveMinimal(guid string) (*Assets2.Asset, error) {
 	return &assetresponse, nil
 }
 
-// PurgeByGuid HARD deletes structs by their GUIDs.
+// PurgeByGuid HARD deletes assets by their GUIDs.
 func PurgeByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	if len(guids) == 0 {
 		return nil, fmt.Errorf("no GUIDs provided for deletion")
@@ -838,7 +838,7 @@ func PurgeByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	return &response, nil
 }
 
-// DeleteByGuid SOFT deletes structs by their GUIDs.
+// DeleteByGuid SOFT deletes assets by their GUIDs.
 func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	if len(guids) == 0 {
 		return nil, fmt.Errorf("no GUIDs provided for deletion")
@@ -873,7 +873,7 @@ func DeleteByGuid(guids []string) (*model.AssetMutationResponse, error) {
 	// Call the API
 	resp, err := DefaultAtlanClient.CallAPI(api, queryParams, nil)
 	if err != nil {
-		DefaultAtlanClient.logger.Errorf("Error soft deleting structs: %v", err)
+		DefaultAtlanClient.logger.Errorf("Error soft deleting assets: %v", err)
 		return nil, err
 	}
 
@@ -919,7 +919,7 @@ type SaveRequest struct {
 	Entities []AtlanObject `json:"entities"`
 }
 
-// Save saves the structs in memory to the Atlas server.
+// Save saves the assets in memory to the Atlas server.
 func Save(assets ...AtlanObject) (*model.AssetMutationResponse, error) {
 	request := SaveRequest{
 		Entities: assets,

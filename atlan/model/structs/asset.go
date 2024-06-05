@@ -40,7 +40,7 @@ type Referenceable struct {
 }
 
 /*
- * Base class for all structs.
+ * Base class for all assets.
  */
 
 type CertificateStatus string
@@ -331,9 +331,9 @@ type Asset struct {
 	UserDescription *string `json:"userDescription,omitempty"`
 	// View score for this asset.
 	ViewScore *float64 `json:"viewScore,omitempty"`
-	// List of groups who can view structs contained in a collection.
+	// List of groups who can view assets contained in a collection.
 	ViewerGroups *[]string `json:"viewerGroups,omitempty"`
-	// List of users who can view structs contained in a collection.
+	// List of users who can view assets contained in a collection.
 	ViewerUsers *[]string `json:"viewerUsers,omitempty"`
 	// Internal tracking of fields that should be serialized with null values.
 	NullFields *[]string `json:"nullFields,omitempty"`

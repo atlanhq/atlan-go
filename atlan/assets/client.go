@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-// AtlanClient defines the Atlan API structs structure.
+// AtlanClient defines the Atlan API client structure.
 type AtlanClient struct {
 	Session       *http.Client
 	host          string
@@ -32,7 +32,7 @@ var (
 func Init() error {
 	apiKey, baseURL := retrieveAPIConfig()
 
-	// Configure structs and logger
+	// Configure client and logger
 	client, logger := configureClient()
 
 	// Initialize default AtlanClient
@@ -50,7 +50,7 @@ func Init() error {
 
 // Context creates a new AtlanClient with provided API key and base URL.
 func Context(baseURL, apiKey string) (*AtlanClient, error) {
-	// Configure structs and logger
+	// Configure client and logger
 	client, logger := configureClient()
 
 	atlanClient := &AtlanClient{
@@ -77,7 +77,7 @@ func NewContext() *AtlanClient {
 	return DefaultAtlanClient
 }
 
-// configureClient configures HTTP structs and logger.
+// configureClient configures HTTP client and logger.
 func configureClient() (*http.Client, *logger.Logger) {
 	client := &http.Client{}
 

@@ -9,7 +9,7 @@ func main() {
 
 	ctx := assets.NewContext()
 
-	//ctx, _ := structs.Context("API_KEY", "BASE_URL")
+	//ctx, _ := assets.Context("API_KEY", "BASE_URL")
 	ctx.SetLogger(true, "debug")
 
 	qualifiedname := "default/snowflake/1715371897/RAW/WIDEWORLDIMPORTERS_SALESFORCE/FIVETRAN_API_CALL"
