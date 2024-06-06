@@ -149,12 +149,21 @@ func retrieveAPIConfig() (apiKey, baseURL string) {
 	return apiKey, baseURL
 }
 
-// normalizeURL ensures the URL starts with "https://".
-func normalizeURL(url string) string {
-	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
-		return "https://" + url
+// normalizeURL ensures the URL starts with "https://" and truncates after the domain.
+func normalizeURL(rawURL string) string {
+	// Ensure URL starts with "http://" or "https://"
+	if !strings.HasPrefix(rawURL, "http://") && !strings.HasPrefix(rawURL, "https://") {
+		rawURL = "https://" + rawURL
 	}
-	return url
+
+	// Parse the URL
+	parsedURL, err := url.Parse(rawURL)
+	if err != nil {
+		panic(fmt.Sprintf("Invalid URL: %v", err))
+	}
+
+	// Truncate the URL after the host
+	return parsedURL.Scheme + "://" + parsedURL.Host
 }
 
 // SetLogger enables or disables logging and sets the log level.
