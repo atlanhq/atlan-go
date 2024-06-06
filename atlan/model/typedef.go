@@ -74,19 +74,19 @@ type AtlanTagDef struct {
 }
 
 type AttributesDefsTags struct {
-	name                  string `json:"name"`
-	typename              string `json:"typeName"`
-	isOptional            bool   `json:"isOptional"`
-	cardinality           string `json:"cardinality"`
-	valuesmincount        int    `json:"valuesMinCount"`
-	valuesmaxcount        int    `json:"valuesMaxCount"`
-	isUnique              bool   `json:"isUnique"`
-	isIndexable           bool   `json:"isIndexable"`
-	includeInNotification bool   `json:"includeInNotification"`
-	skipScrubbing         bool   `json:"skipScrubbing"`
-	searchWeight          int    `json:"searchWeight"`
-	displayName           string `json:"displayName"`
-	isDefaultValueNull    bool   `json:"isDefaultValueNull"`
+	name                  string     `json:"name"`
+	typename              string     `json:"typeName"`
+	isOptional            CustomBool `json:"isOptional"`
+	cardinality           string     `json:"cardinality"`
+	valuesmincount        int        `json:"valuesMinCount"`
+	valuesmaxcount        int        `json:"valuesMaxCount"`
+	isUnique              CustomBool `json:"isUnique"`
+	isIndexable           CustomBool `json:"isIndexable"`
+	includeInNotification CustomBool `json:"includeInNotification"`
+	skipScrubbing         CustomBool `json:"skipScrubbing"`
+	searchWeight          int        `json:"searchWeight"`
+	displayName           string     `json:"displayName"`
+	isDefaultValueNull    CustomBool `json:"isDefaultValueNull"`
 }
 
 // AttributeOptions represents options for customizing an attribute.
@@ -120,7 +120,7 @@ type AttributeOptions struct {
 
 // AttributeDef represents the definition of an attribute.
 type AttributeDef struct {
-	IsNew                 *bool                         `json:"isNew,omitempty"`
+	IsNew                 CustomBool                    `json:"isNew,omitempty"`
 	Cardinality           *atlan.Cardinality            `json:"cardinality,omitempty"`
 	Constraints           *[]map[string]interface{}     `json:"constraints,omitempty"`
 	EnumValues            *[]string                     `json:"enumValues,omitempty"`
@@ -128,20 +128,20 @@ type AttributeDef struct {
 	DefaultValue          *string                       `json:"defaultValue,omitempty"`
 	DisplayName           *string                       `json:"displayName,omitempty"`
 	Name                  *string                       `json:"name,omitempty"`
-	IncludeInNotification *bool                         `json:"includeInNotification,omitempty"`
+	IncludeInNotification CustomBool                    `json:"includeInNotification,omitempty"`
 	IndexType             *IndexType                    `json:"indexType,omitempty"`
-	IsIndexable           *bool                         `json:"isIndexable,omitempty"`
-	IsOptional            *bool                         `json:"isOptional,omitempty"`
-	IsUnique              *bool                         `json:"isUnique,omitempty"`
+	IsIndexable           CustomBool                    `json:"isIndexable,omitempty"`
+	IsOptional            CustomBool                    `json:"isOptional,omitempty"`
+	IsUnique              CustomBool                    `json:"isUnique,omitempty"`
 	Options               *AttributeOptions             `json:"options,omitempty"`
 	SearchWeight          *float64                      `json:"searchWeight,omitempty"`
-	SkipScrubbing         *bool                         `json:"skipScrubbing,omitempty"`
+	SkipScrubbing         CustomBool                    `json:"skipScrubbing,omitempty"`
 	TypeName              *string                       `json:"typeName,omitempty"`
 	ValuesMinCount        *float64                      `json:"valuesMinCount,omitempty"`
 	ValuesMaxCount        *float64                      `json:"valuesMaxCount,omitempty"`
 	IndexTypeESConfig     *map[string]string            `json:"indexTypeESConfig,omitempty"`
 	IndexTypeESFields     *map[string]map[string]string `json:"indexTypeESFields,omitempty"`
-	IsDefaultValueNull    *bool                         `json:"isDefaultValueNull,omitempty"`
+	IsDefaultValueNull    CustomBool                    `json:"isDefaultValueNull,omitempty"`
 }
 
 // CustomMetadataDefOptions represents options for customizing metadata definitions.
