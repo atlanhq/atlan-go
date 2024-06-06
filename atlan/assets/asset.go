@@ -1,11 +1,11 @@
-package client
+package assets
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/atlanhq/atlan-go/atlan/model"
-	Assets2 "github.com/atlanhq/atlan-go/atlan/model/assets"
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"hash/fnv"
 	"reflect"
 	"strings"
@@ -16,10 +16,6 @@ import (
 type AtlanObject interface {
 	MarshalJSON() ([]byte, error) // Used for CRUD operation in Assets
 	FromJSON(data []byte) error   // Used for Retrieval of an Asset using GUID
-}
-
-// Asset is an interface that all asset types should implement
-type Asset interface {
 }
 
 // SearchAssets Struct to represent assets for searching
@@ -777,7 +773,7 @@ func GetByGuid[T AtlanObject](guid string) (T, error) {
 }
 
 // RetrieveMinimal retrieves an asset by its GUID, without any of its relationships.
-func RetrieveMinimal(guid string) (*Assets2.Asset, error) {
+func RetrieveMinimal(guid string) (*structs.Asset, error) {
 	if DefaultAtlanClient == nil {
 		return nil, fmt.Errorf("default AtlanClient not initialized")
 	}
@@ -798,7 +794,7 @@ func RetrieveMinimal(guid string) (*Assets2.Asset, error) {
 	}
 
 	// Unmarshal the response into asset json structure
-	var assetresponse Assets2.Asset
+	var assetresponse structs.Asset
 	err = json.Unmarshal(response, &assetresponse)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling asset response: %v", err)

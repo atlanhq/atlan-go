@@ -3,7 +3,7 @@ package assets
 import (
 	"encoding/json"
 	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/client"
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -28,7 +28,7 @@ func TestAtlasGlossaryUnmarshalling(t *testing.T) {
 	}`)
 
 	// Unmarshal the JSON data into an AtlasGlossary object
-	var glossary client.AtlasGlossary
+	var glossary AtlasGlossary
 	err := glossary.UnmarshalJSON(jsonData)
 
 	// Assert that there is no error during unmarshalling
@@ -46,38 +46,36 @@ func TestAtlasGlossaryUnmarshalling(t *testing.T) {
 
 func TestAtlasGlossaryMarshalling(t *testing.T) {
 	// Define a sample AtlasGlossary object
-	glossary := client.AtlasGlossary{
-		Asset: Asset{
-			Referenceable: Referenceable{
-				TypeName:      StringPtr("AtlasGlossary"),
-				Guid:          StringPtr("fc36342b-ddb5-44ba-b774-4c90cc66d5a2"),
+	glossary := AtlasGlossary{
+		Asset: structs.Asset{
+			Referenceable: structs.Referenceable{
+				TypeName:      structs.StringPtr("AtlasGlossary"),
+				Guid:          structs.StringPtr("fc36342b-ddb5-44ba-b774-4c90cc66d5a2"),
 				Status:        atlan.AtlanStatusPtr("ACTIVE"),
-				QualifiedName: StringPtr("test_glossary"),
+				QualifiedName: structs.StringPtr("test_glossary"),
 			},
-			Name:      StringPtr("Test Glossary"),
+			Name:      structs.StringPtr("Test Glossary"),
 			AssetIcon: atlan.AtlanIconPtr(atlan.AtlanIconAirplaneInFlight),
 		},
-		ShortDescription: StringPtr("Short description"),
-		LongDescription:  StringPtr("Long description"),
-		Language:         StringPtr("English"),
-		Usage:            StringPtr("Usage details"),
+		ShortDescription: structs.StringPtr("Short description"),
+		LongDescription:  structs.StringPtr("Long description"),
+		Language:         structs.StringPtr("English"),
+		Usage:            structs.StringPtr("Usage details"),
 	}
 
 	// Marshal the AtlasGlossary object into JSON
 	jsonData, err := glossary.ToJSON()
 
 	// Define the expected JSON data
+	// This expected JSON data is from the Custom Marshal function of glossary which is partially implemented therefore we only have few fields marshalled that are required for creator and updater.
 	expectedJSON := []byte(`{
-	  "typeName": "AtlasGlossary",
+	  "attributes": {
+		"name": "Test Glossary",
+		"qualifiedName": "test_glossary"
+	  },
 	  "guid": "fc36342b-ddb5-44ba-b774-4c90cc66d5a2",
-	  "status": "ACTIVE",
-	  "assetIcon": "PhAirplaneInFlight",
-	  "name": "Test Glossary",
-	  "qualifiedName": "test_glossary",
-	  "shortDescription": "Short description",
-	  "longDescription": "Long description",
-	  "language": "English",
-	  "usage": "Usage details"
+	  "relationshipAttributes": {},
+	  "typeName": "AtlasGlossary"
 	}`)
 
 	// Assert that there is no error during marshalling
@@ -112,7 +110,7 @@ func TestAtlasGlossaryTermUnmarshalling(t *testing.T) {
 	}`)
 
 	// Unmarshal the JSON data into an AtlasGlossaryTerm object
-	var term AtlasGlossaryTerm
+	var term structs.AtlasGlossaryTerm
 	err := term.UnmarshalJSON(jsonData)
 	if err != nil {
 		t.Fatalf("Error unmarshalling JSON: %v", err)
@@ -135,36 +133,36 @@ func TestAtlasGlossaryTermUnmarshalling(t *testing.T) {
 
 func TestAtlasGlossaryTermMarshalling(t *testing.T) {
 	// Define a sample AtlasGlossaryTerm object
-	term := AtlasGlossaryTerm{
-		Asset: Asset{
-			Referenceable: Referenceable{
-				TypeName:  StringPtr("AtlasGlossaryTerm"),
-				Guid:      StringPtr("433b1b64-0b16-4812-9bae-14b13e9bd645"),
+	term := structs.AtlasGlossaryTerm{
+		Asset: structs.Asset{
+			Referenceable: structs.Referenceable{
+				TypeName:  structs.StringPtr("AtlasGlossaryTerm"),
+				Guid:      structs.StringPtr("433b1b64-0b16-4812-9bae-14b13e9bd645"),
 				Status:    atlan.AtlanStatusPtr("ACTIVE"),
-				CreatedBy: StringPtr("user1"),
-				UpdatedBy: StringPtr("user2"),
+				CreatedBy: structs.StringPtr("user1"),
+				UpdatedBy: structs.StringPtr("user2"),
 			},
 		},
-		ShortDescription: StringPtr("Short description"),
-		LongDescription:  StringPtr("Long description"),
-		Example:          StringPtr("Example Text"),
-		Abbreviation:     StringPtr("Abbreviation Text"),
-		Usage:            StringPtr("Usage Text"),
+		ShortDescription: structs.StringPtr("Short description"),
+		LongDescription:  structs.StringPtr("Long description"),
+		Example:          structs.StringPtr("Example Text"),
+		Abbreviation:     structs.StringPtr("Abbreviation Text"),
+		Usage:            structs.StringPtr("Usage Text"),
 		AdditionalAttributes: &map[string]string{
 			"key": "value",
 		},
-		Anchor: &AtlasGlossary{
-			Asset: Asset{Referenceable: Referenceable{
-				TypeName: StringPtr("AtlasGlossaryTerm"),
-				Guid:     StringPtr("562067ed-c56a-470d-9306-488d9c6d6448"),
+		Anchor: &structs.AtlasGlossary{
+			Asset: structs.Asset{Referenceable: structs.Referenceable{
+				TypeName: structs.StringPtr("AtlasGlossaryTerm"),
+				Guid:     structs.StringPtr("562067ed-c56a-470d-9306-488d9c6d6448"),
 			},
 			},
-			Relation: Relation{
-				displayText:        StringPtr("Display Text"),
-				entityStatus:       StringPtr("ACTIVE"),
-				relationshipType:   StringPtr("AtlasGlossaryTermAnchor"),
-				relationshipGuid:   StringPtr("abe7f160-182e-4c61-bc8e-e3392404611b"),
-				relationshipStatus: atlan.AtlanStatusPtr("ACTIVE"),
+			Relation: structs.Relation{
+				DisplayText:        structs.StringPtr("Display Text"),
+				EntityStatus:       structs.StringPtr("ACTIVE"),
+				RelationshipType:   structs.StringPtr("AtlasGlossaryTermAnchor"),
+				RelationshipGuid:   structs.StringPtr("abe7f160-182e-4c61-bc8e-e3392404611b"),
+				RelationshipStatus: atlan.AtlanStatusPtr("ACTIVE"),
 			},
 		},
 	}
@@ -176,7 +174,7 @@ func TestAtlasGlossaryTermMarshalling(t *testing.T) {
 	}
 
 	// Define the expected JSON data
-	expectedJSON := []byte(`{"typeName":"AtlasGlossaryTerm","guid":"433b1b64-0b16-4812-9bae-14b13e9bd645","createdBy":"user1","updatedBy":"user2","status":"ACTIVE","shortDescription":"Short description","longDescription":"Long description","example":"Example Text","abbreviation":"Abbreviation Text","usage":"Usage Text","additionalAttributes":{"key":"value"},"anchor":{"typeName":"AtlasGlossaryTerm","guid":"562067ed-c56a-470d-9306-488d9c6d6448"}}`)
+	expectedJSON := []byte(`{"typeName":"AtlasGlossaryTerm","guid":"433b1b64-0b16-4812-9bae-14b13e9bd645","createdBy":"user1","updatedBy":"user2","status":"ACTIVE","shortDescription":"Short description","longDescription":"Long description","example":"Example Text","abbreviation":"Abbreviation Text","usage":"Usage Text","additionalAttributes":{"key":"value"},"anchor":{"entityStatus":"ACTIVE","relationshipType":"AtlasGlossaryTermAnchor","relationshipGuid":"abe7f160-182e-4c61-bc8e-e3392404611b","relationshipStatus":"ACTIVE","typeName":"AtlasGlossaryTerm","guid":"562067ed-c56a-470d-9306-488d9c6d6448"}}`)
 
 	// Assert that the marshalled JSON matches the expected JSON data
 	assert.JSONEq(t, string(expectedJSON), string(jsonData), "Marshalled JSON does not match the expected JSON")

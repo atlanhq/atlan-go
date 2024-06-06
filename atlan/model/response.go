@@ -1,27 +1,27 @@
 package model
 
 import (
-	"github.com/atlanhq/atlan-go/atlan/model/assets"
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"reflect"
 )
 
 // Add Mutated assets for Response in Creation, Updation and Deletion
 // Unmarshal on assets changed the unmarshalling for the whole sdk asset structure
 type MutatedAssets struct {
-	TypeName            string       `json:"typeName"`
-	Attributes          assets.Asset `json:"attributes"`
-	Guid                string       `json:"guid"`
-	Status              string       `json:"status"`
-	DisplayText         string       `json:"displayText"`
-	ClassificationNames []string     `json:"classificationNames"`
-	MeaningNames        []string     `json:"meaningNames"`
-	Meanings            []string     `json:"meanings"`
-	IsIncomplete        bool         `json:"isIncomplete"`
-	Labels              []string     `json:"labels"`
-	CreatedBy           string       `json:"createdBy"`
-	UpdatedBy           string       `json:"updatedBy"`
-	CreateTime          int64        `json:"createTime"`
-	UpdateTime          int64        `json:"updateTime"`
+	TypeName            string        `json:"typeName"`
+	Attributes          structs.Asset `json:"attributes"`
+	Guid                string        `json:"guid"`
+	Status              string        `json:"status"`
+	DisplayText         string        `json:"displayText"`
+	ClassificationNames []string      `json:"classificationNames"`
+	MeaningNames        []string      `json:"meaningNames"`
+	Meanings            []string      `json:"meanings"`
+	IsIncomplete        bool          `json:"isIncomplete"`
+	Labels              []string      `json:"labels"`
+	CreatedBy           string        `json:"createdBy"`
+	UpdatedBy           string        `json:"updatedBy"`
+	CreateTime          int64         `json:"createTime"`
+	UpdateTime          int64         `json:"updateTime"`
 }
 
 // Unmarshalling for assets from JSON

@@ -2,41 +2,39 @@ package main
 
 import (
 	"fmt"
-	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/client"
+	"github.com/atlanhq/atlan-go/atlan/assets"
 )
 
 func main() {
 
-	ctx := client.NewContext()
+	ctx := assets.NewContext()
 
-	//ctx, _ := client.Context("API_KEY", "BASE_URL")
+	//ctx, _ := assets.Context("API_KEY", "BASE_URL")
 	ctx.SetLogger(true, "debug")
 
-	glossary, err := client.GetByGuid[*client.AtlasGlossary]("a034e099-bbba-4c1d-84d8-ca3f3a406124")
-	if err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		fmt.Println("Response:", *glossary.TypeName)
+	qualifiedname := "default/snowflake/1715371897/RAW/WIDEWORLDIMPORTERS_SALESFORCE/FIVETRAN_API_CALL"
+
+	response, atlanErr := assets.NewFluentSearch().
+		PageSizes(10).
+		ActiveAssets().
+		Where(ctx.Table.SUPERTYPE_NAMES.Eq("SQL")).
+		Where(ctx.Table.QUALIFIED_NAME.Eq(qualifiedname)).
+		IncludeOnResults("userDescription", "ownerUsers", "ownerGroups", "certificateStatus", "tags").
+		Execute()
+
+	if atlanErr != nil {
+		fmt.Println(atlanErr)
 	}
 
-	g := &client.AtlasGlossary{}
-	g.Creator("go-sdk-test2", atlan.AtlanIconAirplaneInFlight)
-	response, err := client.Save(g)
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, entity := range response.MutatedEntities.CREATE {
-		fmt.Println(entity.DisplayText)
-	}
+	fmt.Println(response[0].Entities[0].SearchMeanings[0].Guid)
 
 	/*
-		client.GetAll()
+		structs.GetAll()
 
 		// Fetch columns of table from Atlan using Qualified Name
 		assetQualifiedName := "default/snowflake/1715371897/RAW/WIDEWORLDIMPORTERS_SALESFORCE/FIVETRAN_API_CALL"
 
-		columnSearchResponse, _ := client.NewFluentSearch().
+		columnSearchResponse, _ := structs.NewFluentSearch().
 			PageSizes(1000).
 			ActiveAssets().
 			Where(ctx.Column.TYPENAME.Eq("Column")).
@@ -50,7 +48,7 @@ func main() {
 
 		qualifiedname := "default/snowflake/1715371897/RAW/WIDEWORLDIMPORTERS_SALESFORCE/FIVETRAN_API_CALL"
 
-		response, atlanErr := client.NewFluentSearch().
+		response, atlanErr := structs.NewFluentSearch().
 			PageSizes(10).
 			ActiveAssets().
 			Where(ctx.Table.QUALIFIED_NAME.Eq(qualifiedname)).
@@ -72,7 +70,7 @@ func main() {
 		// Fetch columns of table from Atlan using Qualified Name
 		qualifiedname := "default/snowflake/1714501359/RAW/WIDEWORLDIMPORTERS_SALESFORCE/WAITLIST_WORK_TYPE_HISTORY/ID"
 
-		columnResult, _ := client.NewFluentSearch().
+		columnResult, _ := structs.NewFluentSearch().
 			PageSizes(50).
 			ActiveAssets().
 			Where(ctx.Column.TYPENAME.Eq("Column")).
@@ -94,12 +92,12 @@ func main() {
 
 
 	*/
-	//client.GetAll()
+	//structs.GetAll()
 
 	/*
-		g := &client.AtlasGlossary{}
+		g := &structs.AtlasGlossary{}
 		g.Creator("go-sdk-test1", atlan.AtlanIconAirplaneInFlight)
-		response, err := client.Save(g)
+		response, err := structs.Save(g)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -108,9 +106,9 @@ func main() {
 		}
 
 
-		dc := &client.DataContract{}
+		dc := &structs.DataContract{}
 		dc.Creator("DataContractLatestCertified")
-		response, err := client.Save()
+		response, err := structs.Save()
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -119,23 +117,23 @@ func main() {
 
 	*/
 	/*
-		client.GetCustomMetadataCache().RefreshCache()
-		id, err := client.GetCustomMetadataCache().GetIDForName("testcmgsdk")
+		structs.GetCustomMetadataCache().RefreshCache()
+		id, err := structs.GetCustomMetadataCache().GetIDForName("testcmgsdk")
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
-		name, _ := client.GetCustomMetadataCache().GetNameForID("cvhn5T7YwnsYXiMCKh9PoW")
-		attrID, _ := client.GetCustomMetadataCache().GetAttrIDForName("testcmgsdk", "gsdk")
-		attrName, _ := client.GetCustomMetadataCache().GetAttrNameForID("cvhn5T7YwnsYXiMCKh9PoW", "foYi4v02OVjKt0YzcTCKM3")
+		name, _ := structs.GetCustomMetadataCache().GetNameForID("cvhn5T7YwnsYXiMCKh9PoW")
+		attrID, _ := structs.GetCustomMetadataCache().GetAttrIDForName("testcmgsdk", "gsdk")
+		attrName, _ := structs.GetCustomMetadataCache().GetAttrNameForID("cvhn5T7YwnsYXiMCKh9PoW", "foYi4v02OVjKt0YzcTCKM3")
 		fmt.Println("ID for name is : ", id)
 		fmt.Println("Name fo ID is:", name)
 		fmt.Printf("\nAttrID for name is: %s\n", attrID)
 		fmt.Printf("\nAttrName for ID is: %s\n", attrName)
 
-		fmt.Println(client.GetCustomMetadataCache().GetAttributesForSearchResultsByName("testcmgsdk"))
-		customMetadata := client.GetCustomMetadataCache().GetAttributesForSearchResultsByName("testcmgsdk")
+		fmt.Println(structs.GetCustomMetadataCache().GetAttributesForSearchResultsByName("testcmgsdk"))
+		customMetadata := structs.GetCustomMetadataCache().GetAttributesForSearchResultsByName("testcmgsdk")
 
-		customMeta, _ := client.NewFluentSearch().
+		customMeta, _ := structs.NewFluentSearch().
 			PageSizes(50).
 			ActiveAssets().
 			Where(ctx.Glossary.QUALIFIED_NAME.Eq("fW6NU2lWKaMy5ZyVlGYes")).
@@ -151,9 +149,9 @@ func main() {
 
 	*/
 	/*
-		ctx := client.NewContext()
+		ctx := structs.NewContext()
 		assetQualifiedName := "default/mssql/1711817247/WideWorldImporters/Purchasing/SupplierCategories_Archive"
-		columnSearchResponse, err := client.NewFluentSearch().
+		columnSearchResponse, err := structs.NewFluentSearch().
 			PageSizes(1000).
 			ActiveAssets().
 			Where(ctx.Column.TYPENAME.Eq("Column")).
@@ -171,7 +169,7 @@ func main() {
 		query := ctx.Table.QUALIFIED_NAME.Eq("default/mssql/1711817247/WideWorldImporters/Purchasing/SupplierCategories_Archive")
 		//query2 := ctx.Column.TYPENAME.Eq("Column", nil)
 
-		searchResult, err := client.NewFluentSearch().
+		searchResult, err := structs.NewFluentSearch().
 			PageSizes(50).
 			Where(query).
 			Execute()
@@ -188,7 +186,7 @@ func main() {
 		// Fetch columns of table from Atlan using Qualified Name
 		qualifiedname := "default/snowflake/1711213678/RAW/WIDEWORLDIMPORTERS_SALESFORCE/SELLER_HISTORY/ID"
 
-		columnResult, err := client.NewFluentSearch().
+		columnResult, err := structs.NewFluentSearch().
 			PageSizes(50).
 			ActiveAssets().
 			Where(ctx.Column.TYPENAME.Eq("Column", nil)).
@@ -207,14 +205,14 @@ func main() {
 		}
 	*/
 	/*
-			resp, err := client.GetAll()
+			resp, err := structs.GetAll()
 		if err != nil {
 			fmt.Println(err)
 		}
 		fmt.Println(resp)
 		*
 		/*
-			response, err := client.GetGlossaryByGuid("fc36342b-ddb5-44ba-b774-4c90cc66d5a2")
+			response, err := structs.GetGlossaryByGuid("fc36342b-ddb5-44ba-b774-4c90cc66d5a2")
 
 			if err != nil {
 				fmt.Println("Error:", err)
@@ -222,19 +220,19 @@ func main() {
 				println("Response:", *response.TypeName)
 			}
 	*/
-	//client.GetAtlanTagCache().RefreshCache()
-	//id, _ := client.GetAtlanTagCache().GetIDForName("Hourly")
+	//structs.GetAtlanTagCache().RefreshCache()
+	//id, _ := structs.GetAtlanTagCache().GetIDForName("Hourly")
 	//fmt.Println("Print Response:", id)
 
 	/*
-		client.GetCustomMetadataCache().RefreshCache()
-		id, err := client.GetCustomMetadataCache().GetIDForName("go-test")
+		structs.GetCustomMetadataCache().RefreshCache()
+		id, err := structs.GetCustomMetadataCache().GetIDForName("go-test")
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
-		name, _ := client.GetCustomMetadataCache().GetNameForID("Wd2QonGuCz6tj4uryxEoBs")
-		attrID, _ := client.GetCustomMetadataCache().GetAttrIDForName("go-test", "go-test")
-		attrName, _ := client.GetCustomMetadataCache().GetAttrNameForID("Wd2QonGuCz6tj4uryxEoBs", "fmfsP9P9IqWzqbXXCyMibP")
+		name, _ := structs.GetCustomMetadataCache().GetNameForID("Wd2QonGuCz6tj4uryxEoBs")
+		attrID, _ := structs.GetCustomMetadataCache().GetAttrIDForName("go-test", "go-test")
+		attrName, _ := structs.GetCustomMetadataCache().GetAttrNameForID("Wd2QonGuCz6tj4uryxEoBs", "fmfsP9P9IqWzqbXXCyMibP")
 		fmt.Println("ID for name is : ", id)
 		fmt.Println("Name fo ID is:", name)
 		fmt.Printf("\nAttrID for name is: %s\n", attrID)
@@ -248,18 +246,18 @@ func main() {
 
 		fmt.Println("Category:", *ctx.Category)
 	*/
-	//client.Init()
+	//structs.Init()
 	/*
-		response, err := client.GetGlossaryByGuid("f273e814-f80e-4699-83f3-9462a153fb14")
+		response, err := structs.GetGlossaryByGuid("f273e814-f80e-4699-83f3-9462a153fb14")
 		if err != nil {
 			println("Error:", err)
 		}
 		print("Response:", response.Name)
 	*/
-	//response, err := client.FindCategoryByName("Oak Ridge", "DDwycTZ007zZYxRajRVDK")
+	//response, err := structs.FindCategoryByName("Oak Ridge", "DDwycTZ007zZYxRajRVDK")
 
 	/*
-		response, err := client.FindGlossaryByName("go-sdk-test")
+		response, err := structs.FindGlossaryByName("go-sdk-test")
 		fmt.Println("Response:", response)
 		if err != nil {
 			fmt.Println("Error:", err)
@@ -267,7 +265,7 @@ func main() {
 	*/
 	/*
 		// IndexSearch
-		//boolQuery, _ := client.WithActiveGlossary("go-sdk-test")
+		//boolQuery, _ := structs.WithActiveGlossary("go-sdk-test")
 		boolQuery2 := &model.TermQuery{Field: ctx.Column.TYPENAME.GetElasticFieldName(), Value: "Column"}
 		//boolQuery3 := &model.PrefixQuery{Field: ctx.Table.NAME.GetElasticFieldName(), Value: "SE"}
 
@@ -284,7 +282,7 @@ func main() {
 			ExcludeClassifications: false,
 		}
 
-		response1, _ := client.Search(request)
+		response1, _ := structs.Search(request)
 
 		fmt.Println("Guid:", *response1.Entities[0].Guid)
 		fmt.Println("Total Results", response1.ApproximateCount)
@@ -296,15 +294,15 @@ func main() {
 
 	//fmt.Printf("Response: %+v\n", response)
 
-	//ctx := client.NewContext()
+	//ctx := structs.NewContext()
 
-	// client.Init()
+	// structs.Init()
 	/*
-		g := &client.AtlasGlossary{} // create a new Glossary instance
+		g := &structs.AtlasGlossary{} // create a new Glossary instance
 
 		g.Creator("TestGlossary14", atlan.AtlanIconAirplaneInFlight)
 
-		response, err := client.Save(g) // save the Glossary
+		response, err := structs.Save(g) // save the Glossary
 		if err != nil {
 			fmt.Println("Error:", err)
 		} else {
@@ -316,11 +314,11 @@ func main() {
 	*/
 	//Modify an existing Glossary
 	/*
-		g := &client.AtlasGlossary{}
+		g := &structs.AtlasGlossary{}
 		DisplayName := "Testing5"
 		g.Updater("TestGlossary8", "CBtveYe0Avp5iwU8q3M7Y1", "78e820ef-21a2-4f1d-a1dc-8c5a648cb1e3")
 		g.DisplayName = &DisplayName
-		response, err := client.Save(g)
+		response, err := structs.Save(g)
 		if err != nil {
 		} else {
 			for _, entity := range response.MutatedEntities.UPDATE {
@@ -330,10 +328,10 @@ func main() {
 		}
 	*/
 	// Deleting an asset
-	//client.DeleteByGuid([]string{"024f11b6-a9fa-4f45-84f5-f734c47c4743", "b280b09b-5c28-45c4-a899-d8535fb651eb", "8679e70a-513e-4e2e-9861-4f5559206f36"})
-	//client.DeleteByGuid([]string{"dbe090bd-1549-4cce-98dd-6542138963f1"})
+	//structs.DeleteByGuid([]string{"024f11b6-a9fa-4f45-84f5-f734c47c4743", "b280b09b-5c28-45c4-a899-d8535fb651eb", "8679e70a-513e-4e2e-9861-4f5559206f36"})
+	//structs.DeleteByGuid([]string{"dbe090bd-1549-4cce-98dd-6542138963f1"})
 	/*
-		resp, _ := client.PurgeByGuid([]string{"1d9f74c6-faa9-4840-ac9e-21723b4c63ca"})
+		resp, _ := structs.PurgeByGuid([]string{"1d9f74c6-faa9-4840-ac9e-21723b4c63ca"})
 		for _, entity := range resp.MutatedEntities.DELETE {
 			fmt.Println("Response:", entity)
 			fmt.Println("TypeName:", entity.TypeName)
@@ -347,11 +345,11 @@ func main() {
 	//query := ctx.Glossary.TYPENAME.Eq("AtlasGlossary", nil)
 	/*
 		excludeCondition := &model.TermQuery{
-			Field: client.NAME,
+			Field: structs.NAME,
 			Value: "Concepts",
 		}
 
-		searchResult, err := client.NewFluentSearch().
+		searchResult, err := structs.NewFluentSearch().
 			PageSizes(10).
 			ActiveAssets().
 			AssetType("AtlasGlossary").
@@ -361,8 +359,8 @@ func main() {
 			}).
 			Where(ctx.Glossary.NAME.Eq("Metrics", nil)).
 			Where(ctx.Glossary.NAME.StartsWith("M", nil)).
-			Sort(client.NAME, atlan.SortOrderAscending).
-			//Sort(string(client.GUID), client.Ascending).
+			Sort(structs.NAME, atlan.SortOrderAscending).
+			//Sort(string(structs.GUID), structs.Ascending).
 			WhereNot(excludeCondition).
 			IncludeOnResults("guid").
 			IncludeOnRelations("terms").
@@ -384,21 +382,21 @@ func main() {
 		//glossaryGuid := "c1620acb-e89d-4bb2-8bee-3f56be6439b5"
 		//glossaryGuidterm := "1ee6a1e5-7afa-4b31-a736-af1f656ae0c3"
 
-		//t, err := client.GetAll()
-		//client.DefaultAtlanTagCache.RefreshCache()
+		//t, err := structs.GetAll()
+		//structs.DefaultAtlanTagCache.RefreshCache()
 		//if err != nil {
 		//	fmt.Printf("Error fetching model: %v\n", err)
 		//	return
 		//}
 
-		client.GetAll()
-		client.GetAtlanTagCache().RefreshCache()
-		client.GetAtlanTagCache()
-		a, _ := client.GetAtlanTagIDForName("PII")
+		structs.GetAll()
+		structs.GetAtlanTagCache().RefreshCache()
+		structs.GetAtlanTagCache()
+		a, _ := structs.GetAtlanTagIDForName("PII")
 		fmt.Printf("ID for name is : %s\n", a)
 
 		tagName := "Hourly"
-		tagID, err := client.GetAtlanTagIDForName(tagName)
+		tagID, err := structs.GetAtlanTagIDForName(tagName)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -406,7 +404,7 @@ func main() {
 		fmt.Printf("Atlan tag ID for %s: %s\n", tagName, tagID)
 
 		tagID = "a3el9UemzJZqZAUFcsDjy4"
-		tagName, err = client.GetAtlanTagNameForID(tagID)
+		tagName, err = structs.GetAtlanTagNameForID(tagID)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -414,13 +412,13 @@ func main() {
 		fmt.Printf("Atlan tag name for %s: %s\n", tagID, tagName)
 
 	*/
-	//client.GetCache().RefreshCache()
-	//client.GetCache()
-	//a, _ := client.GetCache().GetIDForName("PII")
+	//structs.GetCache().RefreshCache()
+	//structs.GetCache()
+	//a, _ := structs.GetCache().GetIDForName("PII")
 	//fmt.Printf("ID for name is : %s\n", a)
 	/*
 		tagName := "Hourly"
-		tagID, err := client.GetIDForName(tagName)
+		tagID, err := structs.GetIDForName(tagName)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -429,7 +427,7 @@ func main() {
 	*/
 	/*
 		tagID = "a3el9UemzJZqZAUFcsDjy4"
-		tagName, err = client.DefaultAtlanTagCache.GetNameForID(tagID)
+		tagName, err = structs.DefaultAtlanTagCache.GetNameForID(tagID)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -438,13 +436,13 @@ func main() {
 
 		/*
 			// Use the GlossaryClient to get a model by its GUID
-			g, err := client.GetGlossaryByGuid(glossaryGuid)
+			g, err := structs.GetGlossaryByGuid(glossaryGuid)
 			if err != nil {
 				fmt.Printf("Error fetching model: %v\n", err)
 				return
 			}
 
-			gt, err := client.GetGlossaryTermByGuid(glossaryGuidterm)
+			gt, err := structs.GetGlossaryTermByGuid(glossaryGuidterm)
 			if err != nil {
 				fmt.Printf("Error fetching model: %v\n", err)
 				return

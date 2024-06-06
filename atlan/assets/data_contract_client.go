@@ -1,11 +1,11 @@
-package client
+package assets
 
 import (
 	"encoding/json"
-	"github.com/atlanhq/atlan-go/atlan/model/assets"
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
-type DataContract assets.DataContract
+type DataContract structs.DataContract
 
 type DataContractClient struct {
 	client *AtlanClient
@@ -16,8 +16,8 @@ func NewDataContractClient(ac *AtlanClient) *DataContractClient {
 }
 
 func (dc *DataContract) Creator(name string) {
-	dc.TypeName = assets.StringPtr("DataContract")
-	dc.Name = assets.StringPtr(name)
+	dc.TypeName = structs.StringPtr("DataContract")
+	dc.Name = structs.StringPtr(name)
 }
 
 func (dc *DataContract) MarshalJSON() ([]byte, error) {

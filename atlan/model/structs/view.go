@@ -1,13 +1,7 @@
-package assets
+package structs
 
-import "time"
-
-type MaterializedView struct {
+type View struct {
 	SQL
-	RefreshMode        *string            `json:"refreshMode,omitempty"`
-	RefreshMethod      *string            `json:"refreshMethod,omitempty"`
-	Staleness          *string            `json:"staleness,omitempty"`
-	StaleSinceDate     *time.Time         `json:"staleSinceDate,omitempty"`
 	ColumnCount        *int               `json:"columnCount,omitempty"`
 	RowCount           *int               `json:"rowCount,omitempty"`
 	SizeBytes          *int               `json:"sizeBytes,omitempty"`
@@ -17,5 +11,6 @@ type MaterializedView struct {
 	IsTemporary        *bool              `json:"isTemporary,omitempty"`
 	Definition         *string            `json:"definition,omitempty"`
 	Columns            []*Column          `json:"columns,omitempty"`
+	Queries            []*Query           `json:"queries,omitempty"`
 	AtlanSchema        *Schema            `json:"atlanSchema,omitempty"`
 }

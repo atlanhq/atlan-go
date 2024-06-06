@@ -1,4 +1,4 @@
-package assets
+package structs
 
 import "github.com/atlanhq/atlan-go/atlan"
 
@@ -362,11 +362,11 @@ type Asset struct {
 }
 
 type Relation struct {
-	displayText            *string            `json:"displayText,omitempty"`
-	entityStatus           *string            `json:"entityStatus,omitempty"`
-	relationshipType       *string            `json:"relationshipType,omitempty"`
-	relationshipGuid       *string            `json:"relationshipGuid,omitempty"`
-	relationshipStatus     *atlan.AtlanStatus `json:"relationshipStatus,omitempty"`
+	DisplayText            *string            `json:"displayText,omitempty"`
+	EntityStatus           *string            `json:"entityStatus,omitempty"`
+	RelationshipType       *string            `json:"relationshipType,omitempty"`
+	RelationshipGuid       *string            `json:"relationshipGuid,omitempty"`
+	RelationshipStatus     *atlan.AtlanStatus `json:"relationshipStatus,omitempty"`
 	relationshipAttributes *[]interface{}     `json:"relationshipAttributes,omitempty"`
 	uniqueAttributes       *string            `json:"uniqueAttributes,omitempty"`
 }

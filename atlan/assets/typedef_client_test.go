@@ -1,4 +1,4 @@
-package client
+package assets
 
 import (
 	"github.com/atlanhq/atlan-go/atlan"
