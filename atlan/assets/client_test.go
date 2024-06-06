@@ -32,13 +32,13 @@ func TestEnvConfig(t *testing.T) {
 
 	// Assert API key and base URL are correctly set
 	assert.Equal(t, "your_api_key", DefaultAtlanClient.ApiKey)
-	assert.Equal(t, "your_base_url", DefaultAtlanClient.host)
+	assert.Equal(t, "https://your_base_url", DefaultAtlanClient.host)
 }
 
 func TestEnvConfigUsingContext(t *testing.T) {
 	// Set up environment variables
 	apiKey := "your_api_key"
-	baseURL := "your_base_url"
+	baseURL := "https://your_base_url"
 
 	// Initialize client
 	ctx, err := Context(baseURL, apiKey)
@@ -48,6 +48,33 @@ func TestEnvConfigUsingContext(t *testing.T) {
 	// Assert API key and base URL are correctly set
 	assert.Equal(t, apiKey, ctx.ApiKey)
 	assert.Equal(t, baseURL, ctx.host)
+}
+
+func TestContextWithNormalizedURL(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"devx9.atlan.com", "https://devx9.atlan.com"},
+		{"https://devx9.atlan.com", "https://devx9.atlan.com"},
+		{"devx9.atlan.com/some/path", "https://devx9.atlan.com"},
+		{"devx9.atlan.com?query=param", "https://devx9.atlan.com"},
+		{"https://devx9.atlan.com/some/path", "https://devx9.atlan.com"},
+	}
+
+	apiKey := "your_api_key"
+
+	for _, test := range tests {
+		t.Run(test.input, func(t *testing.T) {
+			// Initialize client context with the test input
+			ctx, err := Context(test.input, apiKey)
+
+			assert.NoError(t, err)
+
+			// Ensure the base URL is normalized correctly
+			assert.Equal(t, test.expected, ctx.host)
+		})
+	}
 }
 
 func TestLoggerConfig(t *testing.T) {
