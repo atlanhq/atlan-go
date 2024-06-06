@@ -32,6 +32,9 @@ var (
 func Init() error {
 	apiKey, baseURL := retrieveAPIConfig()
 
+	// Normalize the baseURL
+	baseURL = normalizeURL(baseURL)
+
 	// Configure client and logger
 	client, logger := configureClient()
 
@@ -50,6 +53,9 @@ func Init() error {
 
 // Context creates a new AtlanClient with provided API key and base URL.
 func Context(baseURL, apiKey string) (*AtlanClient, error) {
+	// Normalize the baseURL
+	baseURL = normalizeURL(baseURL)
+
 	// Configure client and logger
 	client, logger := configureClient()
 
@@ -141,6 +147,23 @@ func retrieveAPIConfig() (apiKey, baseURL string) {
 	}
 
 	return apiKey, baseURL
+}
+
+// normalizeURL ensures the URL starts with "https://" and truncates after the domain.
+func normalizeURL(rawURL string) string {
+	// Ensure URL starts with "http://" or "https://"
+	if !strings.HasPrefix(rawURL, "http://") && !strings.HasPrefix(rawURL, "https://") {
+		rawURL = "https://" + rawURL
+	}
+
+	// Parse the URL
+	parsedURL, err := url.Parse(rawURL)
+	if err != nil {
+		panic(fmt.Sprintf("Invalid URL: %v", err))
+	}
+
+	// Truncate the URL after the host
+	return parsedURL.Scheme + "://" + parsedURL.Host
 }
 
 // SetLogger enables or disables logging and sets the log level.
