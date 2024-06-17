@@ -3,9 +3,10 @@ package assets
 import (
 	"encoding/json"
 	"errors"
+	"time"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
-	"time"
 )
 
 const (
@@ -125,6 +126,9 @@ func (g *AtlasGlossary) MarshalJSON() ([]byte, error) {
 
 	if g.DisplayName != nil && *g.DisplayName != "" {
 		customJSON["attributes"].(map[string]interface{})["displayName"] = *g.DisplayName
+	}
+	if g.Description != nil && *g.Description != "" {
+		customJSON["attributes"].(map[string]interface{})["description"] = *g.Description
 	}
 
 	// Marshal the custom JSON
