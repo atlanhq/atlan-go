@@ -18,6 +18,7 @@ type DataContractAttributes struct {
 	Name              *string `json:"name,omitempty"`
 	CertificateStatus *string `json:"certificateStatus,omitempty"`
 	QualifiedName     *string `json:"qualifiedName,omitempty"`
+	DataContractJson  *string `json:"dataContractJson,omitempty"`
 	DataContractSpec  *string `json:"dataContractSpec,omitempty"`
 }
 
