@@ -4,6 +4,7 @@ package model
 
 import (
 	"encoding/json"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
@@ -485,6 +486,7 @@ type SearchAttributes struct {
 	QualifiedName     *string                    `json:"qualifiedName,omitempty"`
 	Name              *string                    `json:"name,omitempty"`
 	UserDescription   *string                    `json:"userDescription,omitempty"`
+	Description       *string                    `json:"description,omitempty"`
 	DataType          *string                    `json:"dataType,omitempty"`
 	IsPrimary         *bool                      `json:"isPrimary,omitempty"`
 	IsNullable        *bool                      `json:"isNullable,omitempty"`
@@ -534,6 +536,7 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		sa.Name = aux.SearchAttributes.Name
 		sa.QualifiedName = aux.SearchAttributes.QualifiedName
 		sa.DataType = aux.SearchAttributes.DataType
+		sa.Description = aux.SearchAttributes.Description
 		sa.UserDescription = aux.SearchAttributes.UserDescription
 		sa.IsPrimary = aux.SearchAttributes.IsPrimary
 		sa.IsNullable = aux.SearchAttributes.IsNullable

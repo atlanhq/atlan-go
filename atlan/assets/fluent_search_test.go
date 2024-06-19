@@ -2,11 +2,15 @@ package assets
 
 import (
 	"fmt"
-	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
+	"github.com/stretchr/testify/assert"
 )
+
+const GlossaryDescription = "Automated testing of GO SDK."
 
 func TestIntegrationFluentSearch(t *testing.T) {
 	if testing.Short() {
@@ -17,6 +21,7 @@ func TestIntegrationFluentSearch(t *testing.T) {
 	// Create a glossary
 	g := &AtlasGlossary{}
 	g.Creator(GlossaryName, atlan.AtlanIconAirplaneInFlight)
+	g.Description = structs.StringPtr(GlossaryDescription)
 	response, err := Save(g)
 	if err != nil {
 		t.Errorf("Error: %v", err)
@@ -29,7 +34,7 @@ func TestIntegrationFluentSearch(t *testing.T) {
 		PageSizes(10).
 		ActiveAssets().
 		Where(ctx.Glossary.NAME.Eq(GlossaryName)).
-		//IncludeOnResults("guid").
+		IncludeOnResults("description").
 		Execute()
 
 	if err != nil {
@@ -40,6 +45,7 @@ func TestIntegrationFluentSearch(t *testing.T) {
 	assert.NotNil(t, searchResult, "search result should not be nil")
 	assert.Equal(t, 1, len(searchResult), "number of glossaries should be 1")
 	assert.Equal(t, GlossaryName, *searchResult[0].Entities[0].DisplayName, "glossary name should match")
+	assert.Equal(t, GlossaryDescription, *searchResult[0].Entities[0].Description, "glossary description should exist")
 
 	// Search for glossaries starts with letter G and sort them in ascending order by name
 	searchResult, err = NewFluentSearch().
@@ -48,6 +54,11 @@ func TestIntegrationFluentSearch(t *testing.T) {
 		Where(ctx.Glossary.NAME.StartsWith("gsdk", nil)).
 		Sort(NAME, atlan.SortOrderAscending).
 		Execute()
+
+	if err != nil {
+		fmt.Printf("Error executing search: %v\n", err)
+		return
+	}
 
 	assert.Equal(t, 1, len(searchResult), "number of glossaries should be 1")
 	assert.Equal(t, "g", string((*searchResult[0].Entities[0].DisplayName)[0]), "glossary name should start with G")
