@@ -707,7 +707,6 @@ func handleApiError(response *http.Response, originalError error) error {
 	default:
 		return ThrowAtlanError(originalError, ERROR_PASSTHROUGH, nil)
 	}
-	return nil
 }
 
 func ThrowAtlanError(err error, sdkError ErrorCode, suggestion *string, args ...interface{}) error {
