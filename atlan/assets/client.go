@@ -215,11 +215,11 @@ func (ac *AtlanClient) restoreAuthorization(auth string) error {
 	return nil
 }
 
-func (ac *AtlanClient) s3PresignedUrlFileUpload(api *API, uploadFile interface{}) (string, error) {
+func (ac *AtlanClient) s3PresignedUrlFileUpload(api *API, uploadFile interface{}) error {
 	// Remove authorization and returns the auth value
 	auth, err := ac.removeAuthorization()
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	// Ensure the authorization is restored after the API call
@@ -233,18 +233,18 @@ func (ac *AtlanClient) s3PresignedUrlFileUpload(api *API, uploadFile interface{}
 	}()
 
 	// Call the API with upload file
-	response, err := ac.CallAPI(api, nil, uploadFile)
+	_, err = ac.CallAPI(api, nil, uploadFile)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return string(response), nil
+	return nil
 }
 
-func (ac *AtlanClient) s3PresignedUrlFileDownload(api *API, downloadFile interface{}) (string, error) {
+func (ac *AtlanClient) s3PresignedUrlFileDownload(api *API, downloadFile interface{}) error {
 	// Remove authorization and returns the auth value
 	auth, err := ac.removeAuthorization()
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	// Ensure the authorization is restored after the API call
@@ -258,11 +258,11 @@ func (ac *AtlanClient) s3PresignedUrlFileDownload(api *API, downloadFile interfa
 	}()
 
 	// Call the API with download file
-	response, err := ac.CallAPI(api, nil, downloadFile)
+	_, err = ac.CallAPI(api, nil, downloadFile)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return string(response), nil
+	return nil
 }
 
 // CallAPI makes a generic API call.

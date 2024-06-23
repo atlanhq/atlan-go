@@ -87,6 +87,7 @@ const (
 	MISSING_CREDENTIALS
 	FULL_UPDATE_ONLY
 	CATEGORIES_CANNOT_BE_ARCHIVED
+	UNSUPPORTED_PRESIGNED_URL
 	AUTHENTICATION_PASSTHROUGH
 	NO_API_TOKEN
 	EMPTY_API_TOKEN
@@ -400,6 +401,12 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 		ErrorID:       "ATLAN-GO-400-042",
 		ErrorMessage:  "Categories cannot be archived (soft-deleted): %s.",
 		UserAction:    "Please use the purge operation if you wish to remove a category.",
+	},
+	UNSUPPORTED_PRESIGNED_URL: {
+		HTTPErrorCode: 400,
+		ErrorID:       "ATLAN-GO-400-043",
+		ErrorMessage:  "Provided presigned URL's cloud provider storage is currently not supported for file uploads.",
+		UserAction:    "Please raise a feature request on the GO SDK GitHub to add support for it.",
 	},
 	AUTHENTICATION_PASSTHROUGH: {
 		HTTPErrorCode: 401,
