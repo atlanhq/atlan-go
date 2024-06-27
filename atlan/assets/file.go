@@ -1,10 +1,9 @@
 package assets
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"strings"
@@ -22,18 +21,17 @@ func NewFileClient(client *AtlanClient) *FileClient {
 	return &FileClient{client}
 }
 
-func handleFileUpload(filePath string, fileBuffer *bytes.Buffer) error {
+func handleFileUpload(filePath string) (*os.File, fs.FileInfo, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return fmt.Errorf("error opening file: %v", err)
+		return nil, nil, fmt.Errorf("error opening file: %v", err)
 	}
-	defer file.Close()
 
-	_, err = io.Copy(fileBuffer, file)
+	fileInfo, err := file.Stat()
 	if err != nil {
-		return fmt.Errorf("error copying file: %v", err)
+		return nil, nil, fmt.Errorf("error while getting file info: %v", err)
 	}
-	return nil
+	return file, fileInfo, nil
 }
 
 // Generates a presigned URL based on Atlan's tenant object store.
@@ -45,6 +43,7 @@ func (client *FileClient) GeneratePresignedURL(request *model.PresignedURLReques
 			Args:      []interface{}{"IOException"},
 		}
 	}
+
 	// Now unmarshal `rawJSON` to the `PresignedURLResponse`
 	var response model.PresignedURLResponse
 	err = json.Unmarshal(rawJSON, &response)
@@ -62,17 +61,17 @@ func (client *FileClient) UploadFile(presignedUrl string, filePath string) error
 		Status:   http.StatusOK,
 		Endpoint: HeraclesEndpoint,
 	}
-	var fileBuffer bytes.Buffer
 
-	err := handleFileUpload(filePath, &fileBuffer)
+	file, fileInfo, err := handleFileUpload(filePath)
 	if err != nil {
 		return err
 	}
+	defer file.Close()
 
 	// Currently supported upload methods for different cloud storage providers
 	switch {
 	case strings.Contains(presignedUrl, string(model.S3)):
-		err = client.s3PresignedUrlFileUpload(&PRESIGNED_URL_UPLOAD, fileBuffer)
+		err = client.s3PresignedUrlFileUpload(&PRESIGNED_URL_UPLOAD, file, fileInfo.Size())
 	default:
 		return InvalidRequestError{AtlanError{ErrorCode: errorCodes[UNSUPPORTED_PRESIGNED_URL]}}
 	}
@@ -92,13 +91,7 @@ func (client *FileClient) DownloadFile(presignedUrl string, filePath string) err
 		Endpoint: HeraclesEndpoint,
 	}
 
-	file, err := os.Create(filePath)
-	if err != nil {
-		return fmt.Errorf("failed to create download file: %v", err)
-	}
-	defer file.Close()
-
-	err = client.s3PresignedUrlFileDownload(&PRESIGNED_URL_DOWNLOAD, file)
+	err := client.s3PresignedUrlFileDownload(&PRESIGNED_URL_DOWNLOAD, filePath)
 	if err != nil {
 		return err
 	}

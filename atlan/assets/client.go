@@ -11,6 +11,8 @@ import (
 	"strings"
 
 	"github.com/atlanhq/atlan-go/atlan/logger"
+	"github.com/k0kubun/go-ansi"
+	"github.com/schollz/progressbar/v3"
 )
 
 // AtlanClient defines the Atlan API client structure.
@@ -215,7 +217,26 @@ func (ac *AtlanClient) restoreAuthorization(auth string) error {
 	return nil
 }
 
-func (ac *AtlanClient) s3PresignedUrlFileUpload(api *API, uploadFile interface{}) error {
+// Initialize the file progress bar using default configuration settings
+func initFileProgressBar(fileSize int64, description string) *progressbar.ProgressBar {
+	bar := progressbar.NewOptions(int(fileSize),
+		progressbar.OptionSetWidth(50),
+		progressbar.OptionShowBytes(true),
+		progressbar.OptionSetPredictTime(false),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionSetDescription(description),
+		progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[green]=[reset]",
+			SaucerHead:    "[green]>[reset]",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}))
+	return bar
+}
+
+func (ac *AtlanClient) s3PresignedUrlFileUpload(api *API, uploadFile *os.File, uploadFileSize int64) error {
 	// Remove authorization and returns the auth value
 	auth, err := ac.removeAuthorization()
 	if err != nil {
@@ -232,15 +253,22 @@ func (ac *AtlanClient) s3PresignedUrlFileUpload(api *API, uploadFile interface{}
 		}
 	}()
 
-	// Call the API with upload file
-	_, err = ac.CallAPI(api, nil, uploadFile)
+	// Call the API with upload file options
+	uploadProgressBarDescription := "Uploading file to the object store:"
+	uploadProgressBar := initFileProgressBar(uploadFileSize, uploadProgressBarDescription)
+	options := map[string]interface{}{
+		"use_presigned_url": true,
+		"file_size":         uploadFileSize,
+		"progress_bar":      uploadProgressBar,
+	}
+	_, err = ac.CallAPI(api, nil, uploadFile, options)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (ac *AtlanClient) s3PresignedUrlFileDownload(api *API, downloadFile interface{}) error {
+func (ac *AtlanClient) s3PresignedUrlFileDownload(api *API, downloadFilePath string) error {
 	// Remove authorization and returns the auth value
 	auth, err := ac.removeAuthorization()
 	if err != nil {
@@ -257,8 +285,16 @@ func (ac *AtlanClient) s3PresignedUrlFileDownload(api *API, downloadFile interfa
 		}
 	}()
 
-	// Call the API with download file
-	_, err = ac.CallAPI(api, nil, downloadFile)
+	// Call the API with download file options
+	downloadProgressBarDescription := "Downloading file from the object store:"
+	downloadProgressBar := initFileProgressBar(0, downloadProgressBarDescription)
+	options := map[string]interface{}{
+		"use_presigned_url": true,
+		"save_file":         true,
+		"file_path":         downloadFilePath,
+		"progress_bar":      downloadProgressBar,
+	}
+	_, err = ac.CallAPI(api, nil, nil, options)
 	if err != nil {
 		return err
 	}
@@ -266,8 +302,10 @@ func (ac *AtlanClient) s3PresignedUrlFileDownload(api *API, downloadFile interfa
 }
 
 // CallAPI makes a generic API call.
-func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj interface{}) ([]byte, error) {
-	var downloadFile *os.File
+func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj interface{}, options ...interface{}) ([]byte, error) {
+	var saveFile bool
+	var filePath string
+	var fileProgressBar *progressbar.ProgressBar
 	params := deepCopy(ac.requestParams)
 	path := ac.host + api.Endpoint.Atlas + api.Path
 
@@ -291,21 +329,36 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 		path += "?" + query.Encode()
 	}
 
+	// Check for extra any API call options
+	if len(options) > 0 {
+		if optMap, ok := options[0].(map[string]interface{}); ok {
+			if _, ok := optMap["save_file"].(bool); ok {
+				saveFile = ok
+			}
+			if path, ok := optMap["file_path"].(string); ok {
+				filePath = path
+			}
+			if fs, ok := optMap["file_size"].(int64); ok {
+				params["content_length"] = fs
+			}
+			if _, ok := optMap["use_presigned_url"].(bool); ok {
+				path = api.Path
+			}
+			if bar, ok := optMap["progress_bar"].(*progressbar.ProgressBar); ok {
+				fileProgressBar = bar
+			}
+		}
+	}
+
 	if requestObj != nil {
 		switch reqObj := requestObj.(type) {
-		case bytes.Buffer:
-			// In case of binary data upload
-			// Make sure to use the presigned URL
-			// in the API request, i.e: api.Path
-			path = api.Path
-			params["data"] = reqObj
-			params["content_type"] = "application/octet-stream"
+		// In case of file upload/download
 		case *os.File:
-			// In case of file download
-			// Make sure to use the presigned URL
-			// in the API request, i.e: api.Path
-			path = api.Path
-			downloadFile = reqObj
+			if fileProgressBar != nil {
+				params["progress_bar"] = fileProgressBar
+				params["data"] = progressbar.NewReader(reqObj, fileProgressBar)
+			}
+			params["content_type"] = "application/octet-stream"
 		default:
 			// Otherwise just use `json.Marshal()`
 			requestJSON, err := json.Marshal(requestObj)
@@ -334,12 +387,21 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 	}
 
 	// Handle file download
-	if downloadFile != nil {
-		_, err := io.Copy(downloadFile, response.Body)
+	if saveFile && filePath != "" {
+		file, err := os.Create(filePath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create download file: %v", err)
+		}
+		defer file.Close()
+
+		// Set the progress bar size based on the response content-length
+		fileProgressBar.ChangeMax64(response.ContentLength)
+		_, err = io.Copy(io.MultiWriter(file, fileProgressBar), response.Body)
 		if err != nil {
 			return nil, fmt.Errorf("failed to copy file contents: %v", err)
 		}
-		ac.logger.Infof("downloaded file saved to: %s", downloadFile.Name())
+
+		ac.logger.Infof("Successfully downloaded file: %s", file.Name())
 		return []byte{}, nil
 	}
 
@@ -375,13 +437,13 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 		if !ok {
 			return nil, fmt.Errorf("missing 'data' parameter for POST/PUT request")
 		}
-		switch v := data.(type) {
-		case bytes.Buffer:
-			// Binary data upload
-			body = &v
+		switch requestData := data.(type) {
+		case progressbar.Reader:
+			// File data upload with progressbar reader
+			body = &requestData
 		case io.Reader:
 			// JSON payload
-			body = v
+			body = requestData
 		default:
 			return nil, fmt.Errorf("invalid 'data' parameter type for POST/PUT request")
 		}
@@ -430,6 +492,11 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 		contentType = "application/json"
 	}
 	req.Header.Set("Content-Type", contentType)
+
+	// Set content-length
+	if contentLength, ok := params["content_length"].(int64); ok {
+		req.ContentLength = contentLength
+	}
 
 	// Set query parameters
 	queryParams, ok := params["params"].(map[string]string)
