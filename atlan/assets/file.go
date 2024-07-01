@@ -24,7 +24,7 @@ func NewFileClient(client *AtlanClient) *FileClient {
 func handleFileUpload(filePath string) (*os.File, fs.FileInfo, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error opening file: %v", err)
+		return nil, nil, fmt.Errorf("error while opening file: %v", err)
 	}
 
 	fileInfo, err := file.Stat()
@@ -38,17 +38,18 @@ func handleFileUpload(filePath string) (*os.File, fs.FileInfo, error) {
 func (client *FileClient) GeneratePresignedURL(request *model.PresignedURLRequest) (string, error) {
 	rawJSON, err := client.CallAPI(&PRESIGNED_URL, nil, request)
 	if err != nil {
-		return "", AtlanError{
-			ErrorCode: errorCodes[CONNECTION_ERROR],
-			Args:      []interface{}{"IOException"},
-		}
+		return "", err
 	}
 
 	// Now unmarshal `rawJSON` to the `PresignedURLResponse`
 	var response model.PresignedURLResponse
 	err = json.Unmarshal(rawJSON, &response)
 	if err != nil {
-		return "", fmt.Errorf("Error while unmarshaling PresignedURLResponse JSON: %v", err)
+		return "", InvalidRequestError{
+			AtlanError{
+				ErrorCode: errorCodes[UNABLE_TO_PREPARE_UPLOAD_FILE],
+				Args:      []interface{}{err.Error()},
+			}}
 	}
 	return response.URL, nil
 }
@@ -64,7 +65,11 @@ func (client *FileClient) UploadFile(presignedUrl string, filePath string) error
 
 	file, fileInfo, err := handleFileUpload(filePath)
 	if err != nil {
-		return err
+		return InvalidRequestError{
+			AtlanError{
+				ErrorCode: errorCodes[UNABLE_TO_PREPARE_UPLOAD_FILE],
+				Args:      []interface{}{err.Error()},
+			}}
 	}
 	defer file.Close()
 

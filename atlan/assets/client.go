@@ -201,8 +201,12 @@ func (ac *AtlanClient) removeAuthorization() (string, error) {
 		}
 		return "", nil
 	} else {
-		return "", fmt.Errorf("unable to remove the \"Authorization\" key " +
-			"from AtlanClient.requestParams[\"headers\"]; it is not of type map[string]string")
+		return "", InvalidRequestError{
+			AtlanError{
+				ErrorCode: errorCodes[UNABLE_TO_PERFORM_OPERATION_ON_AUTHORIZATION],
+				Args:      []interface{}{"remove", "from"},
+			},
+		}
 	}
 }
 
@@ -211,8 +215,12 @@ func (ac *AtlanClient) restoreAuthorization(auth string) error {
 	if headers, ok := ac.requestParams["headers"].(map[string]string); ok {
 		headers["Authorization"] = auth
 	} else {
-		return fmt.Errorf("unable to restore the \"Authorization\" key " +
-			"to AtlanClient.requestParams[\"headers\"]; it is not of type map[string]string")
+		return InvalidRequestError{
+			AtlanError{
+				ErrorCode: errorCodes[UNABLE_TO_PERFORM_OPERATION_ON_AUTHORIZATION],
+				Args:      []interface{}{"restore", "to"},
+			},
+		}
 	}
 	return nil
 }
@@ -226,9 +234,12 @@ func initFileProgressBar(fileSize int64, description string) *progressbar.Progre
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionSetDescription(description),
 		progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Printf("\n")
+		}),
 		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "[green]=[reset]",
-			SaucerHead:    "[green]>[reset]",
+			Saucer:        "[blue]=[reset]",
+			SaucerHead:    "[blue]>[reset]",
 			SaucerPadding: " ",
 			BarStart:      "[",
 			BarEnd:        "]",
@@ -243,16 +254,6 @@ func (ac *AtlanClient) s3PresignedUrlFileUpload(api *API, uploadFile *os.File, u
 		return err
 	}
 
-	// Ensure the authorization is restored after the API call
-	defer func() {
-		if auth != "" {
-			restoreErr := ac.restoreAuthorization(auth)
-			if restoreErr != nil {
-				ac.logger.Errorf("failed to restore authorization: %v", restoreErr)
-			}
-		}
-	}()
-
 	// Call the API with upload file options
 	uploadProgressBarDescription := "Uploading file to the object store:"
 	uploadProgressBar := initFileProgressBar(uploadFileSize, uploadProgressBarDescription)
@@ -265,6 +266,14 @@ func (ac *AtlanClient) s3PresignedUrlFileUpload(api *API, uploadFile *os.File, u
 	if err != nil {
 		return err
 	}
+
+	// Restore authorization after API call
+	err = ac.restoreAuthorization(auth)
+	if err != nil {
+		ac.logger.Errorf("failed to restore authorization: %s", err)
+		return err
+	}
+
 	return nil
 }
 
@@ -274,16 +283,6 @@ func (ac *AtlanClient) s3PresignedUrlFileDownload(api *API, downloadFilePath str
 	if err != nil {
 		return err
 	}
-
-	// Ensure the authorization is restored after the API call
-	defer func() {
-		if auth != "" {
-			restoreErr := ac.restoreAuthorization(auth)
-			if restoreErr != nil {
-				ac.logger.Errorf("failed to restore authorization: %v", restoreErr)
-			}
-		}
-	}()
 
 	// Call the API with download file options
 	downloadProgressBarDescription := "Downloading file from the object store:"
@@ -298,6 +297,14 @@ func (ac *AtlanClient) s3PresignedUrlFileDownload(api *API, downloadFilePath str
 	if err != nil {
 		return err
 	}
+
+	// Restore authorization after API call
+	err = ac.restoreAuthorization(auth)
+	if err != nil {
+		ac.logger.Errorf("failed to restore authorization: %s", err)
+		return err
+	}
+
 	return nil
 }
 
@@ -390,7 +397,10 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 	if saveFile && filePath != "" {
 		file, err := os.Create(filePath)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create download file: %v", err)
+			return nil, AtlanError{
+				ErrorCode: errorCodes[UNABLE_TO_PREPARE_DOWNLOAD_FILE],
+				Args:      []interface{}{err.Error()},
+			}
 		}
 		defer file.Close()
 
@@ -398,7 +408,10 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 		fileProgressBar.ChangeMax64(response.ContentLength)
 		_, err = io.Copy(io.MultiWriter(file, fileProgressBar), response.Body)
 		if err != nil {
-			return nil, fmt.Errorf("failed to copy file contents: %v", err)
+			return nil, AtlanError{
+				ErrorCode: errorCodes[UNABLE_TO_COPY_DOWNLOAD_FILE_CONTENTS],
+				Args:      []interface{}{err.Error()},
+			}
 		}
 
 		ac.logger.Infof("Successfully downloaded file: %s", file.Name())

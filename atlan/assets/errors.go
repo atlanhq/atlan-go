@@ -88,6 +88,11 @@ const (
 	FULL_UPDATE_ONLY
 	CATEGORIES_CANNOT_BE_ARCHIVED
 	UNSUPPORTED_PRESIGNED_URL
+	UNABLE_TO_PREPARE_UPLOAD_FILE
+	UNABLE_TO_PREPARE_DOWNLOAD_FILE
+	UNABLE_TO_COPY_DOWNLOAD_FILE_CONTENTS
+	UNABLE_TO_UNMARSHAL_PRESIGNED_URL_RESPONSE
+	UNABLE_TO_PERFORM_OPERATION_ON_AUTHORIZATION
 	AUTHENTICATION_PASSTHROUGH
 	NO_API_TOKEN
 	EMPTY_API_TOKEN
@@ -407,6 +412,36 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 		ErrorID:       "ATLAN-GO-400-043",
 		ErrorMessage:  "Provided presigned URL's cloud provider storage is currently not supported for file uploads.",
 		UserAction:    "Please raise a feature request on the GO SDK GitHub to add support for it.",
+	},
+	UNABLE_TO_PREPARE_UPLOAD_FILE: {
+		HTTPErrorCode: 400,
+		ErrorID:       "ATLAN-GO-400-044",
+		ErrorMessage:  "Unable to prepare the file for upload: %s.",
+		UserAction:    "Please verify that the file exists and ensure it is supported for object store upload.",
+	},
+	UNABLE_TO_PREPARE_DOWNLOAD_FILE: {
+		HTTPErrorCode: 400,
+		ErrorID:       "ATLAN-GO-400-045",
+		ErrorMessage:  "Unable to create a file for download: %s.",
+		UserAction:    "Check the error message for details and report a bug on the GO SDK GitHub if it persists.",
+	},
+	UNABLE_TO_COPY_DOWNLOAD_FILE_CONTENTS: {
+		HTTPErrorCode: 400,
+		ErrorID:       "ATLAN-GO-400-046",
+		ErrorMessage:  "Unable to copy download file contents: %s.",
+		UserAction:    "Please verify that the API response body is in the correct format for file download.",
+	},
+	UNABLE_TO_UNMARSHAL_PRESIGNED_URL_RESPONSE: {
+		HTTPErrorCode: 400,
+		ErrorID:       "ATLAN-GO-400-047",
+		ErrorMessage:  "Unable to unmarshal PresignedURLResponse JSON: %s.",
+		UserAction:    "Check the details of the server's message to correct your request.",
+	},
+	UNABLE_TO_PERFORM_OPERATION_ON_AUTHORIZATION: {
+		HTTPErrorCode: 400,
+		ErrorID:       "ATLAN-GO-400-048",
+		ErrorMessage:  "Unable to %s the \"Authorization\" key %s AtlanClient request headers.",
+		UserAction:    "Please double-check the type of the \"Authorization\" key; it should be map[string]string.",
 	},
 	AUTHENTICATION_PASSTHROUGH: {
 		HTTPErrorCode: 401,
