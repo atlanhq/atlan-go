@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/atlanhq/atlan-go/atlan/logger"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/atlanhq/atlan-go/atlan/logger"
 )
 
 // AtlanClient defines the Atlan API client structure.

@@ -5,7 +5,9 @@ go 1.19
 require (
 	github.com/matoous/go-nanoid v1.5.0
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/exp v0.0.0-20240707233637-46b078467d37
+	// NOTE: We need to pin this experimental version of "slog" since it is compatible with Go 1.19
+	// This is required because atlan-heracles uses go-sdk, which currently supports Go 1.19
+	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 )
 
 require (
