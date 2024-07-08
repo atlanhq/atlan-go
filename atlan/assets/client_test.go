@@ -3,12 +3,13 @@ package assets
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/exp/slog"
 )
 
 func TestEnvConfig(t *testing.T) {

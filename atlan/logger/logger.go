@@ -2,8 +2,9 @@ package logger
 
 import (
 	"fmt"
-	"log/slog"
 	"os"
+
+	"golang.org/x/exp/slog"
 )
 
 // LoggerConfig defines the configuration for logging.
