@@ -394,7 +394,7 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 	}
 
 	// Handle file download
-	if saveFile && filePath != "" {
+	if saveFile {
 		file, err := os.Create(filePath)
 		if err != nil {
 			return nil, AtlanError{
