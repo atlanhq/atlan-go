@@ -1,12 +1,15 @@
 module github.com/atlanhq/atlan-go
 
-go 1.21
+go 1.19
 
 require (
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
 	github.com/matoous/go-nanoid v1.5.0
 	github.com/schollz/progressbar/v3 v3.14.4
 	github.com/stretchr/testify v1.9.0
+	// NOTE: We need to pin this experimental version of "slog" since it is compatible with Go 1.19
+	// This is required because atlan-heracles uses go-sdk, which currently supports Go 1.19
+	golang.org/x/exp v0.0.0-20240707233637-46b078467d37
 )
 
 require (
