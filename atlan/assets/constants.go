@@ -16,6 +16,9 @@ const (
 	// Entities API
 	ENTITY_API      = "entity/"
 	ENTITY_BULK_API = "entity/bulk/"
+
+	// Files API
+	FILES_API = "files/"
 )
 
 // API defines the structure of an API call.
@@ -34,7 +37,11 @@ var AtlasEndpoint = Endpoint{
 	Atlas: "/api/meta/",
 }
 
-// API calls for Atlas
+var HeraclesEndpoint = Endpoint{
+	Atlas: "/api/service/",
+}
+
+// API calls to various services (Atlas, Heracles etc)
 var (
 	GET_TYPEDEF_BY_NAME = API{
 		Path:     TYPEDEF_BY_NAME,
@@ -125,6 +132,13 @@ var (
 		Method:   http.MethodDelete,
 		Status:   http.StatusOK,
 		Endpoint: AtlasEndpoint,
+	}
+
+	PRESIGNED_URL = API{
+		Path:     FILES_API + "presignedUrl",
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
 	}
 )
 

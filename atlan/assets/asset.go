@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/atlanhq/atlan-go/atlan/model"
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"hash/fnv"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/atlanhq/atlan-go/atlan/model"
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
 // AtlanObject is an interface that all asset types should implement
