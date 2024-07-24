@@ -443,12 +443,13 @@ type Attributes struct {
 
 // AtlanTag represents a tag in Atlan.
 type AtlanTag struct {
-	TypeName                          string `json:"typeName"`
-	EntityGuid                        string `json:"entityGuid"`
-	EntityStatus                      string `json:"entityStatus"`
-	Propagate                         bool   `json:"propagate"`
-	RemovePropagationsOnEntityDelete  bool   `json:"removePropagationsOnEntityDelete"`
-	RestrictPropagationThroughLineage bool   `json:"restrictPropagationThroughLineage"`
+	TypeName                            string `json:"typeName"`
+	EntityGuid                          string `json:"entityGuid"`
+	EntityStatus                        string `json:"entityStatus"`
+	Propagate                           bool   `json:"propagate"`
+	RemovePropagationsOnEntityDelete    bool   `json:"removePropagationsOnEntityDelete"`
+	RestrictPropagationThroughLineage   bool   `json:"restrictPropagationThroughLineage"`
+	RestrictPropagationThroughHierarchy bool   `json:"restrictPropagationThroughHierarchy"`
 }
 
 type Link struct {
