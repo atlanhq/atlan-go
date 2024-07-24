@@ -338,7 +338,7 @@ type Asset struct {
 	// Internal tracking of fields that should be serialized with null values.
 	NullFields *[]string `json:"nullFields,omitempty"`
 	// Atlan tags assigned to the asset.
-	AtlanTags *[]AtlanTag `json:"atlanTags,omitempty"`
+	AtlanTags *[]AtlanTag `json:"classifications,omitempty"`
 	// Map of custom metadata attributes and values defined on the asset.
 	CustomMetadataSets map[string]CustomMetadataAttributes `json:"customMetadataSets,omitempty"`
 	// Time (epoch) at which the asset was created, in milliseconds.
