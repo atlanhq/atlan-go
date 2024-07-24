@@ -130,6 +130,15 @@ func (g *AtlasGlossary) MarshalJSON() ([]byte, error) {
 	if g.Description != nil && *g.Description != "" {
 		customJSON["attributes"].(map[string]interface{})["description"] = *g.Description
 	}
+	if g.AnnouncementType != nil {
+		customJSON["attributes"].(map[string]interface{})["announcementType"] = *g.AnnouncementType
+	}
+	if g.AnnouncementTitle != nil && *g.AnnouncementTitle != "" {
+		customJSON["attributes"].(map[string]interface{})["announcementTitle"] = *g.AnnouncementTitle
+	}
+	if g.AnnouncementMessage != nil && *g.AnnouncementMessage != "" {
+		customJSON["attributes"].(map[string]interface{})["announcementMessage"] = *g.AnnouncementMessage
+	}
 
 	// Marshal the custom JSON
 	return json.MarshalIndent(customJSON, "", "  ")

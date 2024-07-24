@@ -2,8 +2,6 @@ package structs
 
 import "github.com/atlanhq/atlan-go/atlan"
 
-type AtlanAnnouncementType string
-
 type AtlanIcon string
 
 type AtlanConnectorType string
@@ -84,7 +82,7 @@ type Asset struct {
 	// Brief title for the announcement on this asset.
 	AnnouncementTitle *string `json:"announcementTitle,omitempty"`
 	// Type of announcement on this asset.
-	AnnouncementType *AtlanAnnouncementType `json:"announcementType,omitempty"`
+	AnnouncementType *atlan.AnnouncementType `json:"announcementType,omitempty"`
 	// Time (epoch) at which the announcement was last updated, in milliseconds.
 	AnnouncementUpdatedAt *int64 `json:"announcementUpdatedAt,omitempty"`
 	// Name of the user who last updated the announcement.

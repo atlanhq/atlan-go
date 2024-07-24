@@ -12,6 +12,11 @@ import (
 
 const GlossaryDescription = "Automated testing of GO SDK."
 
+var AnnouncementType = atlan.AnnouncementTypeWARNING
+
+const AnnouncementTitle = "GO SDK testing."
+const AnnouncementMessage = "Automated testing of the GO SDK."
+
 func TestIntegrationFluentSearch(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
@@ -22,6 +27,10 @@ func TestIntegrationFluentSearch(t *testing.T) {
 	g := &AtlasGlossary{}
 	g.Creator(GlossaryName, atlan.AtlanIconAirplaneInFlight)
 	g.Description = structs.StringPtr(GlossaryDescription)
+	g.AnnouncementType = &AnnouncementType
+	g.AnnouncementTitle = structs.StringPtr(AnnouncementTitle)
+	g.AnnouncementMessage = structs.StringPtr(AnnouncementMessage)
+
 	response, err := Save(g)
 	if err != nil {
 		t.Errorf("Error: %v", err)
@@ -34,7 +43,7 @@ func TestIntegrationFluentSearch(t *testing.T) {
 		PageSizes(10).
 		ActiveAssets().
 		Where(ctx.Glossary.NAME.Eq(GlossaryName)).
-		IncludeOnResults("description").
+		IncludeOnResults("description", "announcementType", "announcementTitle", "announcementMessage").
 		Execute()
 
 	if err != nil {
@@ -46,6 +55,9 @@ func TestIntegrationFluentSearch(t *testing.T) {
 	assert.Equal(t, 1, len(searchResult), "number of glossaries should be 1")
 	assert.Equal(t, GlossaryName, *searchResult[0].Entities[0].DisplayName, "glossary name should match")
 	assert.Equal(t, GlossaryDescription, *searchResult[0].Entities[0].Description, "glossary description should exist")
+	assert.Equal(t, AnnouncementType, *searchResult[0].Entities[0].AnnouncementType, "announcement type should exist")
+	assert.Equal(t, AnnouncementTitle, *searchResult[0].Entities[0].AnnouncementTitle, "announcement title should exist")
+	assert.Equal(t, AnnouncementMessage, *searchResult[0].Entities[0].AnnouncementMessage, "announcement message should exist")
 
 	// Search for glossaries starts with letter G and sort them in ascending order by name
 	searchResult, err = NewFluentSearch().
