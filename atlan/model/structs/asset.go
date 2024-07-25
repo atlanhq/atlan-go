@@ -336,7 +336,7 @@ type Asset struct {
 	// Internal tracking of fields that should be serialized with null values.
 	NullFields *[]string `json:"nullFields,omitempty"`
 	// Atlan tags assigned to the asset.
-	AtlanTags *[]AtlanTag `json:"atlanTags,omitempty"`
+	AtlanTags *[]AtlanTag `json:"classifications,omitempty"`
 	// Map of custom metadata attributes and values defined on the asset.
 	CustomMetadataSets map[string]CustomMetadataAttributes `json:"customMetadataSets,omitempty"`
 	// Time (epoch) at which the asset was created, in milliseconds.
@@ -441,12 +441,13 @@ type Attributes struct {
 
 // AtlanTag represents a tag in Atlan.
 type AtlanTag struct {
-	TypeName                          string `json:"typeName"`
-	EntityGuid                        string `json:"entityGuid"`
-	EntityStatus                      string `json:"entityStatus"`
-	Propagate                         bool   `json:"propagate"`
-	RemovePropagationsOnEntityDelete  bool   `json:"removePropagationsOnEntityDelete"`
-	RestrictPropagationThroughLineage bool   `json:"restrictPropagationThroughLineage"`
+	TypeName                            string `json:"typeName"`
+	EntityGuid                          string `json:"entityGuid"`
+	EntityStatus                        string `json:"entityStatus"`
+	Propagate                           bool   `json:"propagate"`
+	RemovePropagationsOnEntityDelete    bool   `json:"removePropagationsOnEntityDelete"`
+	RestrictPropagationThroughLineage   bool   `json:"restrictPropagationThroughLineage"`
+	RestrictPropagationThroughHierarchy bool   `json:"restrictPropagationThroughHierarchy"`
 }
 
 type Link struct {
