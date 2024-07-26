@@ -4,6 +4,7 @@ package model
 
 import (
 	"encoding/json"
+	"regexp"
 
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
@@ -451,6 +452,72 @@ type IndexSearchResponse struct {
 	ApproximateCount int64            `json:"approximateCount"`
 }
 
+func (isr *IndexSearchResponse) UnmarshalJSON(data []byte) error {
+	// Define an auxiliary struct to decode the JSON
+	type AuxIndexSearchResponse struct {
+		QueryType        string            `json:"queryType"`
+		SearchParameters json.RawMessage   `json:"searchParameters"`
+		Entities         []json.RawMessage `json:"entities"`
+		ApproximateCount int64             `json:"approximateCount"`
+	}
+
+	// Unmarshal into the auxiliary struct
+	var aux AuxIndexSearchResponse
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	// Unmarshal SearchParameters into the desired struct
+	var searchParams SearchParameters
+	if err := json.Unmarshal(aux.SearchParameters, &searchParams); err != nil {
+		return err
+	}
+	isr.SearchParameters = searchParams
+
+	// Unmarshal each entity into SearchAssets
+	var entities []SearchAssets
+	for _, entityData := range aux.Entities {
+		var sa SearchAssets
+		if err := json.Unmarshal(entityData, &sa); err != nil {
+			return err
+		}
+		// Populate custom metadata set for each entity
+		sa.CustomMetadataSets = isr.unflattenCustomMetadata(searchParams.Attributes, sa.rawSearchAttributes)
+		entities = append(entities, sa)
+	}
+	isr.Entities = entities
+	isr.QueryType = aux.QueryType
+	isr.ApproximateCount = aux.ApproximateCount
+
+	return nil
+}
+
+// Helper function to unflatten custom metadata structures from index search results
+func (isr *IndexSearchResponse) unflattenCustomMetadata(searchParameterAttributes []string, searchAttributes map[string]interface{}) map[string]map[string]interface{} {
+	if len(searchParameterAttributes) == 0 || len(searchAttributes) == 0 {
+		return nil
+	}
+
+	retval := make(map[string]map[string]interface{})
+	metadataAttribute := regexp.MustCompile(`(\w+)\.(\w+)`)
+
+	for _, attributeOfInterest := range searchParameterAttributes {
+		if metadataAttribute.MatchString(attributeOfInterest) {
+			if value, exists := searchAttributes[attributeOfInterest]; exists {
+				matches := metadataAttribute.FindStringSubmatch(attributeOfInterest)
+				if len(matches) > 2 {
+					key := matches[1]
+					if _, ok := retval[key]; !ok {
+						retval[key] = make(map[string]interface{})
+					}
+					retval[key][matches[2]] = value
+				}
+			}
+		}
+	}
+	return retval
+}
+
 // SearchParameters represents the search parameters in the Atlas search response.
 type SearchParameters struct {
 	ShowSearchScore       bool     `json:"showSearchScore"`
@@ -462,17 +529,19 @@ type SearchParameters struct {
 	RequestMetadata       Metadata `json:"requestMetadata"`
 	Dsl                   Dsl      `json:"dsl"`
 	Query                 string   `json:"query"`
+	Attributes            []string `json:"attributes,omitempty"`
 }
 
 type SearchAssets struct {
 	structs.Asset
 	structs.Table
 	structs.Column
-	QualifiedName    *string           `json:"qualifiedName,omitempty"`
-	Name             *string           `json:"name,omitempty"`
-	SearchAttributes *SearchAttributes `json:"Attributes,omitempty"`
-	SearchMeanings   []Meanings        `json:"meanings,omitempty"` // If meanings as json is already defined in Asset struct then defining the meanings here would result in an empty response.
-	NotNull          *bool             `json:"notNull,omitempty"`
+	QualifiedName       *string           `json:"qualifiedName,omitempty"`
+	Name                *string           `json:"name,omitempty"`
+	SearchAttributes    *SearchAttributes `json:"Attributes,omitempty"`
+	SearchMeanings      []Meanings        `json:"meanings,omitempty"` // If meanings as json is already defined in Asset struct then defining the meanings here would result in an empty response.
+	NotNull             *bool             `json:"notNull,omitempty"`
+	rawSearchAttributes map[string]interface{}
 }
 
 type Meanings struct {
@@ -505,11 +574,12 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		structs.Asset
 		structs.Table
 		structs.Column
-		QualifiedName    *string           `json:"qualifiedName,omitempty"`
-		Name             *string           `json:"name,omitempty"`
-		SearchAttributes *SearchAttributes `json:"attributes,omitempty"`
-		SearchMeanings   []Meanings        `json:"meanings,omitempty"`
-		NotNull          *bool             `json:"notNull,omitempty"`
+		QualifiedName       *string           `json:"qualifiedName,omitempty"`
+		Name                *string           `json:"name,omitempty"`
+		SearchAttributes    *SearchAttributes `json:"attributes,omitempty"`
+		SearchMeanings      []Meanings        `json:"meanings,omitempty"`
+		NotNull             *bool             `json:"notNull,omitempty"`
+		rawSearchAttributes map[string]interface{}
 	}
 
 	// Decode into the auxiliary struct
@@ -551,7 +621,24 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		sa.AnnouncementMessage = aux.SearchAttributes.AnnouncementMessage
 		sa.CertificateStatus = aux.SearchAttributes.CertificateStatus
 		sa.CertificateStatusMessage = aux.SearchAttributes.CertificateStatusMessage
-	}
 
+		// Populate `rawSearchAttributes` (necessary for setting `SearchAssets.CustomMetadataSets`)
+		// First, unmarshal the data into a `rawSearchAsset` map
+		var rawSearchAsset map[string]interface{}
+		if err := json.Unmarshal(data, &rawSearchAsset); err != nil {
+			return err
+		}
+		// Extract `SearchAttributes` if present
+		if attributesData, ok := rawSearchAsset["attributes"]; ok {
+			attributesDataBytes, err := json.Marshal(attributesData)
+			if err != nil {
+				return err
+			}
+			if err := json.Unmarshal(attributesDataBytes, &aux.rawSearchAttributes); err != nil {
+				return err
+			}
+		}
+		sa.rawSearchAttributes = aux.rawSearchAttributes
+	}
 	return nil
 }

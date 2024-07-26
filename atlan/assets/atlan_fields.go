@@ -314,14 +314,18 @@ type CustomMetadataField struct {
 	AttributeDef  model.AttributeDef
 }
 
-func NewCustomMetadataField(setName, attributeName, elasticFieldName string) *CustomMetadataField {
+func NewCustomMetadataField(setName, attributeName string) (*CustomMetadataField, error) {
+	elasticFieldName, err := GetCustomMetadataCache().GetAttrIDForName(setName, attributeName)
+	if err != nil {
+		return nil, err
+	}
 	searchableField := NewSearchableField(attributeName, elasticFieldName)
 	return &CustomMetadataField{
 		SearchableField: searchableField,
 		SetName:         setName,
 		AttributeName:   attributeName,
 		AttributeDef:    GetAttributeDef(elasticFieldName),
-	}
+	}, nil
 }
 
 func (cmf *CustomMetadataField) Eq(value string) model.Query {
