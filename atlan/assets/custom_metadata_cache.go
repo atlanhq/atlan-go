@@ -2,10 +2,11 @@ package assets
 
 import (
 	"fmt"
-	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/model"
 	"strings"
 	"sync"
+
+	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/atlanhq/atlan-go/atlan/model"
 )
 
 /*

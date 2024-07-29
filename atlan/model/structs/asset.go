@@ -51,8 +51,6 @@ type MCMonitor string
 
 type File string
 
-type CustomMetadataAttributes string
-
 type SchemaRegistrySubject string
 
 type Metric struct {
@@ -338,7 +336,7 @@ type Asset struct {
 	// Atlan tags assigned to the asset.
 	AtlanTags *[]AtlanTag `json:"classifications,omitempty"`
 	// Map of custom metadata attributes and values defined on the asset.
-	CustomMetadataSets map[string]CustomMetadataAttributes `json:"customMetadataSets,omitempty"`
+	CustomMetadataSets map[string]map[string]interface{} `json:"customMetadataSets,omitempty"`
 	// Time (epoch) at which the asset was created, in milliseconds.
 	CreateTime *int64 `json:"createTime,omitempty"`
 	// Time (epoch) at which the asset was last updated, in milliseconds.

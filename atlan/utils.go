@@ -2,8 +2,9 @@ package atlan
 
 import (
 	"fmt"
-	gonanoid "github.com/matoous/go-nanoid"
 	"time"
+
+	gonanoid "github.com/matoous/go-nanoid"
 )
 
 // GenerateNanoid generates a random string of given length
