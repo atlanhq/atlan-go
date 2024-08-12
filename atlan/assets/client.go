@@ -277,6 +277,41 @@ func (ac *AtlanClient) s3PresignedUrlFileUpload(api *API, uploadFile *os.File, u
 	return nil
 }
 
+func (ac *AtlanClient) azureBlobPresignedUrlFileUpload(api *API, uploadFile *os.File, uploadFileSize int64) error {
+	// Remove authorization and returns the auth value
+	auth, err := ac.removeAuthorization()
+	if err != nil {
+		return err
+	}
+
+	// Add mandatory headers for Azure Blob storage
+	if headers, ok := ac.requestParams["headers"].(map[string]string); ok {
+		headers["x-ms-blob-type"] = "BlockBlob"
+	}
+
+	// Call the API with upload file options
+	uploadProgressBarDescription := "Uploading file to the object store:"
+	uploadProgressBar := initFileProgressBar(uploadFileSize, uploadProgressBarDescription)
+	options := map[string]interface{}{
+		"use_presigned_url": true,
+		"file_size":         uploadFileSize,
+		"progress_bar":      uploadProgressBar,
+	}
+	_, err = ac.CallAPI(api, nil, uploadFile, options)
+	if err != nil {
+		return err
+	}
+
+	// Restore authorization after API call
+	err = ac.restoreAuthorization(auth)
+	if err != nil {
+		ac.logger.Errorf("failed to restore authorization: %s", err)
+		return err
+	}
+
+	return nil
+}
+
 func (ac *AtlanClient) s3PresignedUrlFileDownload(api *API, downloadFilePath string) error {
 	// Remove authorization and returns the auth value
 	auth, err := ac.removeAuthorization()
@@ -414,7 +449,7 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 			}
 		}
 
-		ac.logger.Infof("Successfully downloaded file: %s", file.Name())
+		ac.logger.Debugf("Successfully downloaded file: %s", file.Name())
 		return []byte{}, nil
 	}
 
