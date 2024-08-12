@@ -56,10 +56,16 @@ func (client *FileClient) GeneratePresignedURL(request *model.PresignedURLReques
 
 // Uploads a file to Atlan's object storage.
 func (client *FileClient) UploadFile(presignedUrl string, filePath string) error {
-	var PRESIGNED_URL_UPLOAD = API{
+	var PRESIGNED_URL_UPLOAD_S3 = API{
 		Path:     presignedUrl,
 		Method:   http.MethodPut,
 		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+	var PRESIGNED_URL_UPLOAD_AZURE_BLOB = API{
+		Path:     presignedUrl,
+		Method:   http.MethodPut,
+		Status:   http.StatusCreated,
 		Endpoint: HeraclesEndpoint,
 	}
 
@@ -76,7 +82,9 @@ func (client *FileClient) UploadFile(presignedUrl string, filePath string) error
 	// Currently supported upload methods for different cloud storage providers
 	switch {
 	case strings.Contains(presignedUrl, string(model.S3)):
-		err = client.s3PresignedUrlFileUpload(&PRESIGNED_URL_UPLOAD, file, fileInfo.Size())
+		err = client.s3PresignedUrlFileUpload(&PRESIGNED_URL_UPLOAD_S3, file, fileInfo.Size())
+	case strings.Contains(presignedUrl, string(model.AzureBlob)):
+		err = client.azureBlobPresignedUrlFileUpload(&PRESIGNED_URL_UPLOAD_AZURE_BLOB, file, fileInfo.Size())
 	default:
 		return InvalidRequestError{AtlanError{ErrorCode: errorCodes[UNSUPPORTED_PRESIGNED_URL]}}
 	}
