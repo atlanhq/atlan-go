@@ -68,6 +68,12 @@ func (client *FileClient) UploadFile(presignedUrl string, filePath string) error
 		Status:   http.StatusCreated,
 		Endpoint: HeraclesEndpoint,
 	}
+	var PRESIGNED_URL_UPLOAD_GCS = API{
+		Path:     presignedUrl,
+		Method:   http.MethodPut,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
 
 	file, fileInfo, err := handleFileUpload(filePath)
 	if err != nil {
@@ -85,6 +91,8 @@ func (client *FileClient) UploadFile(presignedUrl string, filePath string) error
 		err = client.s3PresignedUrlFileUpload(&PRESIGNED_URL_UPLOAD_S3, file, fileInfo.Size())
 	case strings.Contains(presignedUrl, string(model.AzureBlob)):
 		err = client.azureBlobPresignedUrlFileUpload(&PRESIGNED_URL_UPLOAD_AZURE_BLOB, file, fileInfo.Size())
+	case strings.Contains(presignedUrl, string(model.GCS)):
+		err = client.gcsPresignedUrlFileUpload(&PRESIGNED_URL_UPLOAD_GCS, file, fileInfo.Size())
 	default:
 		return InvalidRequestError{AtlanError{ErrorCode: errorCodes[UNSUPPORTED_PRESIGNED_URL]}}
 	}
