@@ -312,6 +312,36 @@ func (ac *AtlanClient) azureBlobPresignedUrlFileUpload(api *API, uploadFile *os.
 	return nil
 }
 
+func (ac *AtlanClient) gcsPresignedUrlFileUpload(api *API, uploadFile *os.File, uploadFileSize int64) error {
+	// Remove authorization and returns the auth value
+	auth, err := ac.removeAuthorization()
+	if err != nil {
+		return err
+	}
+
+	// Call the API with upload file options
+	uploadProgressBarDescription := "Uploading file to the object store:"
+	uploadProgressBar := initFileProgressBar(uploadFileSize, uploadProgressBarDescription)
+	options := map[string]interface{}{
+		"use_presigned_url": true,
+		"file_size":         uploadFileSize,
+		"progress_bar":      uploadProgressBar,
+	}
+	_, err = ac.CallAPI(api, nil, uploadFile, options)
+	if err != nil {
+		return err
+	}
+
+	// Restore authorization after API call
+	err = ac.restoreAuthorization(auth)
+	if err != nil {
+		ac.logger.Errorf("failed to restore authorization: %s", err)
+		return err
+	}
+
+	return nil
+}
+
 func (ac *AtlanClient) s3PresignedUrlFileDownload(api *API, downloadFilePath string) error {
 	// Remove authorization and returns the auth value
 	auth, err := ac.removeAuthorization()
