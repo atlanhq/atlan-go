@@ -106,6 +106,13 @@ var (
 		Endpoint: AtlasEndpoint,
 	}
 
+	GET_ENTITY_BY_UNIQUE_ATTRIBUTE = API{
+		Path:     ENTITY_API + "uniqueAttribute/type/",
+		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: AtlasEndpoint,
+	}
+
 	INDEX_SEARCH = API{
 		Path:     "search/indexsearch/",
 		Method:   http.MethodPost,

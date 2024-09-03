@@ -773,6 +773,38 @@ func GetByGuid[T AtlanObject](guid string) (T, error) {
 	return newAsset, nil
 }
 
+func GetByQualifiedName[T AtlanObject](qualifiedName string) (T, error) {
+
+	var asset T
+
+	if DefaultAtlanClient == nil {
+		return asset, fmt.Errorf("default AtlanClient not initialized")
+	}
+
+	api := &GET_ENTITY_BY_UNIQUE_ATTRIBUTE
+	api.Path += reflect.TypeOf(asset).Elem().Name()
+
+	queryParams := map[string]string{
+		"attr:qualifiedName": qualifiedName,
+	}
+
+	response, err := DefaultAtlanClient.CallAPI(api, queryParams, nil)
+	if err != nil {
+		return asset, err
+	}
+
+	// Create a new instance of T using reflection
+	assetType := reflect.TypeOf(asset).Elem()
+	newAsset := reflect.New(assetType).Interface().(T)
+
+	err = newAsset.FromJSON(response)
+	if err != nil {
+		return asset, err
+	}
+
+	return newAsset, nil
+}
+
 // RetrieveMinimal retrieves an asset by its GUID, without any of its relationships.
 func RetrieveMinimal(guid string) (*structs.Asset, error) {
 	if DefaultAtlanClient == nil {
