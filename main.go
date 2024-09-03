@@ -13,22 +13,43 @@ func main() {
 
 	ctx.SetLogger(true, "debug")
 
-	qualifiedname := "default/snowflake/1715371897/RAW/WIDEWORLDIMPORTERS_SALESFORCE/FIVETRAN_API_CALL"
+	t := &assets.Table{} // create a new Glossary instance
 
-	response, atlanErr := assets.NewFluentSearch().
-		PageSizes(10).
-		ActiveAssets().
-		Where(ctx.Table.SUPERTYPE_NAMES.Eq("SQL")).
-		Where(ctx.Table.QUALIFIED_NAME.Eq(qualifiedname)).
-		IncludeOnResults("userDescription", "ownerUsers", "ownerGroups", "certificateStatus", "tags").
-		Execute()
+	//schemaName := "WIDEWORLDIMPORTERS_PURCHASING"
+	//dataBaseName := "RAW"
+	//dataBaseQualifiedName := "default/snowflake/1723642516/RAW"
+	//connectionQualifiedName := "default/snowflake/1723642516"
 
-	if atlanErr != nil {
-		fmt.Println(atlanErr)
+	t.Creator("TestTable3", "default/snowflake/1723642516/RAW/WIDEWORLDIMPORTERS_PURCHASING", nil, nil, nil, nil)
+
+	response, err := assets.Save(t) // save the table
+	if err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		for _, entity := range response.MutatedEntities.CREATE {
+			//fmt.Println("Response:", entity)
+			fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
+		}
 	}
+	/*
+		qualifiedname := "default/snowflake/1715371897/RAW/WIDEWORLDIMPORTERS_SALESFORCE/FIVETRAN_API_CALL"
 
-	fmt.Println(response[0].Entities[0].SearchMeanings[0].Guid)
+		response, atlanErr := assets.NewFluentSearch().
+			PageSizes(10).
+			ActiveAssets().
+			Where(ctx.Table.SUPERTYPE_NAMES.Eq("SQL")).
+			Where(ctx.Table.QUALIFIED_NAME.Eq(qualifiedname)).
+			IncludeOnResults("userDescription", "ownerUsers", "ownerGroups", "certificateStatus", "tags").
+			Execute()
 
+		if atlanErr != nil {
+			fmt.Println(atlanErr)
+		}
+
+		fmt.Println(response[0].Entities[0].SearchMeanings[0].Guid)
+
+
+	*/
 	/*
 		structs.GetAll()
 
