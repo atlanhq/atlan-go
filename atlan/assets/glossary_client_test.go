@@ -16,13 +16,15 @@ func TestIntegrationGlossary(t *testing.T) {
 
 	NewContext()
 
-	glossaryGUID := testCreateGlossary(t)
+	glossaryGUID, glossaryQualifiedName := testCreateGlossary(t)
+	fmt.Printf("glossaryQn: %v\n", glossaryQualifiedName)
 	testUpdateGlossary(t, glossaryGUID)
 	testRetrieveGlossary(t, glossaryGUID)
+	testRetrieveGlossarybyQualifiedName(t, glossaryQualifiedName)
 	testDeleteGlossary(t, glossaryGUID)
 }
 
-func testCreateGlossary(t *testing.T) string {
+func testCreateGlossary(t *testing.T) (string, string) {
 	g := &AtlasGlossary{}
 	// Create Glossary
 	g.Creator(GlossaryName, atlan.AtlanIconAirplaneInFlight)
@@ -39,7 +41,7 @@ func testCreateGlossary(t *testing.T) string {
 	assert.Equal(t, GlossaryName, *assetone.Attributes.Name, "glossary name should match")
 	assert.Equal(t, *g.TypeName, assetone.TypeName, "glossary type should match")
 
-	return assetone.Guid
+	return assetone.Guid, *assetone.Attributes.QualifiedName
 }
 
 func testUpdateGlossary(t *testing.T, glossaryGUID string) {
@@ -64,6 +66,15 @@ func testRetrieveGlossary(t *testing.T, glossaryGUID string) {
 	}
 	assert.NotNil(t, glossary, "fetched glossary should be nil")
 	assert.Equal(t, glossaryGUID, *glossary.Guid, "glossary guid should match")
+}
+
+func testRetrieveGlossarybyQualifiedName(t *testing.T, glossaryQualifiedName string) {
+	glossary, err := GetByQualifiedName[*AtlasGlossary](glossaryQualifiedName)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	assert.NotNil(t, glossary, "fetched glossary should not be nil")
+	assert.Equal(t, glossaryQualifiedName, *glossary.QualifiedName, "glossary qualified name should match")
 }
 
 func testDeleteGlossary(t *testing.T, glossaryGUID string) {
