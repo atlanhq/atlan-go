@@ -143,6 +143,19 @@ func (t *Table) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// Updater is used to modify a glossary asset in memory.
+func (t *Table) Updater(name string, qualifiedName string) error {
+	if name == "" || qualifiedName == "" {
+		return errors.New("name, qualified_name are required fields")
+	}
+
+	t.TypeName = structs.StringPtr("Table")
+	t.Name = structs.StringPtr(name)
+	t.QualifiedName = structs.StringPtr(qualifiedName)
+
+	return nil
+}
+
 // MarshalJSON filters out entities to only include those with non-empty attributes.
 func (t *Table) MarshalJSON() ([]byte, error) {
 	// Construct the custom JSON structure

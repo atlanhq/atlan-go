@@ -13,15 +13,14 @@ func main() {
 
 	ctx.SetLogger(true, "debug")
 
-	t := &assets.Table{} // create a new Glossary instance
+	t := &assets.Table{} // create a new Table instance
 
 	//schemaName := "WIDEWORLDIMPORTERS_PURCHASING"
 	//dataBaseName := "RAW"
 	//dataBaseQualifiedName := "default/snowflake/1723642516/RAW"
 	//connectionQualifiedName := "default/snowflake/1723642516"
 
-	t.Creator("TestTable3", "default/snowflake/1723642516/RAW/WIDEWORLDIMPORTERS_PURCHASING", nil, nil, nil, nil)
-
+	t.Creator("TestTable6", "default/snowflake/1723642516/RAW/WIDEWORLDIMPORTERS_PURCHASING")
 	response, err := assets.Save(t) // save the table
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -29,6 +28,20 @@ func main() {
 		for _, entity := range response.MutatedEntities.CREATE {
 			//fmt.Println("Response:", entity)
 			fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
+		}
+	}
+
+	t1 := &assets.Table{} // create a new Table instance
+
+	t1.Updater("TestTable7", "default/snowflake/1723642516/RAW/WIDEWORLDIMPORTERS_PURCHASING/TestTable4")
+	DisplayName := "TestTableModified"
+	t1.Name = &DisplayName
+	response2, err := assets.Save(t1)
+	if err != nil {
+	} else {
+		for _, entity := range response2.MutatedEntities.UPDATE {
+			println("Response:", entity)
+			println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
 		}
 	}
 	/*
