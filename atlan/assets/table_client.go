@@ -11,7 +11,52 @@ import (
 type Table structs.Table
 
 // Creator is used to create a new table asset.
-func (t *Table) Creator(name, schemaQualifiedName string, schemaName, databaseName, databaseQualifiedName, connectionQualifiedName *string) error {
+func (t *Table) Creator(name, schemaQualifiedName string) error {
+	if name == "" || schemaQualifiedName == "" {
+		return errors.New("name and schemaQualifiedName are required fields")
+	}
+
+	// Extract the connector type from the schemaQualifiedName
+	connectorType, err := atlan.GetConnectorTypeFromQualifiedName(schemaQualifiedName)
+	if err != nil {
+		return err
+	}
+
+	// Split the schemaQualifiedName to extract fields
+	fields := strings.Split(schemaQualifiedName, "/")
+	if len(fields) < 5 {
+		return errors.New("schemaQualifiedName must have at least 5 parts separated by '/'")
+	}
+
+	// Construct connectionQualifiedName if not provided
+	connectionQn := fields[0] + "/" + connectorType.Value
+	connectionQualifiedName := &connectionQn
+
+	// Construct qualified name
+	qualifiedName := schemaQualifiedName + "/" + name
+
+	// Set the optional fields if not provided
+	databaseName := &fields[3]
+
+	schemaName := &fields[4]
+
+	dbQualifiedName := *connectionQualifiedName + "/" + *databaseName
+	databaseQualifiedName := &dbQualifiedName
+
+	// Assign the constructed and provided values to the Table
+	t.TypeName = structs.StringPtr("Table")
+	t.Name = structs.StringPtr(name)
+	t.QualifiedName = structs.StringPtr(qualifiedName)
+	t.SchemaQualifiedName = structs.StringPtr(schemaQualifiedName)
+	t.SchemaName = schemaName
+	t.DatabaseName = databaseName
+	t.DatabaseQualifiedName = databaseQualifiedName
+	t.ConnectionQualifiedName = connectionQualifiedName
+
+	return nil
+}
+
+func (t *Table) CreatorWithParams(name, schemaQualifiedName string, schemaName, databaseName, databaseQualifiedName, connectionQualifiedName *string) error {
 	if name == "" || schemaQualifiedName == "" {
 		return errors.New("name and schemaQualifiedName are required fields")
 	}
