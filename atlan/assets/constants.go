@@ -1,7 +1,10 @@
 package assets
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
+	"path"
 )
 
 const (
@@ -27,6 +30,8 @@ type API struct {
 	Method   string
 	Status   int
 	Endpoint Endpoint
+	Consumes string
+	Produces string
 }
 
 type Endpoint struct {
@@ -147,6 +152,27 @@ var (
 		Status:   http.StatusOK,
 		Endpoint: HeraclesEndpoint,
 	}
+
+	UPDATE_ENTITY_BY_ATTRIBUTE = API{
+		Path:     ENTITY_API + "uniqueAttribute/type/",
+		Method:   http.MethodPost,
+		Status:   http.StatusNoContent,
+		Endpoint: AtlasEndpoint,
+	}
+
+	PARTIAL_UPDATE_ENTITY_BY_ATTRIBUTE = API{
+		Path:     ENTITY_API + "uniqueAttribute/type/",
+		Method:   http.MethodPut,
+		Status:   http.StatusOK,
+		Endpoint: AtlasEndpoint,
+	}
+
+	DELETE_ENTITY_BY_ATTRIBUTE = API{
+		Path:     ENTITY_API + "uniqueAttribute/type/",
+		Method:   http.MethodDelete,
+		Status:   http.StatusNoContent,
+		Endpoint: AtlasEndpoint,
+	}
 )
 
 // Constants for the Atlas search DSL
@@ -188,3 +214,37 @@ const (
 	UPDATE_TIME_AS_DATE             = "__modificationTimestamp.date"
 	USER_DESCRIPTION                = "userDescription"
 )
+
+// FormatPathWithParams returns a new API object with the path formatted by joining the provided parameters.
+func (api *API) FormatPathWithParams(params ...string) (*API, error) {
+	// Join the base path with the additional params
+	requestPath, err := MultipartURLJoin(api.Path, params...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to join URL parts: %w", err)
+	}
+
+	// Return a new API object with the formatted path
+	return &API{
+		Path:     requestPath,
+		Method:   api.Method,
+		Status:   api.Status,
+		Endpoint: api.Endpoint,
+		Consumes: api.Consumes,
+		Produces: api.Produces,
+	}, nil
+}
+
+// MultipartURLJoin joins the base path with the provided segments.
+func MultipartURLJoin(basePath string, params ...string) (string, error) {
+	// Parse the base path as a URL
+	u, err := url.Parse(basePath)
+	if err != nil {
+		return "", fmt.Errorf("invalid base path: %w", err)
+	}
+
+	// Join additional path segments
+	u.Path = path.Join(u.Path, path.Join(params...))
+
+	// Return the final formatted URL
+	return u.String(), nil
+}

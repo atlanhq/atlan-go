@@ -773,6 +773,142 @@ func GetByGuid[T AtlanObject](guid string) (T, error) {
 	return newAsset, nil
 }
 
+func ModifyTags(api API,
+	assetType reflect.Type,
+	qualifiedName string,
+	atlanTagNames []string,
+	propagate bool,
+	removePropagationOnDelete bool,
+	restrictLineagePropagation bool,
+	restrictPropagationThroughHierarchy bool) error {
+
+	var atlanTags []structs.AtlanTag
+
+	for _, name := range atlanTagNames {
+		TagName, _ := GetAtlanTagIDForName(name)
+		atlanTags = append(atlanTags, structs.AtlanTag{
+			TypeName:                            &TagName,
+			Propagate:                           &propagate,
+			RemovePropagationsOnEntityDelete:    &removePropagationOnDelete,
+			RestrictPropagationThroughLineage:   &restrictLineagePropagation,
+			RestrictPropagationThroughHierarchy: &restrictPropagationThroughHierarchy,
+		})
+	}
+
+	queryParams := map[string]string{
+		"attr:qualifiedName": qualifiedName,
+	}
+
+	API, _ := api.FormatPathWithParams(assetType.Name(), "classifications")
+
+	_, err := DefaultAtlanClient.CallAPI(
+		API,
+		queryParams,
+		atlanTags,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to modify tags: %w", err)
+	}
+
+	return nil
+}
+
+func AddAtlanTags[T AtlanObject](
+	qualifiedName string,
+	atlanTagNames []string,
+	propagate bool,
+	removePropagationOnDelete bool,
+	restrictLineagePropagation bool,
+	restrictPropagationThroughHierarchy bool,
+) error {
+
+	var asset T
+	assetType := reflect.TypeOf(asset).Elem()
+
+	err := ModifyTags(
+		UPDATE_ENTITY_BY_ATTRIBUTE,
+		assetType,
+		qualifiedName,
+		atlanTagNames,
+		propagate,
+		removePropagationOnDelete,
+		restrictLineagePropagation,
+		restrictPropagationThroughHierarchy,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to add Atlan tags: %w", err)
+	}
+	return nil
+}
+
+func UpdateAtlanTags[T AtlanObject](
+	qualifiedName string,
+	atlanTagNames []string,
+	propagate bool,
+	removePropagationOnDelete bool,
+	restrictLineagePropagation bool,
+	restrictPropagationThroughHierarchy bool,
+) error {
+
+	var asset T
+	assetType := reflect.TypeOf(asset).Elem()
+
+	err := ModifyTags(
+		PARTIAL_UPDATE_ENTITY_BY_ATTRIBUTE,
+		assetType,
+		qualifiedName,
+		atlanTagNames,
+		propagate,
+		removePropagationOnDelete,
+		restrictLineagePropagation,
+		restrictPropagationThroughHierarchy,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to modify Atlan tags: %w", err)
+	}
+	return nil
+}
+
+func RemoveAtlanTag[T AtlanObject](
+	qualifiedName string,
+	atlanTagName string,
+) error {
+
+	var api API
+
+	api = DELETE_ENTITY_BY_ATTRIBUTE
+	var asset T
+	assetType := reflect.TypeOf(asset).Elem()
+
+	// Get the internal ID for the tag name
+	classificationID, err := GetAtlanTagIDForName(atlanTagName)
+	if err != nil {
+		return fmt.Errorf("failed to get Atlan tag ID for name %s: %w", atlanTagName, err)
+	}
+
+	// If classification ID is not found, return an error
+	if classificationID == "" {
+		return fmt.Errorf("Atlan tag not found: %s", atlanTagName)
+	}
+
+	// Set query params with the qualified name
+	queryParams := map[string]string{
+		"attr:qualifiedName": qualifiedName,
+	}
+
+	// Construct the API path for deleting the tag
+	API, _ := api.FormatPathWithParams(assetType.Name(), "classifications", classificationID)
+
+	// Call the Atlan API to remove the tag
+	_, err = DefaultAtlanClient.CallAPI(API, queryParams, nil)
+	if err != nil {
+		return fmt.Errorf("failed to remove Atlan tag: %w", err)
+	}
+
+	return nil
+}
+
+// GetByQualifiedName retrieves an asset by guid
 func GetByQualifiedName[T AtlanObject](qualifiedName string) (T, error) {
 
 	var asset T
