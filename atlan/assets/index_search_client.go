@@ -252,6 +252,9 @@ func (it *IndexSearchIterator) IteratePages() ([]*model.IndexSearchResponse, err
 		return nil, fmt.Errorf("no more results available")
 	}
 
+	if it.pageSize == 0 {
+		it.pageSize = 300 // Set Default Page Size
+	}
 	// Perform an initial search to get the approximateCount
 	it.request.Dsl.From = 0
 	it.request.Dsl.Size = it.pageSize

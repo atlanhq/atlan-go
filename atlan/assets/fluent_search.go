@@ -139,6 +139,11 @@ func (fs *FluentSearch) IncludeOnRelations(fields ...string) *FluentSearch {
 
 // Execute performs the search and returns the results.
 func (fs *FluentSearch) Execute() ([]*model.IndexSearchResponse, error) {
+
+	if fs.PageSize == 0 {
+		fs.PageSize = 300 // Set Default Page Size
+	}
+
 	pageSize := fs.PageSize
 	request := fs.ToRequest()
 
