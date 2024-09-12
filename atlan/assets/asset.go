@@ -897,7 +897,7 @@ func RemoveAtlanTag[T AtlanObject](
 	}
 
 	// Construct the API path for deleting the tag
-	API, _ := api.FormatPathWithParams(assetType.Name(), "classifications", classificationID)
+	API, _ := api.FormatPathWithParams(assetType.Name(), "classification", classificationID)
 
 	// Call the Atlan API to remove the tag
 	_, err = DefaultAtlanClient.CallAPI(API, queryParams, nil)
