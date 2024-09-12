@@ -385,7 +385,11 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 	switch v := queryParams.(type) {
 	case map[string]string:
 		for key, value := range v {
-			query.Add(key, value)
+			if key == "attr:qualifiedName" {
+				path += fmt.Sprintf("?%s=%s", key, url.QueryEscape(value))
+			} else {
+				query.Add(key, value)
+			}
 		}
 	case map[string][]string:
 		for key, values := range v {

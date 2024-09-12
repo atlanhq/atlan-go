@@ -13,37 +13,69 @@ func main() {
 
 	ctx.SetLogger(true, "debug")
 
-	t := &assets.Table{} // create a new Table instance
+	//t := &assets.Table{} // create a new Table instance
+
+	// Define the Atlan tag details
+	qualifiedName := "default/snowflake/1725896074/ANALYTICS/WIDE_WORLD_IMPORTERS/FCT_STOCK_ITEM_HOLDINGS"
+	//atlanTagNames := []string{"Daily", "Hourly"} // List of tags to add
+
+	err := assets.RemoveAtlanTag[*assets.Table](qualifiedName, "Confidential")
+	/*
+		// Set the propagation options
+		propagate := true
+		removePropagationOnDelete := true
+		restrictLineagePropagation := false
+		restrictPropagationThroughHierarchy := false
+
+
+		// Call the AddAtlanTags function
+		err := assets.UpdateAtlanTags[*assets.Table](
+			qualifiedName,                       // The qualified name of the asset
+			atlanTagNames,                       // The list of Atlan tags to add
+			propagate,                           // Whether to propagate the tags or not
+			removePropagationOnDelete,           // Remove propagation on delete
+			restrictLineagePropagation,          // Restrict lineage propagation
+			restrictPropagationThroughHierarchy, // Restrict propagation through hierarchy
+		)
+	*/
+	if err != nil {
+		fmt.Printf("Failed to add Atlan tags: %v\n", err)
+	} else {
+		fmt.Println("Atlan tags added successfully.")
+	}
 
 	//schemaName := "WIDEWORLDIMPORTERS_PURCHASING"
 	//dataBaseName := "RAW"
 	//dataBaseQualifiedName := "default/snowflake/1723642516/RAW"
 	//connectionQualifiedName := "default/snowflake/1723642516"
 
-	t.Creator("TestTable6", "default/snowflake/1723642516/RAW/WIDEWORLDIMPORTERS_PURCHASING")
-	response, err := assets.Save(t) // save the table
-	if err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		for _, entity := range response.MutatedEntities.CREATE {
-			//fmt.Println("Response:", entity)
-			fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
+	/*
+		t.Creator("TestTable6", "default/snowflake/1723642516/RAW/WIDEWORLDIMPORTERS_PURCHASING")
+		response, err := assets.Save(t) // save the table
+		if err != nil {
+			fmt.Println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.CREATE {
+				//fmt.Println("Response:", entity)
+				fmt.Printf("Entity ID: %s, Display Text: %s\n", entity.Guid, entity.DisplayText)
+			}
 		}
-	}
 
-	t1 := &assets.Table{} // create a new Table instance
+		t1 := &assets.Table{} // create a new Table instance
 
-	t1.Updater("TestTable7", "default/snowflake/1723642516/RAW/WIDEWORLDIMPORTERS_PURCHASING/TestTable4")
-	DisplayName := "TestTableModified"
-	t1.Name = &DisplayName
-	response2, err := assets.Save(t1)
-	if err != nil {
-	} else {
-		for _, entity := range response2.MutatedEntities.UPDATE {
-			println("Response:", entity)
-			println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+		t1.Updater("TestTable7", "default/snowflake/1723642516/RAW/WIDEWORLDIMPORTERS_PURCHASING/TestTable4")
+		DisplayName := "TestTableModified"
+		t1.Name = &DisplayName
+		response2, err := assets.Save(t1)
+		if err != nil {
+		} else {
+			for _, entity := range response2.MutatedEntities.UPDATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
 		}
-	}
+
+	*/
 	/*
 		qualifiedname := "default/snowflake/1715371897/RAW/WIDEWORLDIMPORTERS_SALESFORCE/FIVETRAN_API_CALL"
 
