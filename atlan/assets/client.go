@@ -29,6 +29,7 @@ type AtlanClient struct {
 var (
 	DefaultAtlanClient   *AtlanClient
 	DefaultAtlanTagCache *AtlanTagCache
+	contentType          string
 )
 
 // Init initializes the default AtlanClient.
@@ -443,8 +444,6 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 		}
 	}
 
-	ac.logAPICall(api.Method, path)
-
 	// Send the request
 	response, err := ac.makeRequest(api.Method, path, params)
 	if err != nil {
@@ -501,7 +500,6 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 func (ac *AtlanClient) makeRequest(method, path string, params map[string]interface{}) (*http.Response, error) {
 	var req *http.Request
 	var err error
-	var contentType string
 
 	switch method {
 	case http.MethodGet:
@@ -602,15 +600,17 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 		req.URL.RawQuery = query
 	}
 
+	ac.logAPICall(req.Method, path, req)
+
 	// Finally, execute the request
 	return ac.Session.Do(req)
 }
 
-func (ac *AtlanClient) logAPICall(method, path string) {
+func (ac *AtlanClient) logAPICall(method, path string, request *http.Request) {
 	ac.logger.Debugf("------------------------------------------------------")
 	ac.logger.Debugf("Call         : %s %s", method, path)
-	ac.logger.Debugf("Content-type : application/json")
-	ac.logger.Debugf("Accept       : application/json")
+	ac.logger.Debugf("Content-type : %s", request.Header.Get("Content-Type"))
+	ac.logger.Debugf("Accept       : %s", request.Header.Get("Accept"))
 }
 
 func (ac *AtlanClient) logHTTPStatus(response *http.Response) {
