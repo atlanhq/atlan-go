@@ -14,7 +14,10 @@ require (
 	golang.org/x/exp v0.0.0-20241004190924-225e2abe05e6
 )
 
-require gonum.org/v1/gonum v0.15.1
+require (
+	golang.org/x/text v0.14.0
+	gonum.org/v1/gonum v0.15.1
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
