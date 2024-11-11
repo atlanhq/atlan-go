@@ -2,48 +2,74 @@ package main
 
 import (
 	"fmt"
+	_ "github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/assets"
+	_ "github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
 func main() {
 
 	ctx := assets.NewContext()
+	ctx.EnableLogging("debug")
 
-	//ctx, _ := assets.Context("tenet.atlan.com", "xyz")
+	assetQualifiedName := "default/snowflake/1728590954/ANALYTICS/WIDE_WORLD_IMPORTERS/STG_CUSTOMER_TRANSACTIONS"
 
-	ctx.SetLogger(true, "debug")
+	columnSearchResponse, _ := assets.NewFluentSearch().
+		PageSizes(100).
+		ActiveAssets().
+		Where(ctx.Column.TYPENAME.Eq("Column")).
+		Where(ctx.Column.NAME.Eq("PAYMENT_METHOD_ID")).
+		Where(ctx.Table.TABLE_QUALIFIED_NAME.Eq(assetQualifiedName)).
+		IncludeOnResults("maxLength", "precision", "numericScale").
+		Execute()
 
-	//t := &assets.Table{} // create a new Table instance
+	fmt.Println(*columnSearchResponse[0].Entities[0].MaxLength)
+	fmt.Println(*columnSearchResponse[0].Entities[0].Precision)
+	fmt.Println(*columnSearchResponse[0].Entities[0].NumericScale)
 
-	// Define the Atlan tag details
-	qualifiedName := "default/snowflake/1725896074/ANALYTICS/WIDE_WORLD_IMPORTERS/FCT_STOCK_ITEM_HOLDINGS"
-	//atlanTagNames := []string{"Daily", "Hourly"} // List of tags to add
-
-	err := assets.RemoveAtlanTag[*assets.Table](qualifiedName, "Confidential")
 	/*
-		// Set the propagation options
-		propagate := true
-		removePropagationOnDelete := true
-		restrictLineagePropagation := false
-		restrictPropagationThroughHierarchy := false
+		ctx := assets.NewContext()
+
+		//ctx, _ := assets.Context("tenet.atlan.com", "xyz")
+
+		ctx.SetLogger(true, "debug")
+
+		generator.RunGenerator()
 
 
-		// Call the AddAtlanTags function
-		err := assets.UpdateAtlanTags[*assets.Table](
-			qualifiedName,                       // The qualified name of the asset
-			atlanTagNames,                       // The list of Atlan tags to add
-			propagate,                           // Whether to propagate the tags or not
-			removePropagationOnDelete,           // Remove propagation on delete
-			restrictLineagePropagation,          // Restrict lineage propagation
-			restrictPropagationThroughHierarchy, // Restrict propagation through hierarchy
-		)
 	*/
-	if err != nil {
-		fmt.Printf("Failed to add Atlan tags: %v\n", err)
-	} else {
-		fmt.Println("Atlan tags added successfully.")
-	}
+	/*
+			//t := &assets.Table{} // create a new Table instance
 
+			// Define the Atlan tag details
+			qualifiedName := "default/snowflake/1725896074/ANALYTICS/WIDE_WORLD_IMPORTERS/FCT_STOCK_ITEM_HOLDINGS"
+			//atlanTagNames := []string{"Daily", "Hourly"} // List of tags to add
+
+			err := assets.RemoveAtlanTag[*assets.Table](qualifiedName, "Confidential")
+			/*
+				// Set the propagation options
+				propagate := true
+				removePropagationOnDelete := true
+				restrictLineagePropagation := false
+				restrictPropagationThroughHierarchy := false
+
+
+				// Call the AddAtlanTags function
+				err := assets.UpdateAtlanTags[*assets.Table](
+					qualifiedName,                       // The qualified name of the asset
+					atlanTagNames,                       // The list of Atlan tags to add
+					propagate,                           // Whether to propagate the tags or not
+					removePropagationOnDelete,           // Remove propagation on delete
+					restrictLineagePropagation,          // Restrict lineage propagation
+					restrictPropagationThroughHierarchy, // Restrict propagation through hierarchy
+				)
+
+		if err != nil {
+			fmt.Printf("Failed to add Atlan tags: %v\n", err)
+		} else {
+			fmt.Println("Atlan tags added successfully.")
+		}
+	*/
 	//schemaName := "WIDEWORLDIMPORTERS_PURCHASING"
 	//dataBaseName := "RAW"
 	//dataBaseQualifiedName := "default/snowflake/1723642516/RAW"
@@ -530,4 +556,5 @@ func main() {
 	*/
 	//fmt.Println("Retrieved Typedef:")
 	//fmt.Printf("DisplayName: %s\n", t.AtlanTagDefs[1].DisplayName)
+	//
 }
