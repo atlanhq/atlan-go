@@ -5,6 +5,7 @@ package model
 import (
 	"encoding/json"
 	"regexp"
+	"time"
 
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
@@ -552,12 +553,76 @@ type Meanings struct {
 }
 
 type SearchAttributes struct {
+	// Column Attributes
+	SubDataType                    *string                            `json:"subDataType,omitempty"`
+	RawDataTypeDefinition          *string                            `json:"rawDataTypeDefinition,omitempty"`
+	Order                          *int                               `json:"order,omitempty"`
+	NestedColumnCount              *int                               `json:"nestedColumnCount,omitempty"`
+	IsPartition                    *bool                              `json:"isPartition,omitempty"`
+	PartitionOrder                 *int                               `json:"partitionOrder,omitempty"`
+	IsClustered                    *bool                              `json:"isClustered,omitempty"`
+	IsPrimary                      *bool                              `json:"isPrimary,omitempty"`
+	IsForeign                      *bool                              `json:"isForeign,omitempty"`
+	IsIndexed                      *bool                              `json:"isIndexed,omitempty"`
+	IsSort                         *bool                              `json:"isSort,omitempty"`
+	IsDist                         *bool                              `json:"isDist,omitempty"`
+	IsPinned                       *bool                              `json:"isPinned,omitempty"`
+	PinnedBy                       *string                            `json:"pinnedBy,omitempty"`
+	PinnedAt                       *time.Time                         `json:"pinnedAt,omitempty"`
+	Precision                      *int                               `json:"precision,omitempty"`
+	DefaultValue                   *string                            `json:"defaultValue,omitempty"`
+	NumericScale                   *float64                           `json:"numericScale,omitempty"`
+	Validations                    map[string]string                  `json:"validations,omitempty"`
+	ParentColumnQualifiedName      *string                            `json:"parentColumnQualifiedName,omitempty"`
+	ParentColumnName               *string                            `json:"parentColumnName,omitempty"`
+	ColumnDistinctValuesCount      *int                               `json:"columnDistinctValuesCount,omitempty"`
+	ColumnDistinctValuesCountLong  *int                               `json:"columnDistinctValuesCountLong,omitempty"`
+	ColumnHistogram                *structs.Histogram                 `json:"columnHistogram,omitempty"`
+	ColumnMax                      *float64                           `json:"columnMax,omitempty"`
+	ColumnMin                      *float64                           `json:"columnMin,omitempty"`
+	ColumnMean                     *float64                           `json:"columnMean,omitempty"`
+	ColumnSum                      *float64                           `json:"columnSum,omitempty"`
+	ColumnMedian                   *float64                           `json:"columnMedian,omitempty"`
+	ColumnStandardDeviation        *float64                           `json:"columnStandardDeviation,omitempty"`
+	ColumnUniqueValuesCount        *int                               `json:"columnUniqueValuesCount,omitempty"`
+	ColumnUniqueValuesCountLong    *int                               `json:"columnUniqueValuesCountLong,omitempty"`
+	ColumnAverage                  *float64                           `json:"columnAverage,omitempty"`
+	ColumnAverageLength            *float64                           `json:"columnAverageLength,omitempty"`
+	ColumnDuplicateValuesCount     *int                               `json:"columnDuplicateValuesCount,omitempty"`
+	ColumnDuplicateValuesCountLong *int                               `json:"columnDuplicateValuesCountLong,omitempty"`
+	ColumnMaximumStringLength      *int                               `json:"columnMaximumStringLength,omitempty"`
+	ColumnMaxs                     *map[string]bool                   `json:"columnMaxs,omitempty"`
+	ColumnMinimumStringLength      *int                               `json:"columnMinimumStringLength,omitempty"`
+	ColumnMins                     *map[string]bool                   `json:"columnMins,omitempty"`
+	ColumnMissingValuesCount       *int                               `json:"columnMissingValuesCount,omitempty"`
+	ColumnMissingValuesCountLong   *int                               `json:"columnMissingValuesCountLong,omitempty"`
+	ColumnMissingValuesPercentage  *float64                           `json:"columnMissingValuesPercentage,omitempty"`
+	ColumnUniquenessPercentage     *float64                           `json:"columnUniquenessPercentage,omitempty"`
+	ColumnVariance                 *float64                           `json:"columnVariance,omitempty"`
+	ColumnTopValues                []*structs.ColumnValueFrequencyMap `json:"columnTopValues,omitempty"`
+	ColumnDepthLevel               *int                               `json:"columnDepthLevel,omitempty"`
+	SnowflakeDynamicTable          *structs.SnowflakeDynamicTable     `json:"snowflakeDynamicTable,omitempty"`
+	View                           *structs.View                      `json:"view,omitempty"`
+	NestedColumns                  []*structs.Column                  `json:"nestedColumns,omitempty"`
+	DataQualityMetricDimensions    []*structs.Metric                  `json:"dataQualityMetricDimensions,omitempty"`
+	DbtModelColumns                []*structs.DbtModelColumn          `json:"dbtModelColumns,omitempty"`
+	Table                          *structs.Table                     `json:"table,omitempty"`
+	ColumnDbtModelColumns          []*structs.DbtModelColumn          `json:"columnDbtModelColumns,omitempty"`
+	MaterialisedView               *structs.MaterialisedView          `json:"materialisedView,omitempty"`
+	ParentColumn                   *structs.Column                    `json:"parentColumn,omitempty"`
+	Queries                        []*Query                           `json:"queries,omitempty"`
+	MetricTimestamps               []*structs.Metric                  `json:"metricTimestamps,omitempty"`
+	ForeignKeyTo                   []*structs.Column                  `json:"foreignKeyTo,omitempty"`
+	ForeignKeyFrom                 *structs.Column                    `json:"foreignKeyFrom,omitempty"`
+	DbtMetrics                     []*structs.DbtMetric               `json:"dbtMetrics,omitempty"`
+	TablePartition                 *structs.TablePartition            `json:"tablePartition,omitempty"`
+	MaxLength                      *int                               `json:"maxLength,omitempty"`
+
 	QualifiedName            *string                    `json:"qualifiedName,omitempty"`
 	Name                     *string                    `json:"name,omitempty"`
 	UserDescription          *string                    `json:"userDescription,omitempty"`
 	Description              *string                    `json:"description,omitempty"`
 	DataType                 *string                    `json:"dataType,omitempty"`
-	IsPrimary                *bool                      `json:"isPrimary,omitempty"`
 	IsNullable               *bool                      `json:"isNullable,omitempty"`
 	OwnerGroups              *[]string                  `json:"ownerGroups,omitempty"`
 	OwnerUsers               *[]string                  `json:"ownerUsers,omitempty"`
@@ -621,6 +686,69 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		sa.AnnouncementMessage = aux.SearchAttributes.AnnouncementMessage
 		sa.CertificateStatus = aux.SearchAttributes.CertificateStatus
 		sa.CertificateStatusMessage = aux.SearchAttributes.CertificateStatusMessage
+		// Column Attributes
+		sa.MaxLength = aux.SearchAttributes.MaxLength
+		sa.Precision = aux.SearchAttributes.Precision
+		sa.NumericScale = aux.SearchAttributes.NumericScale
+		sa.IsPartition = aux.SearchAttributes.IsPartition
+		sa.SubDataType = aux.SearchAttributes.SubDataType
+		sa.RawDataTypeDefinition = aux.SearchAttributes.RawDataTypeDefinition
+		sa.Order = aux.SearchAttributes.Order
+		sa.NestedColumnCount = aux.SearchAttributes.NestedColumnCount
+		sa.IsPartition = aux.SearchAttributes.IsPartition
+		sa.PartitionOrder = aux.SearchAttributes.PartitionOrder
+		sa.IsClustered = aux.SearchAttributes.IsClustered
+		sa.IsPrimary = aux.SearchAttributes.IsPrimary
+		sa.IsForeign = aux.SearchAttributes.IsForeign
+		sa.IsIndexed = aux.SearchAttributes.IsIndexed
+		sa.IsSort = aux.SearchAttributes.IsSort
+		sa.IsDist = aux.SearchAttributes.IsDist
+		sa.IsPinned = aux.SearchAttributes.IsPinned
+		sa.PinnedBy = aux.SearchAttributes.PinnedBy
+		sa.PinnedAt = aux.SearchAttributes.PinnedAt
+		sa.DefaultValue = aux.SearchAttributes.DefaultValue
+		sa.Validations = aux.SearchAttributes.Validations
+		sa.ParentColumnQualifiedName = aux.SearchAttributes.ParentColumnQualifiedName
+		sa.ParentColumnName = aux.SearchAttributes.ParentColumnName
+		sa.ColumnDistinctValuesCount = aux.SearchAttributes.ColumnDistinctValuesCount
+		sa.ColumnDistinctValuesCountLong = aux.SearchAttributes.ColumnDistinctValuesCountLong
+		sa.ColumnHistogram = aux.SearchAttributes.ColumnHistogram
+		sa.ColumnMax = aux.SearchAttributes.ColumnMax
+		sa.ColumnMin = aux.SearchAttributes.ColumnMin
+		sa.ColumnMean = aux.SearchAttributes.ColumnMean
+		sa.ColumnSum = aux.SearchAttributes.ColumnSum
+		sa.ColumnMedian = aux.SearchAttributes.ColumnMedian
+		sa.ColumnStandardDeviation = aux.SearchAttributes.ColumnStandardDeviation
+		sa.ColumnUniqueValuesCount = aux.SearchAttributes.ColumnUniqueValuesCount
+		sa.ColumnUniqueValuesCountLong = aux.SearchAttributes.ColumnUniqueValuesCountLong
+		sa.ColumnAverage = aux.SearchAttributes.ColumnAverage
+		sa.ColumnAverageLength = aux.SearchAttributes.ColumnAverageLength
+		sa.ColumnDuplicateValuesCount = aux.SearchAttributes.ColumnDuplicateValuesCount
+		sa.ColumnDuplicateValuesCountLong = aux.SearchAttributes.ColumnDuplicateValuesCountLong
+		sa.ColumnMaximumStringLength = aux.SearchAttributes.ColumnMaximumStringLength
+		sa.ColumnMaxs = aux.SearchAttributes.ColumnMaxs
+		sa.ColumnMinimumStringLength = aux.SearchAttributes.ColumnMinimumStringLength
+		sa.ColumnMins = aux.SearchAttributes.ColumnMins
+		sa.ColumnMissingValuesCount = aux.SearchAttributes.ColumnMissingValuesCount
+		sa.ColumnMissingValuesCountLong = aux.SearchAttributes.ColumnMissingValuesCountLong
+		sa.ColumnMissingValuesPercentage = aux.SearchAttributes.ColumnMissingValuesPercentage
+		sa.ColumnUniquenessPercentage = aux.SearchAttributes.ColumnUniquenessPercentage
+		sa.ColumnVariance = aux.SearchAttributes.ColumnVariance
+		sa.ColumnTopValues = aux.SearchAttributes.ColumnTopValues
+		sa.ColumnDepthLevel = aux.SearchAttributes.ColumnDepthLevel
+		sa.SnowflakeDynamicTable = aux.SearchAttributes.SnowflakeDynamicTable
+		sa.View = aux.SearchAttributes.View
+		sa.NestedColumns = aux.SearchAttributes.NestedColumns
+		sa.DataQualityMetricDimensions = aux.SearchAttributes.DataQualityMetricDimensions
+		sa.DbtModelColumns = aux.SearchAttributes.DbtModelColumns
+		sa.ColumnDbtModelColumns = aux.SearchAttributes.ColumnDbtModelColumns
+		sa.MaterialisedView = aux.SearchAttributes.MaterialisedView
+		sa.ParentColumn = aux.SearchAttributes.ParentColumn
+		sa.MetricTimestamps = aux.SearchAttributes.MetricTimestamps
+		sa.ForeignKeyTo = aux.SearchAttributes.ForeignKeyTo
+		sa.ForeignKeyFrom = aux.SearchAttributes.ForeignKeyFrom
+		sa.DbtMetrics = aux.SearchAttributes.DbtMetrics
+		sa.TablePartition = aux.SearchAttributes.TablePartition
 
 		// Populate `rawSearchAttributes` (necessary for setting `SearchAssets.CustomMetadataSets`)
 		// First, unmarshal the data into a `rawSearchAsset` map
