@@ -20,7 +20,7 @@ var typeDefFile = "atlan/generator/typedefs.json"
 
 // Define a template for the header (only needs to be executed once)
 const headerTemplate = `// # **************************************
-// # CODE BELOW IS GENERATED NOT MODIFY  **
+// # CODE BELOW IS GENERATED DO NOT MODIFY  **
 // # **************************************
 
 package generator
@@ -106,6 +106,7 @@ func (c *Cache) populateCache() error {
 }
 
 var enumTemplateFile = "atlan/generator/templates/enums.tmpl"
+var structTemplateFile = "atlan/generator/templates/structs.tmpl"
 
 // GenerateEnums will use typedefs and a template to generate the enums.go file
 func GenerateEnums(enumDefs []model.EnumDef) error {
@@ -219,7 +220,7 @@ func GenerateStructs(structDefs []model.StructDef) error {
 	}
 
 	// Parse the template file
-	tmpl, err := template.New("structs.tmpl").Funcs(funcMap).ParseFiles("atlan/generator/templates/structs.tmpl")
+	tmpl, err := template.New("structs.tmpl").Funcs(funcMap).ParseFiles(structTemplateFile)
 	if err != nil {
 		return fmt.Errorf("failed to parse structs template: %w", err)
 	}
