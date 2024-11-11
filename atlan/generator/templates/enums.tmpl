@@ -1,0 +1,82 @@
+// # **************************************
+// # CODE BELOW IS GENERATED DO NOT MODIFY  **
+// # **************************************
+
+package generator
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"strings"
+	"time"
+)
+
+{{- range . }}
+type {{ .Name }} struct {
+    Name string
+}
+
+func (a {{ .Name }}) String() string {
+    return a.Name
+}
+
+var (
+    {{- $parent := . }} {{/* Store the parent context in a variable */}}
+    {{- range .ElementDefs }}
+    {{- if .Description }} // {{ .Description }} {{/* Only add comment if description is not nil */}}
+    {{- end }}
+
+    {{- /* Initialize the base variable name */}}
+    {{- $baseName := $parent.Name }}{{- /* This holds the name of the enum type */}}
+    {{- /* Clean the value for variable naming */}}
+    {{- $cleanValue := .Value }}
+
+    {{- /* Handle cases with "." and "-" */}}
+    {{- if contains $cleanValue "." }}
+    {{- $cleanValue = replace $cleanValue "." "" }} {{/* Remove dot */}}
+    {{- end }}
+
+    {{- if contains $cleanValue "-" }}
+    {{- $cleanValue = replace $cleanValue "-" "_" }} {{/* Replace hyphen with "_" */}}
+    {{- end }}
+
+    {{- /* Final variable name */}}
+    {{ $baseName }}{{ replace $cleanValue " " "_" | title }} = {{ $parent.Name }}{"{{ .Value }}"}
+    {{- end }}
+)
+
+// UnmarshalJSON customizes the unmarshalling of a {{ .Name }} from JSON.
+func (c *{{ .Name }}) UnmarshalJSON(data []byte) error {
+    var name string
+    if err := json.Unmarshal(data, &name); err != nil {
+        return err
+    }
+
+    switch name {
+    {{- range .ElementDefs }}
+    {{- $cleanValue := .Value }}
+
+    {{- if contains $cleanValue "." }}
+    {{- $cleanValue = replace $cleanValue "." "" }} {{/* Remove dot */}}
+    {{- end }}
+
+    {{- if contains $cleanValue "-" }}
+    {{- $cleanValue = replace $cleanValue "-" "_" }} {{/* Replace hyphen with "_" */}}
+    {{- end }}
+
+    case "{{ .Value }}":
+        *c = {{ $parent.Name }}{{ replace $cleanValue " " "_" | title }}
+    {{- end }}
+    default:
+        *c = {{ .Name }}{Name: name}
+    }
+
+    return nil
+}
+
+// MarshalJSON customizes the marshalling of a {{ .Name }} to JSON.
+func (c {{ .Name }}) MarshalJSON() ([]byte, error) {
+    return json.Marshal(c.Name)
+}
+{{- end }}

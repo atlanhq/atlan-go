@@ -1,0 +1,36 @@
+
+{{- if .Description }}
+// {{ .Name }}: {{ .Description }}
+{{- end }}
+
+// {{ .Name }} represents the struct for {{ .Name }}.
+type {{ .Name }} struct {
+{{- range .AttributeDefs }}
+    {{- if eq (typeAsString .TypeName) "*int" }}
+    {{ .Name | title }} *int `json:"{{ .Name | lower }},omitempty"`
+    {{- else if eq (typeAsString .TypeName) "*int64" }}
+    {{ .Name | title }} *int64 `json:"{{ .Name | lower }},omitempty"`
+    {{- else if eq (typeAsString .TypeName) "*float64" }}
+    {{ .Name | title }} *float64 `json:"{{ .Name | lower }},omitempty"`
+    {{- else if eq (typeAsString .TypeName) "*bool" }}
+    {{ .Name | title }} *bool `json:"{{ .Name | lower }},omitempty"`
+    {{- else if eq (typeAsString .TypeName) "*time.Time" }}
+    {{ .Name | title }} *time.Time `json:"{{ .Name | lower }},omitempty"`
+    {{- else if eq (typeAsString .TypeName) "[]*string" }}
+    {{ .Name | title }} []*string `json:"{{ .Name | lower }},omitempty"`
+    {{- else if eq (typeAsString .TypeName) "[]*float64" }}
+    {{ .Name | title }} []*float64 `json:"{{ .Name | lower }},omitempty"`
+    {{- else if eq (typeAsString .TypeName) "map[string]*string" }}
+    {{ .Name | title }} map[string]*string `json:"{{ .Name | lower }},omitempty"`
+    {{- else if eq (typeAsString .TypeName) "*SourceCostUnitType" }}
+    {{ .Name | title }} *SourceCostUnitType `json:"{{ .Name | lower }},omitempty"`
+    {{- else if eq (typeAsString .TypeName) "[]*SourceTagAttachmentValue" }}
+    {{ .Name | title }} []*SourceTagAttachmentValue `json:"{{ .Name | lower }},omitempty"`
+    {{- else if eq (typeAsString .TypeName) "*string" }}
+    {{ .Name | title }} *string `json:"{{ .Name | lower }},omitempty"`
+    {{- else }}
+    {{ .Name | title }} {{ .TypeName }} `json:"{{ .Name | lower }},omitempty"`
+    {{- end }}
+{{- end }}
+}
+

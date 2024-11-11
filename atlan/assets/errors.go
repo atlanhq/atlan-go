@@ -39,6 +39,7 @@ type PermissionError struct{ AtlanError }
 type ConflictError struct{ AtlanError }
 type RateLimitError struct{ AtlanError }
 type LogicError struct{ AtlanError }
+type GenerationError struct{ AtlanError }
 
 type ErrorCode int
 
