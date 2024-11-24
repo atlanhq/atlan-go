@@ -4,6 +4,7 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 	"regexp"
 	"time"
 
@@ -633,6 +634,72 @@ type SearchAttributes struct {
 	CertificateStatusMessage *string                    `json:"certificateStatusMessage,omitempty"`
 }
 
+// Used in End-to-end bulk update
+
+// Updater is a generic method that updates the required fields of the asset in memory.
+func (sa *SearchAssets) Updater() error {
+	if sa.TypeName == nil || sa.QualifiedName == nil || sa.Name == nil {
+		return fmt.Errorf("missing TypeName or QualifiedName or Name")
+	}
+
+	// Ensure required fields are populated
+	qualifiedName := *sa.QualifiedName
+	TypeName := *sa.TypeName
+	name := *sa.Name
+
+	// Modify asset in memory
+	sa.TypeName = &TypeName
+	sa.QualifiedName = &qualifiedName
+	sa.Name = &name
+
+	return nil
+}
+
+func (sa *SearchAssets) MarshalJSON() ([]byte, error) {
+	// Construct the custom JSON structure
+	customJSON := map[string]interface{}{
+		"typeName": sa.TypeName,
+		"attributes": map[string]interface{}{
+			"name":          sa.Name,
+			"qualifiedName": sa.QualifiedName,
+			// Add other attributes as necessary.
+		},
+	}
+
+	if sa.Guid != nil && *sa.Asset.Guid != "" {
+		customJSON["guid"] = *sa.Guid
+	}
+
+	if sa.Asset.DisplayName != nil && *sa.Asset.DisplayName != "" {
+		customJSON["attributes"].(map[string]interface{})["DisplayText"] = *sa.Asset.DisplayName
+	}
+
+	if sa.Asset.Description != nil && *sa.Asset.Description != "" {
+		customJSON["attributes"].(map[string]interface{})["description"] = *sa.Asset.Description
+	}
+
+	if sa.Table.SchemaName != nil && *sa.Table.SchemaName != "" {
+		customJSON["attributes"].(map[string]interface{})["schemaName"] = *sa.Table.SchemaName
+	}
+
+	if sa.Table.DatabaseName != nil && *sa.Table.DatabaseName != "" {
+		customJSON["attributes"].(map[string]interface{})["databaseName"] = *sa.Table.DatabaseName
+	}
+
+	if sa.Table.DatabaseQualifiedName != nil && *sa.Table.DatabaseQualifiedName != "" {
+		customJSON["attributes"].(map[string]interface{})["databaseQualifiedName"] = *sa.Table.DatabaseQualifiedName
+	}
+
+	if sa.Table.ConnectionQualifiedName != nil && *sa.Table.ConnectionQualifiedName != "" {
+		customJSON["attributes"].(map[string]interface{})["connectionQualifiedName"] = *sa.Table.ConnectionQualifiedName
+	}
+
+	// Requires Model Generator for generating other assets
+
+	// Marshal the custom JSON
+	return json.MarshalIndent(customJSON, "", "  ")
+}
+
 func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 	// Define an auxiliary struct to decode the JSON
 	type AuxSearchAssets struct {
@@ -663,6 +730,7 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
+	// Requires Model Generator for All Assets
 	// Copy fields from auxiliary struct to the main struct
 	sa.Asset = aux.Asset
 	sa.Table = aux.Table
@@ -769,4 +837,8 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		sa.rawSearchAttributes = aux.rawSearchAttributes
 	}
 	return nil
+}
+
+func (sa *SearchAssets) FromJSON(data []byte) error {
+	return json.Unmarshal(data, sa)
 }

@@ -1114,3 +1114,26 @@ func generateCacheKey(baseURL, apiKey string) string {
 	_, _ = h.Write([]byte(fmt.Sprintf("%s/%s", baseURL, apiKey)))
 	return fmt.Sprintf("%d", h.Sum32())
 }
+
+// Used in End-to-end bulk update
+
+// TrimToRequired trims a SearchAsset to its required attributes and returns an SearchAsset Object.
+func TrimToRequired(asset model.SearchAssets) (*model.SearchAssets, error) {
+	// Validate required fields
+	if asset.TypeName == nil || asset.QualifiedName == nil {
+		return nil, fmt.Errorf("asset must have TypeName and QualifiedName")
+	}
+
+	instance := &model.SearchAssets{}
+	instance.TypeName = asset.TypeName
+	instance.QualifiedName = asset.QualifiedName
+	instance.Name = asset.Name
+	instance.Guid = asset.Guid
+	// Call the generic Updater method directly on the asset
+	err := instance.Updater()
+	if err != nil {
+		return nil, fmt.Errorf("failed to trim to required fields for asset type: %s, error: %w", *asset.TypeName, err)
+	}
+
+	return instance, nil
+}

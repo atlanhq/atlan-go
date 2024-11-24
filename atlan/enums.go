@@ -2821,3 +2821,42 @@ func (u *UTMTags) UnmarshalJSON(data []byte) error {
 	}
 	return nil
 }
+
+type CustomMetadataHandling struct {
+	Name string
+}
+
+func (c CustomMetadataHandling) String() string {
+	return c.Name
+}
+
+var (
+	IGNORE    = CustomMetadataHandling{"ignore"}
+	OVERWRITE = CustomMetadataHandling{Name: "overwrite"}
+	MERGE     = CustomMetadataHandling{Name: "merge"}
+)
+
+func (c CustomMetadataHandling) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.Name)
+}
+
+func (c *CustomMetadataHandling) UnmarshalJSON(data []byte) error {
+	var CustomMetadataType string
+	if err := json.Unmarshal(data, &CustomMetadataType); err != nil {
+		return err
+	}
+
+	switch CustomMetadataType {
+	case "ignore":
+		*c = IGNORE
+	case "overwrite":
+		*c = OVERWRITE
+	case "merge":
+		*c = MERGE
+
+	default:
+		*c = CustomMetadataHandling{Name: CustomMetadataType}
+	}
+
+	return nil
+}
