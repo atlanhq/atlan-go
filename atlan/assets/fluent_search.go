@@ -65,9 +65,9 @@ func (fs *FluentSearch) AssetType(of string) *FluentSearch {
 
 // AssetTypes Returns a query that will only match assets that are one of the types provided.
 func (fs *FluentSearch) AssetTypes(oneOf []string) *FluentSearch {
-	assetTypesCondition := &model.TermQuery{
-		Field: TYPE_NAME,
-		Value: oneOf,
+	assetTypesCondition := &model.Terms{
+		Field:  TYPE_NAME,
+		Values: oneOf,
 	}
 	fs.Wheres = append(fs.Wheres, assetTypesCondition)
 	return fs
