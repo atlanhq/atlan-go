@@ -189,6 +189,10 @@ func (t *Table) MarshalJSON() ([]byte, error) {
 		customJSON["attributes"].(map[string]interface{})["connectionQualifiedName"] = *t.ConnectionQualifiedName
 	}
 
+	if t.CertificateStatus != nil {
+		customJSON["attributes"].(map[string]interface{})["certificateStatus"] = *t.CertificateStatus
+	}
+
 	// Marshal the custom JSON
 	return json.MarshalIndent(customJSON, "", "  ")
 }

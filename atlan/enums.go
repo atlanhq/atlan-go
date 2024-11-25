@@ -2860,3 +2860,46 @@ func (c *CustomMetadataHandling) UnmarshalJSON(data []byte) error {
 
 	return nil
 }
+
+type CertificateStatus struct {
+	Name string
+}
+
+func (a CertificateStatus) String() string {
+	return a.Name
+}
+
+var (
+	CertificateStatusDeprecated = CertificateStatus{"DEPRECATED"}
+	CertificateStatusDraft      = CertificateStatus{"DRAFT"}
+	CertificateStatusVerified   = CertificateStatus{"VERIFIED"}
+)
+
+// UnmarshalJSON customizes the unmarshalling of a certificate_status from JSON.
+func (c *CertificateStatus) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return err
+	}
+
+	switch name {
+
+	case "DEPRECATED":
+		*c = CertificateStatusDeprecated
+
+	case "DRAFT":
+		*c = CertificateStatusDraft
+
+	case "VERIFIED":
+		*c = CertificateStatusVerified
+	default:
+		*c = CertificateStatus{Name: name}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of a certificate_status to JSON.
+func (c CertificateStatus) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.Name)
+}

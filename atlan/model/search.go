@@ -619,19 +619,19 @@ type SearchAttributes struct {
 	TablePartition                 *structs.TablePartition            `json:"tablePartition,omitempty"`
 	MaxLength                      *int                               `json:"maxLength,omitempty"`
 
-	QualifiedName            *string                    `json:"qualifiedName,omitempty"`
-	Name                     *string                    `json:"name,omitempty"`
-	UserDescription          *string                    `json:"userDescription,omitempty"`
-	Description              *string                    `json:"description,omitempty"`
-	DataType                 *string                    `json:"dataType,omitempty"`
-	IsNullable               *bool                      `json:"isNullable,omitempty"`
-	OwnerGroups              *[]string                  `json:"ownerGroups,omitempty"`
-	OwnerUsers               *[]string                  `json:"ownerUsers,omitempty"`
-	AnnouncementType         *atlan.AnnouncementType    `json:"announcementType,omitempty"`
-	AnnouncementTitle        *string                    `json:"announcementTitle,omitempty"`
-	AnnouncementMessage      *string                    `json:"announcementMessage,omitempty"`
-	CertificateStatus        *structs.CertificateStatus `json:"certificateStatus,omitempty"`
-	CertificateStatusMessage *string                    `json:"certificateStatusMessage,omitempty"`
+	QualifiedName            *string                  `json:"qualifiedName,omitempty"`
+	Name                     *string                  `json:"name,omitempty"`
+	UserDescription          *string                  `json:"userDescription,omitempty"`
+	Description              *string                  `json:"description,omitempty"`
+	DataType                 *string                  `json:"dataType,omitempty"`
+	IsNullable               *bool                    `json:"isNullable,omitempty"`
+	OwnerGroups              *[]string                `json:"ownerGroups,omitempty"`
+	OwnerUsers               *[]string                `json:"ownerUsers,omitempty"`
+	AnnouncementType         *atlan.AnnouncementType  `json:"announcementType,omitempty"`
+	AnnouncementTitle        *string                  `json:"announcementTitle,omitempty"`
+	AnnouncementMessage      *string                  `json:"announcementMessage,omitempty"`
+	CertificateStatus        *atlan.CertificateStatus `json:"certificateStatus,omitempty"`
+	CertificateStatusMessage *string                  `json:"certificateStatusMessage,omitempty"`
 }
 
 // Used in End-to-end bulk update
@@ -692,6 +692,10 @@ func (sa *SearchAssets) MarshalJSON() ([]byte, error) {
 
 	if sa.Table.ConnectionQualifiedName != nil && *sa.Table.ConnectionQualifiedName != "" {
 		customJSON["attributes"].(map[string]interface{})["connectionQualifiedName"] = *sa.Table.ConnectionQualifiedName
+	}
+
+	if sa.Asset.CertificateStatus != nil {
+		customJSON["attributes"].(map[string]interface{})["certificateStatus"] = *sa.Asset.CertificateStatus
 	}
 
 	// Requires Model Generator for generating other assets
