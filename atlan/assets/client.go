@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -108,13 +109,18 @@ func configureClient() (*http.Client, *logger.Logger) {
 
 // defaultRequestParams returns default request parameters.
 func defaultRequestParams(apiKey string) map[string]interface{} {
-	VERSION := "0.0"
-	headers := map[string]string{
-		"x-atlan-agent":    "sdk",
-		"x-atlan-agent-id": "go",
-		"User-Agent":       fmt.Sprintf("Atlan-GOSDK/%s", VERSION),
+	// Read the version from the VERSION file
+	VERSION, err := getVersion("VERSION")
+	if err != nil {
+		log.Fatalf("Error reading version: %v", err)
 	}
-
+	headers := map[string]string{
+		"x-atlan-agent":         "sdk",
+		"x-atlan-agent-id":      "go",
+		"x-atlan-client-origin": "product_sdk",
+		"User-Agent":            fmt.Sprintf("Atlan-GOSDK/%s", VERSION),
+	}
+	fmt.Println(headers)
 	headers["Authorization"] = "Bearer " + apiKey
 	headers["Accept"] = "application/json"
 	headers["Content-type"] = "application/json"
@@ -189,6 +195,15 @@ func (ac *AtlanClient) EnableLogging(level string) {
 // DisableLogging disables logging.
 func (ac *AtlanClient) DisableLogging() {
 	ac.SetLogger(false, "")
+}
+
+// getVersion reads the version number from the specified file
+func getVersion(filePath string) (string, error) {
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(content)), nil
 }
 
 // Removes authorization from header when using
