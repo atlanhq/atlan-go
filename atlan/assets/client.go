@@ -120,7 +120,6 @@ func defaultRequestParams(apiKey string) map[string]interface{} {
 		"x-atlan-client-origin": "product_sdk",
 		"User-Agent":            fmt.Sprintf("Atlan-GOSDK/%s", VERSION),
 	}
-	fmt.Println(headers)
 	headers["Authorization"] = "Bearer " + apiKey
 	headers["Accept"] = "application/json"
 	headers["Content-type"] = "application/json"
@@ -197,7 +196,7 @@ func (ac *AtlanClient) DisableLogging() {
 	ac.SetLogger(false, "")
 }
 
-// getVersion reads the version number from the specified file
+// getVersion reads the version number from the VERSION file
 func getVersion(filePath string) (string, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
