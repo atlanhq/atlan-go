@@ -5,8 +5,9 @@ import (
 	"reflect"
 )
 
-// Add Mutated assets for Response in Creation, Updation and Deletion
 // Unmarshal on assets changed the unmarshalling for the whole sdk asset structure
+
+// Add Mutated assets for Response in Creation, Updation and Deletion
 type MutatedAssets struct {
 	TypeName            string        `json:"typeName"`
 	Attributes          structs.Asset `json:"attributes"`

@@ -143,7 +143,7 @@ func (t *Table) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// Updater is used to modify a glossary asset in memory.
+// Updater is used to modify a Table asset in memory.
 func (t *Table) Updater(name string, qualifiedName string) error {
 	if name == "" || qualifiedName == "" {
 		return errors.New("name, qualified_name are required fields")
@@ -187,6 +187,10 @@ func (t *Table) MarshalJSON() ([]byte, error) {
 
 	if t.ConnectionQualifiedName != nil && *t.ConnectionQualifiedName != "" {
 		customJSON["attributes"].(map[string]interface{})["connectionQualifiedName"] = *t.ConnectionQualifiedName
+	}
+
+	if t.CertificateStatus != nil {
+		customJSON["attributes"].(map[string]interface{})["certificateStatus"] = *t.CertificateStatus
 	}
 
 	// Marshal the custom JSON

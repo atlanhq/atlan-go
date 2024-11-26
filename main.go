@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan"
 	_ "github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/assets"
 	_ "github.com/atlanhq/atlan-go/atlan/model/structs"
+	"log"
 )
 
 func main() {
@@ -12,20 +14,54 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	assetQualifiedName := "default/snowflake/1728590954/ANALYTICS/WIDE_WORLD_IMPORTERS/STG_CUSTOMER_TRANSACTIONS"
+	schemaQualifiedName := "default/snowflake/1731535899/ANALYTICS/WIDE_WORLD_IMPORTERS"
 
-	columnSearchResponse, _ := assets.NewFluentSearch().
-		PageSizes(100).
+	batch := assets.NewBatch(ctx, 20, true, atlan.IGNORE, true)
+
+	response, _ := assets.NewFluentSearch().
 		ActiveAssets().
-		Where(ctx.Column.TYPENAME.Eq("Column")).
-		Where(ctx.Column.NAME.Eq("PAYMENT_METHOD_ID")).
-		Where(ctx.Table.TABLE_QUALIFIED_NAME.Eq(assetQualifiedName)).
-		IncludeOnResults("maxLength", "precision", "numericScale").
+		PageSizes(100).
+		Where(ctx.Table.QUALIFIED_NAME.StartsWith(schemaQualifiedName, nil)).
+		//Where(ctx.Table.CERTIFICATE_STATUS.Eq("Verified")).
+		//AssetType("Table").
+		AssetTypes([]string{"Table"}).
+		//WhereNot(ctx.Table.CERTIFICATE_STATUS.HasAnyValue()).
+		IncludeOnResults(assets.DESCRIPTION, assets.CERTIFICATE_STATUS, assets.OWNER_USERS).
 		Execute()
 
-	fmt.Println(*columnSearchResponse[0].Entities[0].MaxLength)
-	fmt.Println(*columnSearchResponse[0].Entities[0].Precision)
-	fmt.Println(*columnSearchResponse[0].Entities[0].NumericScale)
+	fmt.Println(*response[0].Entities[0].Name)
+
+	// Process each asset in the search results
+	for _, asset := range response[0].Entities {
+
+		Description := "This is Test 5"
+		//Name := "Test4"
+		// Trim to required attributes
+		trimmedAsset, err := assets.TrimToRequired(asset)
+		if err != nil {
+			fmt.Printf("Error trimming asset: %v\n", err)
+			continue
+		}
+
+		trimmedAsset.Description = &Description
+		//trimmedAsset.Name = &Name
+		//assets.Save(trimmedAsset)
+		// Add the trimmed asset to the batch
+		err = batch.Add(trimmedAsset)
+		if err != nil {
+			log.Printf("Failed to add asset to batch: %v", err)
+		}
+		batch.Flush()
+
+	}
+
+	for _, asset := range batch.Updated() {
+		fmt.Println(asset)
+	}
+
+	for _, asset := range batch.Created() {
+		fmt.Println(asset)
+	}
 
 	/*
 		ctx := assets.NewContext()

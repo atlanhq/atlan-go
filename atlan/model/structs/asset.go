@@ -208,7 +208,7 @@ type Asset struct {
 	// Glossary terms that are linked to this asset.
 	AssignedTerms *[]AtlasGlossaryTerm `json:"assignedTerms,omitempty"`
 	// Status of this asset's certification.
-	CertificateStatus *CertificateStatus `json:"certificateStatus,omitempty"`
+	CertificateStatus *atlan.CertificateStatus `json:"certificateStatus,omitempty"`
 	// Human-readable descriptive message used to provide further detail to certificateStatus.
 	CertificateStatusMessage *string `json:"certificateStatusMessage,omitempty"`
 	// Time (epoch) at which the certification was last updated, in milliseconds.
