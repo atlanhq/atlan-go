@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/atlanhq/atlan-go/config"
 	"io"
 	"net/http"
 	"net/url"
@@ -108,17 +109,15 @@ func configureClient() (*http.Client, *logger.Logger) {
 
 // defaultRequestParams returns default request parameters.
 func defaultRequestParams(apiKey string) map[string]interface{} {
-	VERSION := "0.0"
 	headers := map[string]string{
-		"x-atlan-agent":    "sdk",
-		"x-atlan-agent-id": "go",
-		"User-Agent":       fmt.Sprintf("Atlan-GOSDK/%s", VERSION),
+		"x-atlan-agent":         "sdk",
+		"x-atlan-agent-id":      "go",
+		"x-atlan-client-origin": "product_sdk",
+		"User-Agent":            fmt.Sprintf("Atlan-GOSDK/%s", config.Version()),
 	}
-
 	headers["Authorization"] = "Bearer " + apiKey
 	headers["Accept"] = "application/json"
 	headers["Content-type"] = "application/json"
-
 	return map[string]interface{}{
 		"headers": headers,
 	}
