@@ -2903,3 +2903,58 @@ func (c *CertificateStatus) UnmarshalJSON(data []byte) error {
 func (c CertificateStatus) MarshalJSON() ([]byte, error) {
 	return json.Marshal(c.Name)
 }
+
+type AuthPolicyType struct {
+	Name string
+}
+
+func (a AuthPolicyType) String() string {
+	return a.Name
+}
+
+var (
+	AuthPolicyTypeAllow           = AuthPolicyType{"allow"}
+	AuthPolicyTypeDeny            = AuthPolicyType{"deny"}
+	AuthPolicyTypeAllowexceptions = AuthPolicyType{"allowExceptions"}
+	AuthPolicyTypeDenyexceptions  = AuthPolicyType{"denyExceptions"}
+	AuthPolicyTypeDatamask        = AuthPolicyType{"dataMask"}
+	AuthPolicyTypeRowfilter       = AuthPolicyType{"rowFilter"}
+)
+
+// UnmarshalJSON customizes the unmarshalling of a AuthPolicyType from JSON.
+func (c *AuthPolicyType) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return err
+	}
+
+	switch name {
+
+	case "allow":
+		*c = AuthPolicyTypeAllow
+
+	case "deny":
+		*c = AuthPolicyTypeDeny
+
+	case "allowExceptions":
+		*c = AuthPolicyTypeAllowexceptions
+
+	case "denyExceptions":
+		*c = AuthPolicyTypeDenyexceptions
+
+	case "dataMask":
+		*c = AuthPolicyTypeDatamask
+
+	case "rowFilter":
+		*c = AuthPolicyTypeRowfilter
+	default:
+		*c = AuthPolicyType{Name: name}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of a AuthPolicyType to JSON.
+func (c AuthPolicyType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.Name)
+}
