@@ -2958,3 +2958,210 @@ func (c *AuthPolicyType) UnmarshalJSON(data []byte) error {
 func (c AuthPolicyType) MarshalJSON() ([]byte, error) {
 	return json.Marshal(c.Name)
 }
+
+type AuthPolicyCategory struct {
+	Name string
+}
+
+func (a AuthPolicyCategory) String() string {
+	return a.Name
+}
+
+var (
+	AuthPolicyCategoryBootstrap = AuthPolicyCategory{"bootstrap"}
+	AuthPolicyCategoryPersona   = AuthPolicyCategory{"persona"}
+	AuthPolicyCategoryPurpose   = AuthPolicyCategory{"purpose"}
+)
+
+// UnmarshalJSON customizes the unmarshalling of a AuthPolicyCategory from JSON.
+func (c *AuthPolicyCategory) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return err
+	}
+
+	switch name {
+
+	case "bootstrap":
+		*c = AuthPolicyCategoryBootstrap
+
+	case "persona":
+		*c = AuthPolicyCategoryPersona
+
+	case "purpose":
+		*c = AuthPolicyCategoryPurpose
+	default:
+		*c = AuthPolicyCategory{Name: name}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of a AuthPolicyCategory to JSON.
+func (c AuthPolicyCategory) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.Name)
+}
+
+type AuthPolicyResourceCategory struct {
+	Name string
+}
+
+func (a AuthPolicyResourceCategory) String() string {
+	return a.Name
+}
+
+var (
+	AuthPolicyResourceCategoryEntity       = AuthPolicyResourceCategory{"ENTITY"}
+	AuthPolicyResourceCategoryRelationship = AuthPolicyResourceCategory{"RELATIONSHIP"}
+	AuthPolicyResourceCategoryTag          = AuthPolicyResourceCategory{"TAG"}
+	AuthPolicyResourceCategoryCustom       = AuthPolicyResourceCategory{"CUSTOM"}
+	AuthPolicyResourceCategoryTypedefs     = AuthPolicyResourceCategory{"TYPEDEFS"}
+	AuthPolicyResourceCategoryAdmin        = AuthPolicyResourceCategory{"ADMIN"}
+)
+
+// UnmarshalJSON customizes the unmarshalling of a AuthPolicyResourceCategory from JSON.
+func (c *AuthPolicyResourceCategory) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return err
+	}
+
+	switch name {
+
+	case "ENTITY":
+		*c = AuthPolicyResourceCategoryEntity
+
+	case "RELATIONSHIP":
+		*c = AuthPolicyResourceCategoryRelationship
+
+	case "TAG":
+		*c = AuthPolicyResourceCategoryTag
+
+	case "CUSTOM":
+		*c = AuthPolicyResourceCategoryCustom
+
+	case "TYPEDEFS":
+		*c = AuthPolicyResourceCategoryTypedefs
+
+	case "ADMIN":
+		*c = AuthPolicyResourceCategoryAdmin
+	default:
+		*c = AuthPolicyResourceCategory{Name: name}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of a AuthPolicyResourceCategory to JSON.
+func (c AuthPolicyResourceCategory) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.Name)
+}
+
+type DataAction struct {
+	Name string
+}
+
+func (a DataAction) String() string {
+	return a.Name
+}
+
+var (
+	DataActionSelect = DataAction{"select"}
+)
+
+// UnmarshalJSON customizes the unmarshalling of a DataAction from JSON.
+func (c *DataAction) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return err
+	}
+
+	switch name {
+
+	case "select":
+		*c = DataActionSelect
+	default:
+		*c = DataAction{Name: name}
+	}
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of a DataAction to JSON.
+func (c DataAction) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.Name)
+}
+
+type PersonaDomainAction struct {
+	Name string
+}
+
+func (a PersonaDomainAction) String() string {
+	return a.Name
+}
+
+var (
+	PersonaDomainActionCreate                        = PersonaDomainAction{"persona-domain-create"}
+	PersonaDomainActionRead                          = PersonaDomainAction{"persona-domain-read"}
+	PersonaDomainActionUpdate                        = PersonaDomainAction{"persona-domain-update"}
+	PersonaDomainActionDelete                        = PersonaDomainAction{"persona-domain-delete"}
+	PersonaDomainActionCreateSubdomain               = PersonaDomainAction{"persona-domain-sub-domain-create"}
+	PersonaDomainActionReadSubdomain                 = PersonaDomainAction{"persona-domain-sub-domain-read"}
+	PersonaDomainActionUpdateSubdomain               = PersonaDomainAction{"persona-domain-sub-domain-update"}
+	PersonaDomainActionDeleteSubdomain               = PersonaDomainAction{"persona-domain-sub-domain-delete"}
+	PersonaDomainActionCreateProducts                = PersonaDomainAction{"persona-domain-product-create"}
+	PersonaDomainActionReadProducts                  = PersonaDomainAction{"persona-domain-product-read"}
+	PersonaDomainActionUpdateProducts                = PersonaDomainAction{"persona-domain-product-update"}
+	PersonaDomainActionDeleteProducts                = PersonaDomainAction{"persona-domain-product-delete"}
+	PersonaDomainActionUpdateDomainCustomMetadata    = PersonaDomainAction{"persona-domain-business-update-metadata"}
+	PersonaDomainActionUpdateSubdomainCustomMetadata = PersonaDomainAction{"persona-domain-sub-domain-business-update-metadata"}
+	PersonaDomainActionUpdateProductCustomMetadata   = PersonaDomainAction{"persona-domain-product-business-update-metadata"}
+)
+
+// UnmarshalJSON customizes the unmarshalling of a PersonaDomainAction from JSON.
+func (c *PersonaDomainAction) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return err
+	}
+
+	switch name {
+	case "persona-domain-create":
+		*c = PersonaDomainActionCreate
+	case "persona-domain-read":
+		*c = PersonaDomainActionRead
+	case "persona-domain-update":
+		*c = PersonaDomainActionUpdate
+	case "persona-domain-delete":
+		*c = PersonaDomainActionDelete
+	case "persona-domain-sub-domain-create":
+		*c = PersonaDomainActionCreateSubdomain
+	case "persona-domain-sub-domain-read":
+		*c = PersonaDomainActionReadSubdomain
+	case "persona-domain-sub-domain-update":
+		*c = PersonaDomainActionUpdateSubdomain
+	case "persona-domain-sub-domain-delete":
+		*c = PersonaDomainActionDeleteSubdomain
+	case "persona-domain-product-create":
+		*c = PersonaDomainActionCreateProducts
+	case "persona-domain-product-read":
+		*c = PersonaDomainActionReadProducts
+	case "persona-domain-product-update":
+		*c = PersonaDomainActionUpdateProducts
+	case "persona-domain-product-delete":
+		*c = PersonaDomainActionDeleteProducts
+	case "persona-domain-business-update-metadata":
+		*c = PersonaDomainActionUpdateDomainCustomMetadata
+	case "persona-domain-sub-domain-business-update-metadata":
+		*c = PersonaDomainActionUpdateSubdomainCustomMetadata
+	case "persona-domain-product-business-update-metadata":
+		*c = PersonaDomainActionUpdateProductCustomMetadata
+	default:
+		*c = PersonaDomainAction{Name: name}
+	}
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of a PersonaDomainAction to JSON.
+func (c PersonaDomainAction) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.Name)
+}

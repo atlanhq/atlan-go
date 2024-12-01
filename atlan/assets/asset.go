@@ -228,20 +228,6 @@ type ConnectionFields struct {
 	VECTOR_EMBEDDINGS_UPDATED_AT    *NumericField
 }
 
-type AccessControlFields struct {
-	AssetFields
-	IS_ACCESS_CONTROL_ENABLED  *BooleanField
-	DENY_CUSTOM_METADATA_GUIDS *KeywordField
-	DENY_ASSET_TABS            *KeywordField
-	DENY_ASSET_FILTERS         *TextField
-	CHANNEL_LINK               *TextField
-	DENY_ASSET_TYPES           *TextField
-	DENY_NAVIGATION_PAGES      *TextField
-	DEFAULT_NAVIGATION         *TextField
-	DISPLAY_PREFERENCES        *KeywordField
-	POLICIES                   *RelationField
-}
-
 type MaterialisedViewFields struct {
 	SQLFields
 	REFRESH_MODE         *KeywordField
@@ -273,6 +259,20 @@ type ViewFields struct {
 	COLUMNS              *RelationField
 	QUERIES              *RelationField
 	ATLAN_SCHEMA         *RelationField
+}
+
+type AccessControlFields struct {
+	AssetFields
+	IS_ACCESS_CONTROL_ENABLED  *BooleanField
+	DENY_CUSTOM_METADATA_GUIDS *KeywordField
+	DENY_ASSET_TABS            *KeywordField
+	DENY_ASSET_FILTERS         *TextField
+	CHANNEL_LINK               *TextField
+	DENY_ASSET_TYPES           *TextField
+	DENY_NAVIGATION_PAGES      *TextField
+	DEFAULT_NAVIGATION         *TextField
+	DISPLAY_PREFERENCES        *KeywordField
+	POLICIES                   *RelationField
 }
 
 // NewSearchTable returns a new AtlasTable object for Searching
