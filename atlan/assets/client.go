@@ -457,6 +457,19 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 
 	// Handle API error based on response status code
 	if response.StatusCode != api.Status {
+		body, readErr := io.ReadAll(response.Body)
+		if readErr != nil {
+			fmt.Printf("Error reading response body: %v\n", readErr)
+			return nil, handleApiError(response, fmt.Errorf("error reading response body: %v", readErr))
+		}
+
+		// Create a descriptive error if `err` is nil
+		var errorMessage string
+		if err == nil {
+			errorMessage = fmt.Sprintf("API returned status code %d: %s", response.StatusCode, string(body))
+			err = fmt.Errorf(errorMessage)
+			//	fmt.Printf("Constructed error: %s\n", errorMessage) // Optional for debugging
+		}
 		return nil, handleApiError(response, err)
 	}
 
