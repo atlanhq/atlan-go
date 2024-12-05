@@ -4,7 +4,6 @@ import (
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 var PersonaName = atlan.MakeUnique("Persona")
@@ -17,11 +16,8 @@ func TestIntegrationPersona(t *testing.T) {
 	NewContext()
 
 	personaID, personaQualifiedName := testCreatePersona(t)
-	time.Sleep(5 * time.Second) // Sleep for 2 seconds in order for changes to reflect in platform
 	testRetrievePersona(t, personaID)
-	time.Sleep(2 * time.Second) // Sleep for 2 seconds in order for changes to reflect in platform
 	testUpdatePersona(t, personaQualifiedName)
-	time.Sleep(2 * time.Second) // Sleep for 2 seconds in order for changes to reflect in platform
 	testDeletePersona(t, personaID)
 }
 
@@ -37,12 +33,12 @@ func testCreatePersona(t *testing.T) (string, string) {
 	assert.Equal(t, 1, len(response.MutatedEntities.CREATE), "number of personas created should be 1")
 	assert.Equal(t, 0, len(response.MutatedEntities.UPDATE), "number of personas updated should be 0")
 	assert.Equal(t, 0, len(response.MutatedEntities.DELETE), "number of personas deleted should be 0")
-	assetone := response.MutatedEntities.CREATE[0]
-	assert.NotNil(t, assetone, "persona should not be nil")
-	assert.Equal(t, PersonaName, *assetone.Attributes.Name, "persona name should match")
-	assert.Equal(t, *p.TypeName, assetone.TypeName, "persona type should match")
+	CreatedPersona := response.MutatedEntities.CREATE[0]
+	assert.NotNil(t, CreatedPersona, "persona should not be nil")
+	assert.Equal(t, PersonaName, *CreatedPersona.Attributes.Name, "persona name should match")
+	assert.Equal(t, *p.TypeName, CreatedPersona.TypeName, "persona type should match")
 
-	return assetone.Guid, *assetone.Attributes.QualifiedName
+	return CreatedPersona.Guid, *CreatedPersona.Attributes.QualifiedName
 }
 
 func testRetrievePersona(t *testing.T, personaID string) {

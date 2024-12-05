@@ -964,7 +964,7 @@ func GetByGuid[T AtlanObject](guid string) (T, error) {
 	}
 
 	api := &GET_ENTITY_BY_GUID
-	api.Path += guid
+	api.Path = fmt.Sprintf("entity/guid/%s", guid) // Adjust to the actual API path structure
 
 	response, err := DefaultAtlanClient.CallAPI(api, nil, nil)
 	if err != nil {
