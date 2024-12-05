@@ -4,6 +4,7 @@ import (
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 var PersonaName = atlan.MakeUnique("Persona")
@@ -16,8 +17,11 @@ func TestIntegrationPersona(t *testing.T) {
 	NewContext()
 
 	personaID, personaQualifiedName := testCreatePersona(t)
+	time.Sleep(2 * time.Second) // Sleep for 2 seconds in order for changes to reflect in platform
 	testRetrievePersona(t, personaID)
+	time.Sleep(2 * time.Second) // Sleep for 2 seconds in order for changes to reflect in platform
 	testUpdatePersona(t, personaQualifiedName)
+	time.Sleep(2 * time.Second) // Sleep for 2 seconds in order for changes to reflect in platform
 	testDeletePersona(t, personaID)
 }
 
