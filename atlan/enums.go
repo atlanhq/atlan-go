@@ -3165,3 +3165,45 @@ func (c *PersonaDomainAction) UnmarshalJSON(data []byte) error {
 func (c PersonaDomainAction) MarshalJSON() ([]byte, error) {
 	return json.Marshal(c.Name)
 }
+
+type AssetFilterGroup struct {
+	Name string
+}
+
+func (a AssetFilterGroup) String() string {
+	return a.Name
+}
+
+var (
+	AssetFilterGroupTerms       = AssetFilterGroup{"terms"}
+	AssetFilterGroupTags        = AssetFilterGroup{"__traitNames"}
+	AssetFilterGroupOwners      = AssetFilterGroup{"owners"}
+	AssetFilterGroupUsage       = AssetFilterGroup{"usage"}
+	AssetFilterGroupProperties  = AssetFilterGroup{"properties"}
+	AssetFilterGroupCertificate = AssetFilterGroup{"certificateStatus"}
+)
+
+// UnmarshalJSON customizes the unmarshalling of a AssetFilterGroup from JSON.
+func (c *AssetFilterGroup) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return err
+	}
+	switch name {
+	case "terms":
+		*c = AssetFilterGroupTerms
+	case "__traitNames":
+		*c = AssetFilterGroupTags
+	case "owners":
+		*c = AssetFilterGroupOwners
+	case "usage":
+		*c = AssetFilterGroupUsage
+	case "properties":
+		*c = AssetFilterGroupProperties
+	case "certificateStatus":
+		*c = AssetFilterGroupCertificate
+	default:
+		*c = AssetFilterGroup{Name: name}
+	}
+	return nil
+}
