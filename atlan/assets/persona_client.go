@@ -211,45 +211,76 @@ func (p *Persona) Updater(qualifiedName, name string, isEnabled bool) error {
 }
 
 func (p *Persona) UnmarshalJSON(data []byte) error {
-	// Define a temporary structure with the expected JSON structure.
-	var temp struct {
-		ReferredEntities map[string]interface{} `json:"referredEntities"`
-		Entity           struct {
-			TypeName               string            `json:"typeName"`
-			AttributesJSON         json.RawMessage   `json:"attributes"`
-			Guid                   string            `json:"guid"`
-			IsIncomplete           bool              `json:"isIncomplete"`
-			Status                 atlan.AtlanStatus `json:"status"`
-			CreatedBy              string            `json:"createdBy"`
-			UpdatedBy              string            `json:"updatedBy"`
-			CreateTime             int64             `json:"createTime"`
-			UpdateTime             int64             `json:"updateTime"`
-			Version                int               `json:"version"`
-			RelationshipAttributes struct {
-				SchemaRegistrySubjects []structs.SchemaRegistrySubject `json:"schemaRegistrySubjects"`
-				McMonitors             []structs.MCMonitor             `json:"mcMonitors"`
-				Terms                  []structs.AtlasGlossaryTerm     `json:"terms"`
-				OutputPortDataProducts []string                        `json:"outputPortDataProducts"`
-				AtlasGlossary          []structs.AtlasGlossary         `json:"AtlasGlossary"`
-				AccessControl          []structs.AccessControl         `json:"AccessControl"`
-				Policies               []structs.AuthPolicy            `json:"policies"`
-			} `json:"relationshipAttributes"`
+
+	// Unmarshal shared fields and specific attributes.
+	attributes := struct {
+		// Attributes
+		QualifiedName *string `json:"qualifiedName,omitempty"`
+		Name          *string `json:"name"`
+
+		// Persona Attributes
+		PersonaGroups []string `json:"personaGroups"`
+		PersonaUsers  []string `json:"personaUsers"`
+		RoleId        *string  `json:"roleId"`
+
+		// Access Control Attributes
+		IsAccessControlEnabled  *bool         `json:"isAccessControlEnabled,omitempty"`
+		DenyCustomMetadataGuids *[]string     `json:"denyCustomMetadataGuids,omitempty"`
+		DenyAssetTabs           *[]string     `json:"denyAssetTabs,omitempty"`
+		DenyAssetFilters        *[]string     `json:"denyAssetFilters,omitempty"`
+		ChannelLink             *string       `json:"channelLink,omitempty"`
+		DenyAssetTypes          *[]string     `json:"denyAssetTypes,omitempty"`
+		DenyNavigationPages     *[]string     `json:"denyNavigationPages,omitempty"`
+		DefaultNavigation       *string       `json:"defaultNavigation,omitempty"`
+		DisplayPreferences      *[]string     `json:"displayPreferences,omitempty"`
+		Policies                *[]AuthPolicy `json:"policies,omitempty"`
+	}{}
+	base, err := UnmarshalBaseEntity(data, &attributes)
+	if err != nil {
+		return err
+	}
+
+	// Map shared fields.
+	p.Guid = &base.Entity.Guid
+	p.TypeName = &base.Entity.TypeName
+	p.IsIncomplete = &base.Entity.IsIncomplete
+	p.Status = &base.Entity.Status
+	p.CreatedBy = &base.Entity.CreatedBy
+	p.UpdatedBy = &base.Entity.UpdatedBy
+	p.CreateTime = &base.Entity.CreateTime
+	p.UpdateTime = &base.Entity.UpdateTime
+
+	p.QualifiedName = attributes.QualifiedName
+	p.Name = attributes.Name
+
+	// Map Persona-specific fields.
+	p.PersonaGroups = &attributes.PersonaGroups
+	p.PersonaUsers = &attributes.PersonaUsers
+	p.RoleId = attributes.RoleId
+
+	// Access Controls
+	p.IsAccessControlEnabled = attributes.IsAccessControlEnabled
+	p.DenyCustomMetadataGuids = attributes.DenyCustomMetadataGuids
+	p.DenyAssetTabs = attributes.DenyAssetTabs
+	p.DenyAssetFilters = attributes.DenyAssetFilters
+	p.ChannelLink = attributes.ChannelLink
+	p.DenyAssetTypes = attributes.DenyAssetTypes
+	p.DenyNavigationPages = attributes.DenyNavigationPages
+	p.DefaultNavigation = attributes.DefaultNavigation
+	p.DisplayPreferences = attributes.DisplayPreferences
+
+	// Unmarshal RelationshipAttributes for Policies
+	if base.Entity.RelationshipAttributes != nil {
+		relationshipAttributes := struct {
+			Policies []structs.AuthPolicy `json:"policies,omitempty"`
+		}{}
+
+		if err := json.Unmarshal(base.Entity.RelationshipAttributes, &relationshipAttributes); err != nil {
+			return err
 		}
+		// Map the Policies field
+		p.Policies = &relationshipAttributes.Policies
 	}
-
-	// Unmarshal the JSON data into the temporary structure.
-	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
-	}
-
-	// Unmarshal the attributes JSON into the entity.
-	if err := json.Unmarshal(temp.Entity.AttributesJSON, &p); err != nil {
-		return err
-	}
-
-	// Set the GUID and TypeName.
-	p.Guid = &temp.Entity.Guid
-	p.TypeName = &temp.Entity.TypeName
 
 	return nil
 }
@@ -269,12 +300,14 @@ func (p *Persona) MarshalJSON() ([]byte, error) {
 		},
 	}
 
+	attributes := customJSON["attributes"].(map[string]interface{})
+
 	if p.IsAccessControlEnabled != nil {
-		customJSON["attributes"].(map[string]interface{})["isAccessControlEnabled"] = *p.IsAccessControlEnabled
+		attributes["isAccessControlEnabled"] = *p.IsAccessControlEnabled
 	}
 
 	if p.QualifiedName != nil && *p.QualifiedName != "" {
-		customJSON["attributes"].(map[string]interface{})["qualifiedName"] = *p.QualifiedName
+		attributes["qualifiedName"] = *p.QualifiedName
 	}
 
 	if p.Guid != nil && *p.Guid != "" {
@@ -282,15 +315,49 @@ func (p *Persona) MarshalJSON() ([]byte, error) {
 	}
 
 	if p.DisplayName != nil && *p.DisplayName != "" {
-		customJSON["attributes"].(map[string]interface{})["displayName"] = *p.DisplayName
+		attributes["displayName"] = *p.DisplayName
 	}
 
 	if p.PersonaUsers != nil {
-		customJSON["attributes"].(map[string]interface{})["personaUsers"] = p.PersonaUsers
+		attributes["personaUsers"] = p.PersonaUsers
 	}
 
 	if p.PersonaGroups != nil {
-		customJSON["attributes"].(map[string]interface{})["personaGroups"] = p.PersonaGroups
+		attributes["personaGroups"] = p.PersonaGroups
+	}
+	// Add access control attributes
+	if p.IsAccessControlEnabled != nil {
+		attributes["isAccessControlEnabled"] = *p.IsAccessControlEnabled
+	}
+	if p.DenyCustomMetadataGuids != nil {
+		attributes["denyCustomMetadataGuids"] = *p.DenyCustomMetadataGuids
+	}
+	if p.DenyAssetTabs != nil {
+		attributes["denyAssetTabs"] = *p.DenyAssetTabs
+	}
+	if p.DenyAssetFilters != nil {
+		attributes["denyAssetFilters"] = *p.DenyAssetFilters
+	}
+	if p.ChannelLink != nil {
+		attributes["channelLink"] = *p.ChannelLink
+	}
+	if p.DenyAssetTypes != nil {
+		attributes["denyAssetTypes"] = *p.DenyAssetTypes
+	}
+	if p.DenyNavigationPages != nil {
+		attributes["denyNavigationPages"] = *p.DenyNavigationPages
+	}
+	if p.DefaultNavigation != nil {
+		attributes["defaultNavigation"] = *p.DefaultNavigation
+	}
+	if p.DisplayPreferences != nil {
+		attributes["displayPreferences"] = *p.DisplayPreferences
+	}
+	if p.Policies != nil {
+		attributes["policies"] = p.Policies // Assuming proper JSON marshalling of structs.AuthPolicy
+	}
+	if p.RoleId != nil {
+		attributes["roleId"] = *p.RoleId
 	}
 
 	return json.MarshalIndent(customJSON, "", "  ")

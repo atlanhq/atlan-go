@@ -132,6 +132,9 @@ func newDefaultSearchAssets() SearchAssets {
 		Connection:       NewSearchConnection(),
 		MaterialisedView: NewSearchMaterialisedView(),
 		View:             NewSearchView(),
+		Persona:          NewPersonaFields(),
+		AccessControl:    NewAccessControlFields(),
+		AuthPolicy:       NewAuthPolicyFields(),
 	}
 }
 

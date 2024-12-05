@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan"
 	"hash/fnv"
 	"reflect"
 	"strings"
@@ -1345,4 +1346,41 @@ func TrimToRequired(asset model.SearchAssets) (*model.SearchAssets, error) {
 	}
 
 	return instance, nil
+}
+
+// BaseEntity represents the base entity structure returned by the Atlan while fetching an entity.
+type BaseEntity struct {
+	ReferredEntities map[string]interface{} `json:"referredEntities"`
+	Entity           Entity                 `json:"entity"`
+}
+
+type Entity struct {
+	TypeName               string            `json:"typeName"`
+	AttributesJSON         json.RawMessage   `json:"attributes"`
+	Guid                   string            `json:"guid"`
+	IsIncomplete           bool              `json:"isIncomplete"`
+	Status                 atlan.AtlanStatus `json:"status"`
+	CreatedBy              string            `json:"createdBy"`
+	UpdatedBy              string            `json:"updatedBy"`
+	CreateTime             int64             `json:"createTime"`
+	UpdateTime             int64             `json:"updateTime"`
+	Version                int               `json:"version"`
+	RelationshipAttributes json.RawMessage   `json:"relationshipAttributes"`
+	Labels                 []interface{}     `json:"labels"`
+}
+
+// UnmarshalBaseEntity unmarshals the base entity and the attributes into the specific entity struct.
+func UnmarshalBaseEntity(data []byte, entity interface{}) (*BaseEntity, error) {
+	// Unmarshal the base entity.
+	var base BaseEntity
+	if err := json.Unmarshal(data, &base); err != nil {
+		return nil, err
+	}
+
+	// Unmarshal the attributes into the specific entity struct.
+	if err := json.Unmarshal(base.Entity.AttributesJSON, entity); err != nil {
+		return nil, err
+	}
+
+	return &base, nil
 }
