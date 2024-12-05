@@ -163,6 +163,20 @@ func WithActiveCategory(name string, glossaryqualifiedname string) (*model.BoolQ
 	}, nil
 }
 
+// WithActivePersona returns a query for an active persona by name.
+func WithActivePersona(name string) (*model.BoolQuery, error) {
+	q1, err := WithState("ACTIVE")
+	if err != nil {
+		return nil, err
+	}
+	q2 := WithTypeName("Persona")
+	q3 := WithName(name)
+
+	return &model.BoolQuery{
+		Filter: []model.Query{q1, q2, q3},
+	}, nil
+}
+
 // Helper Functions
 
 // WithState returns a query for an entity with a specific state.
