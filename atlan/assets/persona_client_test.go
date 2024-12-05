@@ -17,7 +17,7 @@ func TestIntegrationPersona(t *testing.T) {
 	NewContext()
 
 	personaID, personaQualifiedName := testCreatePersona(t)
-	time.Sleep(2 * time.Second) // Sleep for 2 seconds in order for changes to reflect in platform
+	time.Sleep(5 * time.Second) // Sleep for 2 seconds in order for changes to reflect in platform
 	testRetrievePersona(t, personaID)
 	time.Sleep(2 * time.Second) // Sleep for 2 seconds in order for changes to reflect in platform
 	testUpdatePersona(t, personaQualifiedName)
