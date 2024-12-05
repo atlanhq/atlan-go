@@ -20,6 +20,9 @@ type AccessControl struct {
 // AuthPolicy represents a policy with various attributes.
 type AuthPolicy struct {
 	Asset
+	UniqueAttributes struct {
+		QualifiedName *string `json:"qualifiedName"`
+	} `json:"uniqueAttributes"`
 	PolicyType              *atlan.AuthPolicyType               `json:"policyType,omitempty"`
 	PolicyServiceName       *string                             `json:"policyServiceName,omitempty"`
 	PolicyCategory          *string                             `json:"policyCategory,omitempty"`

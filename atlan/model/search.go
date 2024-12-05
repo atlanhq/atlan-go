@@ -538,6 +538,9 @@ type SearchAssets struct {
 	structs.Asset
 	structs.Table
 	structs.Column
+	structs.AuthPolicy
+	structs.Persona
+	structs.AccessControl
 	QualifiedName       *string           `json:"qualifiedName,omitempty"`
 	Name                *string           `json:"name,omitempty"`
 	SearchAttributes    *SearchAttributes `json:"Attributes,omitempty"`
@@ -619,6 +622,40 @@ type SearchAttributes struct {
 	TablePartition                 *structs.TablePartition            `json:"tablePartition,omitempty"`
 	MaxLength                      *int                               `json:"maxLength,omitempty"`
 
+	// Access Control Attributes
+	IsAccessControlEnabled  *bool                               `json:"isAccessControlEnabled,omitempty"`
+	DenyCustomMetadataGuids *[]string                           `json:"denyCustomMetadataGuids,omitempty"`
+	DenyAssetTabs           *[]string                           `json:"denyAssetTabs,omitempty"`
+	DenyAssetFilters        *[]string                           `json:"denyAssetFilters,omitempty"`
+	ChannelLink             *string                             `json:"channelLink,omitempty"`
+	DenyAssetTypes          *[]string                           `json:"denyAssetTypes,omitempty"`
+	DenyNavigationPages     *[]string                           `json:"denyNavigationPages,omitempty"`
+	DefaultNavigation       *string                             `json:"defaultNavigation,omitempty"`
+	DisplayPreferences      *[]string                           `json:"displayPreferences,omitempty"`
+	Policies                *[]structs.AuthPolicy               `json:"policies,omitempty"` // Relationship
+	PolicyType              *atlan.AuthPolicyType               `json:"policyType,omitempty"`
+	PolicyServiceName       *string                             `json:"policyServiceName,omitempty"`
+	PolicyCategory          *string                             `json:"policyCategory,omitempty"`
+	PolicySubCategory       *string                             `json:"policySubCategory,omitempty"`
+	PolicyUsers             *[]string                           `json:"policyUsers,omitempty"`
+	PolicyGroups            *[]string                           `json:"policyGroups,omitempty"`
+	PolicyRoles             *[]string                           `json:"policyRoles,omitempty"`
+	PolicyActions           *[]string                           `json:"policyActions,omitempty"`
+	PolicyResources         *[]string                           `json:"policyResources,omitempty"`
+	PolicyResourceCategory  *string                             `json:"policyResourceCategory,omitempty"`
+	PolicyPriority          *int                                `json:"policyPriority,omitempty"`
+	IsPolicyEnabled         *bool                               `json:"isPolicyEnabled,omitempty"`
+	PolicyMaskType          *string                             `json:"policyMaskType,omitempty"`
+	PolicyValiditySchedule  *[]atlan.AuthPolicyValiditySchedule `json:"policyValiditySchedule,omitempty"`
+	PolicyResourceSignature *string                             `json:"policyResourceSignature,omitempty"`
+	PolicyDelegateAdmin     *bool                               `json:"policyDelegateAdmin,omitempty"`
+	PolicyConditions        *[]atlan.AuthPolicyCondition        `json:"policyConditions,omitempty"`
+	AccessControl           *structs.AccessControl              `json:"accessControl,omitempty"` // Relationship
+	PersonaGroups           *[]string                           `json:"personaGroups,omitempty"`
+	PersonaUsers            *[]string                           `json:"personaUsers,omitempty"`
+	RoleId                  *string                             `json:"roleId,omitempty"`
+
+	// Common Attributes
 	QualifiedName            *string                  `json:"qualifiedName,omitempty"`
 	Name                     *string                  `json:"name,omitempty"`
 	UserDescription          *string                  `json:"userDescription,omitempty"`
@@ -666,39 +703,134 @@ func (sa *SearchAssets) MarshalJSON() ([]byte, error) {
 		},
 	}
 
+	attributes := customJSON["attributes"].(map[string]interface{})
+
 	if sa.Guid != nil && *sa.Asset.Guid != "" {
 		customJSON["guid"] = *sa.Guid
 	}
 
 	if sa.Asset.DisplayName != nil && *sa.Asset.DisplayName != "" {
-		customJSON["attributes"].(map[string]interface{})["DisplayText"] = *sa.Asset.DisplayName
+		attributes["DisplayText"] = *sa.Asset.DisplayName
 	}
 
 	if sa.Asset.Description != nil && *sa.Asset.Description != "" {
-		customJSON["attributes"].(map[string]interface{})["description"] = *sa.Asset.Description
+		attributes["description"] = *sa.Asset.Description
 	}
 
 	if sa.Table.SchemaName != nil && *sa.Table.SchemaName != "" {
-		customJSON["attributes"].(map[string]interface{})["schemaName"] = *sa.Table.SchemaName
+		attributes["schemaName"] = *sa.Table.SchemaName
 	}
 
 	if sa.Table.DatabaseName != nil && *sa.Table.DatabaseName != "" {
-		customJSON["attributes"].(map[string]interface{})["databaseName"] = *sa.Table.DatabaseName
+		attributes["databaseName"] = *sa.Table.DatabaseName
 	}
 
 	if sa.Table.DatabaseQualifiedName != nil && *sa.Table.DatabaseQualifiedName != "" {
-		customJSON["attributes"].(map[string]interface{})["databaseQualifiedName"] = *sa.Table.DatabaseQualifiedName
+		attributes["databaseQualifiedName"] = *sa.Table.DatabaseQualifiedName
 	}
 
 	if sa.Table.ConnectionQualifiedName != nil && *sa.Table.ConnectionQualifiedName != "" {
-		customJSON["attributes"].(map[string]interface{})["connectionQualifiedName"] = *sa.Table.ConnectionQualifiedName
+		attributes["connectionQualifiedName"] = *sa.Table.ConnectionQualifiedName
 	}
 
 	if sa.Asset.CertificateStatus != nil {
-		customJSON["attributes"].(map[string]interface{})["certificateStatus"] = *sa.Asset.CertificateStatus
+		attributes["certificateStatus"] = *sa.Asset.CertificateStatus
 	}
 
 	// Requires Model Generator for generating other assets
+
+	// Add access control attributes
+
+	if sa.IsAccessControlEnabled != nil {
+		attributes["isAccessControlEnabled"] = *sa.IsAccessControlEnabled
+	}
+	if sa.DenyCustomMetadataGuids != nil {
+		attributes["denyCustomMetadataGuids"] = *sa.DenyCustomMetadataGuids
+	}
+	if sa.DenyAssetTabs != nil {
+		attributes["denyAssetTabs"] = *sa.DenyAssetTabs
+	}
+	if sa.DenyAssetFilters != nil {
+		attributes["denyAssetFilters"] = *sa.DenyAssetFilters
+	}
+	if sa.ChannelLink != nil {
+		attributes["channelLink"] = *sa.ChannelLink
+	}
+	if sa.DenyAssetTypes != nil {
+		attributes["denyAssetTypes"] = *sa.DenyAssetTypes
+	}
+	if sa.DenyNavigationPages != nil {
+		attributes["denyNavigationPages"] = *sa.DenyNavigationPages
+	}
+	if sa.DefaultNavigation != nil {
+		attributes["defaultNavigation"] = *sa.DefaultNavigation
+	}
+	if sa.DisplayPreferences != nil {
+		attributes["displayPreferences"] = *sa.DisplayPreferences
+	}
+	if sa.Policies != nil {
+		attributes["policies"] = sa.Policies // Assuming proper JSON marshalling of structs.AuthPolicy
+	}
+	if sa.PolicyType != nil {
+		attributes["policyType"] = *sa.PolicyType
+	}
+	if sa.PolicyServiceName != nil {
+		attributes["policyServiceName"] = *sa.PolicyServiceName
+	}
+	if sa.PolicyCategory != nil {
+		attributes["policyCategory"] = *sa.PolicyCategory
+	}
+	if sa.PolicySubCategory != nil {
+		attributes["policySubCategory"] = *sa.PolicySubCategory
+	}
+	if sa.PolicyUsers != nil {
+		attributes["policyUsers"] = *sa.PolicyUsers
+	}
+	if sa.PolicyGroups != nil {
+		attributes["policyGroups"] = *sa.PolicyGroups
+	}
+	if sa.PolicyRoles != nil {
+		attributes["policyRoles"] = *sa.PolicyRoles
+	}
+	if sa.PolicyActions != nil {
+		attributes["policyActions"] = *sa.PolicyActions
+	}
+	if sa.PolicyResources != nil {
+		attributes["policyResources"] = *sa.PolicyResources
+	}
+	if sa.PolicyResourceCategory != nil {
+		attributes["policyResourceCategory"] = *sa.PolicyResourceCategory
+	}
+	if sa.PolicyPriority != nil {
+		attributes["policyPriority"] = *sa.PolicyPriority
+	}
+	if sa.IsPolicyEnabled != nil {
+		attributes["isPolicyEnabled"] = *sa.IsPolicyEnabled
+	}
+	if sa.PolicyMaskType != nil {
+		attributes["policyMaskType"] = *sa.PolicyMaskType
+	}
+	if sa.PolicyValiditySchedule != nil {
+		attributes["policyValiditySchedule"] = sa.PolicyValiditySchedule
+	}
+	if sa.PolicyResourceSignature != nil {
+		attributes["policyResourceSignature"] = *sa.PolicyResourceSignature
+	}
+	if sa.PolicyDelegateAdmin != nil {
+		attributes["policyDelegateAdmin"] = *sa.PolicyDelegateAdmin
+	}
+	if sa.PolicyConditions != nil {
+		attributes["policyConditions"] = sa.PolicyConditions
+	}
+	if sa.PersonaGroups != nil {
+		attributes["personaGroups"] = *sa.PersonaGroups
+	}
+	if sa.PersonaUsers != nil {
+		attributes["personaUsers"] = *sa.PersonaUsers
+	}
+	if sa.RoleId != nil {
+		attributes["roleId"] = *sa.RoleId
+	}
 
 	// Marshal the custom JSON
 	return json.MarshalIndent(customJSON, "", "  ")
@@ -710,6 +842,9 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		structs.Asset
 		structs.Table
 		structs.Column
+		structs.AuthPolicy
+		structs.AccessControl
+		structs.Persona
 		QualifiedName       *string           `json:"qualifiedName,omitempty"`
 		Name                *string           `json:"name,omitempty"`
 		SearchAttributes    *SearchAttributes `json:"attributes,omitempty"`
@@ -821,6 +956,38 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		sa.ForeignKeyFrom = aux.SearchAttributes.ForeignKeyFrom
 		sa.DbtMetrics = aux.SearchAttributes.DbtMetrics
 		sa.TablePartition = aux.SearchAttributes.TablePartition
+
+		// Access Control Attributes
+		sa.IsAccessControlEnabled = aux.SearchAttributes.IsAccessControlEnabled
+		sa.DenyCustomMetadataGuids = aux.SearchAttributes.DenyCustomMetadataGuids
+		sa.DenyAssetTabs = aux.SearchAttributes.DenyAssetTabs
+		sa.DenyAssetFilters = aux.SearchAttributes.DenyAssetFilters
+		sa.ChannelLink = aux.SearchAttributes.ChannelLink
+		sa.DenyAssetTypes = aux.SearchAttributes.DenyAssetTypes
+		sa.DenyNavigationPages = aux.SearchAttributes.DenyNavigationPages
+		sa.DefaultNavigation = aux.SearchAttributes.DefaultNavigation
+		sa.DisplayPreferences = aux.SearchAttributes.DisplayPreferences
+		sa.Policies = aux.SearchAttributes.Policies
+		sa.PolicyType = aux.SearchAttributes.PolicyType
+		sa.PolicyServiceName = aux.SearchAttributes.PolicyServiceName
+		sa.PolicyCategory = aux.SearchAttributes.PolicyCategory
+		sa.PolicySubCategory = aux.SearchAttributes.PolicySubCategory
+		sa.PolicyUsers = aux.SearchAttributes.PolicyUsers
+		sa.PolicyGroups = aux.SearchAttributes.PolicyGroups
+		sa.PolicyRoles = aux.SearchAttributes.PolicyRoles
+		sa.PolicyActions = aux.SearchAttributes.PolicyActions
+		sa.PolicyResources = aux.SearchAttributes.PolicyResources
+		sa.PolicyResourceCategory = aux.SearchAttributes.PolicyResourceCategory
+		sa.PolicyPriority = aux.SearchAttributes.PolicyPriority
+		sa.IsPolicyEnabled = aux.SearchAttributes.IsPolicyEnabled
+		sa.PolicyMaskType = aux.SearchAttributes.PolicyMaskType
+		sa.PolicyValiditySchedule = aux.SearchAttributes.PolicyValiditySchedule
+		sa.PolicyResourceSignature = aux.SearchAttributes.PolicyResourceSignature
+		sa.PolicyDelegateAdmin = aux.SearchAttributes.PolicyDelegateAdmin
+		sa.PolicyConditions = aux.SearchAttributes.PolicyConditions
+		sa.PersonaGroups = aux.SearchAttributes.PersonaGroups
+		sa.PersonaUsers = aux.SearchAttributes.PersonaUsers
+		sa.RoleId = aux.SearchAttributes.RoleId
 
 		// Populate `rawSearchAttributes` (necessary for setting `SearchAssets.CustomMetadataSets`)
 		// First, unmarshal the data into a `rawSearchAsset` map
