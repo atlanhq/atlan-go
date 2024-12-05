@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/atlanhq/atlan-go/atlan"
 	"hash/fnv"
 	"reflect"
 	"strings"
@@ -27,6 +28,9 @@ type SearchAssets struct {
 	Connection       *ConnectionFields
 	MaterialisedView *MaterialisedViewFields
 	View             *ViewFields
+	AccessControl    *AccessControlFields
+	Persona          *PersonaFields
+	AuthPolicy       *AuthPolicyFields
 	// Add other assets here
 }
 
@@ -259,6 +263,49 @@ type ViewFields struct {
 	COLUMNS              *RelationField
 	QUERIES              *RelationField
 	ATLAN_SCHEMA         *RelationField
+}
+
+type AccessControlFields struct {
+	AssetFields
+	IS_ACCESS_CONTROL_ENABLED  *BooleanField
+	DENY_CUSTOM_METADATA_GUIDS *KeywordField
+	DENY_ASSET_TABS            *KeywordField
+	DENY_ASSET_FILTERS         *TextField
+	CHANNEL_LINK               *TextField
+	DENY_ASSET_TYPES           *TextField
+	DENY_NAVIGATION_PAGES      *TextField
+	DEFAULT_NAVIGATION         *TextField
+	DISPLAY_PREFERENCES        *KeywordField
+	POLICIES                   *RelationField
+}
+
+type PersonaFields struct {
+	AccessControlFields
+	PERSONA_GROUPS *KeywordField
+	PERSONA_USERS  *KeywordField
+	ROLE_ID        *KeywordField
+}
+
+type AuthPolicyFields struct {
+	AssetFields
+	POLICY_TYPE               *KeywordField
+	POLICY_SERVICE_NAME       *KeywordField
+	POLICY_CATEGORY           *KeywordField
+	POLICY_SUB_CATEGORY       *KeywordField
+	POLICY_USERS              *KeywordField
+	POLICY_GROUPS             *KeywordField
+	POLICY_ROLES              *KeywordField
+	POLICY_ACTIONS            *KeywordField
+	POLICY_RESOURCES          *KeywordField
+	POLICY_RESOURCE_CATEGORY  *KeywordField
+	POLICY_PRIORITY           *NumericField
+	IS_POLICY_ENABLED         *BooleanField
+	POLICY_MASK_TYPE          *KeywordField
+	POLICY_VALIDITY_SCHEDULE  *KeywordField
+	POLICY_RESOURCE_SIGNATURE *KeywordField
+	POLICY_DELEGATE_ADMIN     *BooleanField
+	POLICY_CONDITIONS         *KeywordField
+	ACCESS_CONTROL            *RelationField
 }
 
 // NewSearchTable returns a new AtlasTable object for Searching
@@ -742,6 +789,169 @@ func NewSearchView() *ViewFields {
 
 }
 
+// NewAccessControlFields initializes a new instance of AccessControlFields.
+func NewAccessControlFields() *AccessControlFields {
+	return &AccessControlFields{
+		IS_ACCESS_CONTROL_ENABLED:  NewBooleanField("isAccessControlEnabled", "isAccessControlEnabled"),
+		DENY_CUSTOM_METADATA_GUIDS: NewKeywordField("denyCustomMetadataGuids", "denyCustomMetadataGuids"),
+		DENY_ASSET_TABS:            NewKeywordField("denyAssetTabs", "denyAssetTabs"),
+		DENY_ASSET_FILTERS:         NewTextField("denyAssetFilters", "denyAssetFilters"),
+		CHANNEL_LINK:               NewTextField("channelLink", "channelLink"),
+		DENY_ASSET_TYPES:           NewTextField("denyAssetTypes", "denyAssetTypes"),
+		DENY_NAVIGATION_PAGES:      NewTextField("denyNavigationPages", "denyNavigationPages"),
+		DEFAULT_NAVIGATION:         NewTextField("defaultNavigation", "defaultNavigation"),
+		DISPLAY_PREFERENCES:        NewKeywordField("displayPreferences", "displayPreferences"),
+		POLICIES:                   NewRelationField("policies"),
+		AssetFields: AssetFields{
+			AttributesFields: AttributesFields{
+				TYPENAME:              NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
+				GUID:                  NewKeywordField("guid", "__guid"),
+				CREATED_BY:            NewKeywordField("createdBy", "__createdBy"),
+				UPDATED_BY:            NewKeywordField("updatedBy", "__modifiedBy"),
+				STATUS:                NewKeywordField("status", "__state"),
+				ATLAN_TAGS:            NewKeywordTextField("classificationNames", "__traitNames", "__classificationsText"),
+				PROPOGATED_ATLAN_TAGS: NewKeywordTextField("classificationNames", "__propagatedTraitNames", "__classificationsText"),
+				ASSIGNED_TERMS:        NewKeywordTextField("meanings", "__meanings", "__meaningsText"),
+				SUPERTYPE_NAMES:       NewKeywordTextField("typeName", "__superTypeNames.keyword", "__superTypeNames"),
+				CREATE_TIME:           NewNumericField("createTime", "__timestamp"),
+				UPDATE_TIME:           NewNumericField("updateTime", "__modificationTimestamp"),
+				QUALIFIED_NAME:        NewKeywordTextField("qualifiedName", "qualifiedName", "qualifiedName.text"),
+			},
+			NAME:                       NewKeywordTextStemmedField("name", "name.keyword", "name", "name"),
+			DISPLAY_NAME:               NewKeywordTextField("displayName", "displayName.keyword", "displayName"),
+			DESCRIPTION:                NewKeywordTextField("description", "description", "description.text"),
+			USER_DESCRIPTION:           NewKeywordTextField("userDescription", "userDescription", "userDescription.text"),
+			TENET_ID:                   NewKeywordField("tenetId", "tenetId"),
+			CERTIFICATE_STATUS:         NewKeywordTextField("certificateStatus", "certificateStatus", "certificateStatus.text"),
+			CERTIFICATE_STATUS_MESSAGE: NewKeywordField("certificateStatusMessage", "certificateStatusMessage"),
+			CERTIFICATE_UPDATED_BY:     NewNumericField("certificateUpdatedBy", "certificateUpdatedBy"),
+			ANNOUNCEMENT_TITLE:         NewKeywordField("announcementTitle", "announcementTitle"),
+			ANNOUNCEMENT_MESSAGE:       NewKeywordTextField("announcementMessage", "announcementMessage", "announcementMessage.text"),
+			ANNOUNCEMENT_TYPE:          NewKeywordField("announcementType", "announcementType"),
+			ANNOUNCEMENT_UPDATED_AT:    NewNumericField("announcementUpdatedAt", "announcementUpdatedAt"),
+			ANNOUNCEMENT_UPDATED_BY:    NewKeywordField("announcementUpdatedBy", "announcementUpdatedBy"),
+			OWNER_USERS:                NewKeywordTextField("ownerUsers", "ownerUsers", "ownerUsers.text"),
+			ADMIN_USERS:                NewKeywordField("adminUsers", "adminUsers"),
+			VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
+			VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
+			CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+		},
+	}
+}
+
+// NewPersonaFields initializes a new instance of PersonaFields.
+func NewPersonaFields() *PersonaFields {
+	return &PersonaFields{
+		AccessControlFields: AccessControlFields{
+			IS_ACCESS_CONTROL_ENABLED:  NewBooleanField("isAccessControlEnabled", "isAccessControlEnabled"),
+			DENY_CUSTOM_METADATA_GUIDS: NewKeywordField("denyCustomMetadataGuids", "denyCustomMetadataGuids"),
+			DENY_ASSET_TABS:            NewKeywordField("denyAssetTabs", "denyAssetTabs"),
+			DENY_ASSET_FILTERS:         NewTextField("denyAssetFilters", "denyAssetFilters"),
+			CHANNEL_LINK:               NewTextField("channelLink", "channelLink"),
+			DENY_ASSET_TYPES:           NewTextField("denyAssetTypes", "denyAssetTypes"),
+			DENY_NAVIGATION_PAGES:      NewTextField("denyNavigationPages", "denyNavigationPages"),
+			DEFAULT_NAVIGATION:         NewTextField("defaultNavigation", "defaultNavigation"),
+			DISPLAY_PREFERENCES:        NewKeywordField("displayPreferences", "displayPreferences"),
+			POLICIES:                   NewRelationField("policies"),
+			AssetFields: AssetFields{
+				AttributesFields: AttributesFields{
+					TYPENAME:              NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
+					GUID:                  NewKeywordField("guid", "__guid"),
+					CREATED_BY:            NewKeywordField("createdBy", "__createdBy"),
+					UPDATED_BY:            NewKeywordField("updatedBy", "__modifiedBy"),
+					STATUS:                NewKeywordField("status", "__state"),
+					ATLAN_TAGS:            NewKeywordTextField("classificationNames", "__traitNames", "__classificationsText"),
+					PROPOGATED_ATLAN_TAGS: NewKeywordTextField("classificationNames", "__propagatedTraitNames", "__classificationsText"),
+					ASSIGNED_TERMS:        NewKeywordTextField("meanings", "__meanings", "__meaningsText"),
+					SUPERTYPE_NAMES:       NewKeywordTextField("typeName", "__superTypeNames.keyword", "__superTypeNames"),
+					CREATE_TIME:           NewNumericField("createTime", "__timestamp"),
+					UPDATE_TIME:           NewNumericField("updateTime", "__modificationTimestamp"),
+					QUALIFIED_NAME:        NewKeywordTextField("qualifiedName", "qualifiedName", "qualifiedName.text"),
+				},
+				NAME:                       NewKeywordTextStemmedField("name", "name.keyword", "name", "name"),
+				DISPLAY_NAME:               NewKeywordTextField("displayName", "displayName.keyword", "displayName"),
+				DESCRIPTION:                NewKeywordTextField("description", "description", "description.text"),
+				USER_DESCRIPTION:           NewKeywordTextField("userDescription", "userDescription", "userDescription.text"),
+				TENET_ID:                   NewKeywordField("tenetId", "tenetId"),
+				CERTIFICATE_STATUS:         NewKeywordTextField("certificateStatus", "certificateStatus", "certificateStatus.text"),
+				CERTIFICATE_STATUS_MESSAGE: NewKeywordField("certificateStatusMessage", "certificateStatusMessage"),
+				CERTIFICATE_UPDATED_BY:     NewNumericField("certificateUpdatedBy", "certificateUpdatedBy"),
+				ANNOUNCEMENT_TITLE:         NewKeywordField("announcementTitle", "announcementTitle"),
+				ANNOUNCEMENT_MESSAGE:       NewKeywordTextField("announcementMessage", "announcementMessage", "announcementMessage.text"),
+				ANNOUNCEMENT_TYPE:          NewKeywordField("announcementType", "announcementType"),
+				ANNOUNCEMENT_UPDATED_AT:    NewNumericField("announcementUpdatedAt", "announcementUpdatedAt"),
+				ANNOUNCEMENT_UPDATED_BY:    NewKeywordField("announcementUpdatedBy", "announcementUpdatedBy"),
+				OWNER_USERS:                NewKeywordTextField("ownerUsers", "ownerUsers", "ownerUsers.text"),
+				ADMIN_USERS:                NewKeywordField("adminUsers", "adminUsers"),
+				VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
+				VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
+				CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+			},
+		},
+		PERSONA_GROUPS: NewKeywordField("personaGroups", "personaGroups"),
+		PERSONA_USERS:  NewKeywordField("personaUsers", "personaUsers"),
+		ROLE_ID:        NewKeywordField("roleId", "roleId"),
+	}
+}
+
+// NewAuthPolicyFields initializes a new instance of AuthPolicyFields.
+func NewAuthPolicyFields() *AuthPolicyFields {
+	return &AuthPolicyFields{
+		AssetFields: AssetFields{
+			AttributesFields: AttributesFields{
+				TYPENAME:              NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
+				GUID:                  NewKeywordField("guid", "__guid"),
+				CREATED_BY:            NewKeywordField("createdBy", "__createdBy"),
+				UPDATED_BY:            NewKeywordField("updatedBy", "__modifiedBy"),
+				STATUS:                NewKeywordField("status", "__state"),
+				ATLAN_TAGS:            NewKeywordTextField("classificationNames", "__traitNames", "__classificationsText"),
+				PROPOGATED_ATLAN_TAGS: NewKeywordTextField("classificationNames", "__propagatedTraitNames", "__classificationsText"),
+				ASSIGNED_TERMS:        NewKeywordTextField("meanings", "__meanings", "__meaningsText"),
+				SUPERTYPE_NAMES:       NewKeywordTextField("typeName", "__superTypeNames.keyword", "__superTypeNames"),
+				CREATE_TIME:           NewNumericField("createTime", "__timestamp"),
+				UPDATE_TIME:           NewNumericField("updateTime", "__modificationTimestamp"),
+				QUALIFIED_NAME:        NewKeywordTextField("qualifiedName", "qualifiedName", "qualifiedName.text"),
+			},
+			NAME:                       NewKeywordTextStemmedField("name", "name.keyword", "name", "name"),
+			DISPLAY_NAME:               NewKeywordTextField("displayName", "displayName.keyword", "displayName"),
+			DESCRIPTION:                NewKeywordTextField("description", "description", "description.text"),
+			USER_DESCRIPTION:           NewKeywordTextField("userDescription", "userDescription", "userDescription.text"),
+			TENET_ID:                   NewKeywordField("tenetId", "tenetId"),
+			CERTIFICATE_STATUS:         NewKeywordTextField("certificateStatus", "certificateStatus", "certificateStatus.text"),
+			CERTIFICATE_STATUS_MESSAGE: NewKeywordField("certificateStatusMessage", "certificateStatusMessage"),
+			CERTIFICATE_UPDATED_BY:     NewNumericField("certificateUpdatedBy", "certificateUpdatedBy"),
+			ANNOUNCEMENT_TITLE:         NewKeywordField("announcementTitle", "announcementTitle"),
+			ANNOUNCEMENT_MESSAGE:       NewKeywordTextField("announcementMessage", "announcementMessage", "announcementMessage.text"),
+			ANNOUNCEMENT_TYPE:          NewKeywordField("announcementType", "announcementType"),
+			ANNOUNCEMENT_UPDATED_AT:    NewNumericField("announcementUpdatedAt", "announcementUpdatedAt"),
+			ANNOUNCEMENT_UPDATED_BY:    NewKeywordField("announcementUpdatedBy", "announcementUpdatedBy"),
+			OWNER_USERS:                NewKeywordTextField("ownerUsers", "ownerUsers", "ownerUsers.text"),
+			ADMIN_USERS:                NewKeywordField("adminUsers", "adminUsers"),
+			VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
+			VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
+			CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+		},
+		POLICY_TYPE:               NewKeywordField("policyType", "policyType"),
+		POLICY_SERVICE_NAME:       NewKeywordField("policyServiceName", "policyServiceName"),
+		POLICY_CATEGORY:           NewKeywordField("policyCategory", "policyCategory"),
+		POLICY_SUB_CATEGORY:       NewKeywordField("policySubCategory", "policySubCategory"),
+		POLICY_USERS:              NewKeywordField("policyUsers", "policyUsers"),
+		POLICY_GROUPS:             NewKeywordField("policyGroups", "policyGroups"),
+		POLICY_ROLES:              NewKeywordField("policyRoles", "policyRoles"),
+		POLICY_ACTIONS:            NewKeywordField("policyActions", "policyActions"),
+		POLICY_RESOURCES:          NewKeywordField("policyResources", "policyResources"),
+		POLICY_RESOURCE_CATEGORY:  NewKeywordField("policyResourceCategory", "policyResourceCategory"),
+		POLICY_PRIORITY:           NewNumericField("policyPriority", "policyPriority"),
+		IS_POLICY_ENABLED:         NewBooleanField("isPolicyEnabled", "isPolicyEnabled"),
+		POLICY_MASK_TYPE:          NewKeywordField("policyMaskType", "policyMaskType"),
+		POLICY_VALIDITY_SCHEDULE:  NewKeywordField("policyValiditySchedule", "policyValiditySchedule"),
+		POLICY_RESOURCE_SIGNATURE: NewKeywordField("policyResourceSignature", "policyResourceSignature"),
+		POLICY_DELEGATE_ADMIN:     NewBooleanField("policyDelegateAdmin", "policyDelegateAdmin"),
+		POLICY_CONDITIONS:         NewKeywordField("policyConditions", "policyConditions"),
+		ACCESS_CONTROL:            NewRelationField("accessControl"),
+	}
+}
+
 // Methods on assets
 
 // GetbyGuid retrieves an asset by guid
@@ -754,7 +964,7 @@ func GetByGuid[T AtlanObject](guid string) (T, error) {
 	}
 
 	api := &GET_ENTITY_BY_GUID
-	api.Path += guid
+	api.Path = fmt.Sprintf("entity/guid/%s", guid) // Adjust to the actual API path structure
 
 	response, err := DefaultAtlanClient.CallAPI(api, nil, nil)
 	if err != nil {
@@ -1136,4 +1346,41 @@ func TrimToRequired(asset model.SearchAssets) (*model.SearchAssets, error) {
 	}
 
 	return instance, nil
+}
+
+// BaseEntity represents the base entity structure returned by the Atlan while fetching an entity.
+type BaseEntity struct {
+	ReferredEntities map[string]interface{} `json:"referredEntities"`
+	Entity           Entity                 `json:"entity"`
+}
+
+type Entity struct {
+	TypeName               string            `json:"typeName"`
+	AttributesJSON         json.RawMessage   `json:"attributes"`
+	Guid                   string            `json:"guid"`
+	IsIncomplete           bool              `json:"isIncomplete"`
+	Status                 atlan.AtlanStatus `json:"status"`
+	CreatedBy              string            `json:"createdBy"`
+	UpdatedBy              string            `json:"updatedBy"`
+	CreateTime             int64             `json:"createTime"`
+	UpdateTime             int64             `json:"updateTime"`
+	Version                int               `json:"version"`
+	RelationshipAttributes json.RawMessage   `json:"relationshipAttributes"`
+	Labels                 []interface{}     `json:"labels"`
+}
+
+// UnmarshalBaseEntity unmarshals the base entity and the attributes into the specific entity struct.
+func UnmarshalBaseEntity(data []byte, entity interface{}) (*BaseEntity, error) {
+	// Unmarshal the base entity.
+	var base BaseEntity
+	if err := json.Unmarshal(data, &base); err != nil {
+		return nil, err
+	}
+
+	// Unmarshal the attributes into the specific entity struct.
+	if err := json.Unmarshal(base.Entity.AttributesJSON, entity); err != nil {
+		return nil, err
+	}
+
+	return &base, nil
 }

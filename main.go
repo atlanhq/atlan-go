@@ -1,12 +1,9 @@
 package main
 
 import (
-	"fmt"
-	"github.com/atlanhq/atlan-go/atlan"
 	_ "github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/assets"
 	_ "github.com/atlanhq/atlan-go/atlan/model/structs"
-	"log"
 )
 
 func main() {
@@ -14,54 +11,274 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	schemaQualifiedName := "default/snowflake/1731535899/ANALYTICS/WIDE_WORLD_IMPORTERS"
+	/*
+		// Get Persona by Guid
+	
+			response, atlanErr := assets.GetByGuid[*assets.Persona]("6f04ac74-d6b8-4b5e-8c1b-2347f9e55414")
+			if atlanErr != nil {
+				fmt.Println("Error:", atlanErr)
+			} else {
+				fmt.Println("RoleID:", *response.RoleId)
+				fmt.Println("Users:", *response.PersonaUsers)
+				fmt.Println("Groups:", *response.PersonaGroups)
+				fmt.Println("DenyAssetFilters:", *response.DenyAssetFilters)
+				//firstPolicy := (*response.Policies)[0]
+				fmt.Println("Policies", (*response.Policies)[0].DisplayName)
+				//		fmt.Println("RoleID:", *response.Policies)
 
-	batch := assets.NewBatch(ctx, 20, true, atlan.IGNORE, true)
+			}
 
-	response, _ := assets.NewFluentSearch().
-		ActiveAssets().
-		PageSizes(100).
-		Where(ctx.Table.QUALIFIED_NAME.StartsWith(schemaQualifiedName, nil)).
-		//Where(ctx.Table.CERTIFICATE_STATUS.Eq("Verified")).
-		//AssetType("Table").
-		AssetTypes([]string{"Table"}).
-		//WhereNot(ctx.Table.CERTIFICATE_STATUS.HasAnyValue()).
-		IncludeOnResults(assets.DESCRIPTION, assets.CERTIFICATE_STATUS, assets.OWNER_USERS).
-		Execute()
 
-	fmt.Println(*response[0].Entities[0].Name)
+	*/
+	/*
+		// Personalize Persona
 
-	// Process each asset in the search results
-	for _, asset := range response[0].Entities {
+		toUpdate := &assets.Persona{}
+		toUpdate.Updater("default/Lnwt6yWFzPfbH95MXauMWR", "Test Persona", true)
 
-		Description := "This is Test 5"
-		//Name := "Test4"
-		// Trim to required attributes
-		trimmedAsset, err := assets.TrimToRequired(asset)
-		if err != nil {
-			fmt.Printf("Error trimming asset: %v\n", err)
-			continue
+		toUpdate.DenyAssetTabs = &[]string{atlan.AssetSidebarTabLineage.Name, atlan.AssetSidebarTabRelations.Name, atlan.AssetSidebarTabQueries.Name}
+		toUpdate.DenyAssetTypes = &[]string{"Table", "Column"}
+		toUpdate.DenyAssetFilters = &[]string{atlan.AssetFilterGroupTags.Name, atlan.AssetFilterGroupOwners.Name, atlan.AssetFilterGroupCertificate.Name}
+		toUpdate.DenyCustomMetadataGuids = &[]string{"default/7b4b4b4b-4b4b-4b4b-4b4b-4b4b4b4b4b4b"}
+
+		response, atlanErr := assets.Save(toUpdate)
+		if atlanErr != nil {
+			println("Error:", atlanErr)
+		} else {
+			for _, entity := range response.MutatedEntities.UPDATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
 		}
 
-		trimmedAsset.Description = &Description
-		//trimmedAsset.Name = &Name
-		//assets.Save(trimmedAsset)
-		// Add the trimmed asset to the batch
-		err = batch.Add(trimmedAsset)
-		if err != nil {
-			log.Printf("Failed to add asset to batch: %v", err)
+
+	*/
+	/*
+		// List Policies in a Persona
+		response, atlanErr := assets.NewFluentSearch().
+			PageSizes(20).
+			AssetType("Persona").
+			Where(ctx.Persona.NAME.Eq("Test Persona")).
+			IncludeOnResults("policies").
+			IncludeOnRelations("name").
+			IncludeOnRelations("policyActions").
+			IncludeOnRelations("policyResources").
+			IncludeOnRelations("policyType").
+			Execute()
+
+		if atlanErr != nil {
+			fmt.Println("Error:", atlanErr)
 		}
-		batch.Flush()
 
-	}
+		for _, entity := range response[0].Entities {
+			if entity.TypeName != nil && *entity.TypeName == "Persona" {
+				fmt.Println("Persona Found: Name:", *entity.Name, "QualifiedName:", *entity.QualifiedName)
+				for _, policy := range *entity.Policies {
+					fmt.Println("Policy Found: Guid:", *policy.UniqueAttributes.QualifiedName)
+				}
+			}
+		}
 
-	for _, asset := range batch.Updated() {
-		fmt.Println(asset)
-	}
+	*/
 
-	for _, asset := range batch.Created() {
-		fmt.Println(asset)
-	}
+	/*
+		// List Personas
+		response, atlanErr := assets.NewFluentSearch().
+			PageSizes(10).
+			ActiveAssets().
+			AssetType("Persona").
+			Execute()
+
+		if atlanErr != nil {
+			fmt.Println("Error:", atlanErr)
+		}
+		for _, entity := range response[0].Entities {
+			if entity.TypeName != nil && *entity.TypeName == "Persona" {
+				fmt.Printf("Persona Found: Name: %s, QualifiedName: %s\n", *entity.Name, *entity.QualifiedName)
+				// Perform any additional operations with the Persona entity
+				revised, err := assets.TrimToRequired(entity)
+				if err != nil {
+					fmt.Println("Error:", err)
+				}
+				DisplayName := "Test Persona Modified"
+				revised.DisplayName = &DisplayName
+				response, err := assets.Save(revised)
+				if err != nil {
+					fmt.Println("Error:", err)
+				} else {
+					for _, entity := range response.MutatedEntities.UPDATE {
+						println("Response:", entity)
+						println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+					}
+				}
+			}
+		}
+
+	*/
+
+	/*
+		// Allow access to domain
+		Persona := &assets.Persona{}
+		domain, _ := Persona.CreateDomainPolicy(
+			"Allow access to domain",
+			"55226625-0b82-4705-8095-4a7d3f0c228d",
+			[]atlan.PersonaDomainAction{atlan.PersonaDomainActionRead, atlan.PersonaDomainActionReadSubdomain, atlan.PersonaDomainActionReadProducts},
+			[]string{"entity:default/domain/marketing"},
+		)
+		response, err := assets.Save(domain)
+		if err != nil {
+			println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.CREATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+		}
+
+	*/
+	/*
+		// Add a glossary policy
+		Persona := &assets.Persona{}
+		glossary, _ := Persona.CreateGlossaryPolicy(
+			"All glossaries",
+			"55226625-0b82-4705-8095-4a7d3f0c228d",
+			atlan.AuthPolicyTypeAllow,
+			[]atlan.PersonaGlossaryAction{atlan.PersonaGlossaryActionCreate, atlan.PersonaGlossaryActionUpdate},
+			[]string{"entity:OW0lMXZKyj4VfCsRxK3nr"},
+		)
+		response, err := assets.Save(glossary)
+		if err != nil {
+			println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.CREATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+
+		}
+
+	*/
+	/*
+		// Create data policy
+		Persona := &assets.Persona{}
+		data, _ := Persona.CreateDataPolicy(
+			"Allow access to data",
+			"55226625-0b82-4705-8095-4a7d3f0c228d",
+			atlan.AuthPolicyTypeAllow,
+			"default/app/1732538219",
+			[]string{"entity:default/app/1732538219"},
+		)
+		response, err := assets.Save(data)
+		if err != nil {
+			println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.CREATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+
+		}
+
+	*/
+	/*
+		// Create Metadata Policy
+		Persona := &assets.Persona{}
+		metadata, _ := Persona.CreateMetadataPolicy(
+			"Simple read access",
+			"55226625-0b82-4705-8095-4a7d3f0c228d",
+			atlan.AuthPolicyTypeAllow,
+			[]atlan.PersonaMetadataAction{atlan.PersonaMetadataActionRead},
+			"default/app/1732538219",
+			[]string{"entity:default/app/1732538219"},
+		)
+		response, err := assets.Save(metadata)
+		if err != nil {
+			fmt.Println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.CREATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+		}
+
+	*/
+	/*
+		// Add subjects to persona
+
+		toUpdate := &assets.Persona{}
+		toUpdate.Updater("default/Lnwt6yWFzPfbH95MXauMWR", "Test Persona", true)
+		toUpdate.PersonaGroups = &[]string{"group1", "group2"}
+		toUpdate.PersonaUsers = &[]string{"jsmith", "jdoe"}
+		response, err := assets.Save(toUpdate)
+		if err != nil {
+			fmt.Println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.UPDATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+		}
+
+
+	*/
+	/*
+		// Activate or Deactivate a Persona
+		toUpdate := &assets.Persona{}
+		toUpdate.Updater("default/Lnwt6yWFzPfbH95MXauMWR", "Test Persona", true)
+		response, err := assets.Save(toUpdate)
+		if err != nil {
+			println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.UPDATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+		}
+
+	*/
+	/*
+		// Delete a Persona
+		assets.PurgeByGuid([]string{"5ffb7d15-4435-4f5c-8bb1-6e109ea091c2"})
+
+
+	*/
+	/*
+		// Updater on Persona
+			Persona := &assets.Persona{}
+
+			toUpdate, err := Persona.Updater("default/jtKc6jzvE4UM8yT5uuC3FX", "Test Persona", true)
+			if err != nil {
+				return
+			}
+			DisplayName := "Test Persona Modified"
+			toUpdate.Name = &DisplayName
+			response, err := assets.Save(toUpdate)
+			if err != nil {
+				println("Error:", err)
+			} else {
+				for _, entity := range response.MutatedEntities.UPDATE {
+					println("Response:", entity)
+					println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+				}
+			}
+
+	*/
+	/*
+		// Creator on Persona
+		toCreate := &assets.Persona{}
+
+		toCreate.Creator("Test Persona")
+		response, err := assets.Save(toCreate)
+		if err != nil {
+			println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.CREATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+		}
+
+	*/
 
 	/*
 		ctx := assets.NewContext()

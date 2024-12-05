@@ -111,35 +111,34 @@ func (t *Table) CreatorWithParams(name, schemaQualifiedName string, schemaName, 
 
 // UnmarshalJSON implements the JSON unmarshal interface for the Table struct.
 func (t *Table) UnmarshalJSON(data []byte) error {
-	// Define a temporary structure with the expected JSON structure.
-	var temp struct {
-		Entity struct {
-			TypeName                string `json:"typeName"`
-			Name                    string `json:"name"`
-			SchemaQualifiedName     string `json:"schemaQualifiedName"`
-			SchemaName              string `json:"schemaName"`
-			DatabaseName            string `json:"databaseName"`
-			DatabaseQualifiedName   string `json:"databaseQualifiedName"`
-			ConnectionQualifiedName string `json:"connectionQualifiedName"`
-			Guid                    string `json:"guid"`
-		} `json:"entity"`
-	}
 
-	// Unmarshal the JSON into the temporary structure
-	if err := json.Unmarshal(data, &temp); err != nil {
+	Attributes := struct {
+		Name                    *string `json:"name"`
+		QualifiedName           *string `json:"qualifiedName"`
+		SchemaQualifiedName     *string `json:"schemaQualifiedName"`
+		SchemaName              *string `json:"schemaName"`
+		DatabaseName            *string `json:"databaseName"`
+		DatabaseQualifiedName   *string `json:"databaseQualifiedName"`
+		ConnectionQualifiedName *string `json:"connectionQualifiedName"`
+		// Add other attributes as necessary.
+	}{}
+
+	base, err := UnmarshalBaseEntity(data, &Attributes)
+	if err != nil {
 		return err
 	}
 
-	// Map the fields from the temporary structure to the Table struct
-	t.TypeName = &temp.Entity.TypeName
-	t.Name = &temp.Entity.Name
-	t.SchemaQualifiedName = &temp.Entity.SchemaQualifiedName
-	t.SchemaName = &temp.Entity.SchemaName
-	t.DatabaseName = &temp.Entity.DatabaseName
-	t.DatabaseQualifiedName = &temp.Entity.DatabaseQualifiedName
-	t.ConnectionQualifiedName = &temp.Entity.ConnectionQualifiedName
-	t.Guid = &temp.Entity.Guid
-
+	// Map shared fields
+	t.TypeName = &base.Entity.TypeName
+	t.Name = Attributes.Name
+	t.QualifiedName = Attributes.QualifiedName
+	t.Guid = &base.Entity.Guid
+	t.SchemaQualifiedName = Attributes.SchemaQualifiedName
+	t.SchemaName = Attributes.SchemaName
+	t.DatabaseName = Attributes.DatabaseName
+	t.DatabaseQualifiedName = Attributes.DatabaseQualifiedName
+	t.ConnectionQualifiedName = Attributes.ConnectionQualifiedName
+	// Map the rest of the fields
 	return nil
 }
 
@@ -169,38 +168,40 @@ func (t *Table) MarshalJSON() ([]byte, error) {
 		},
 	}
 
+	attributes := customJSON["attributes"].(map[string]interface{})
+
 	if t.Guid != nil && *t.Guid != "" {
 		customJSON["guid"] = *t.Guid
 	}
 
 	if t.SchemaName != nil && *t.SchemaName != "" {
-		customJSON["attributes"].(map[string]interface{})["schemaName"] = *t.SchemaName
+		attributes["schemaName"] = *t.SchemaName
 	}
 
 	if t.DatabaseName != nil && *t.DatabaseName != "" {
-		customJSON["attributes"].(map[string]interface{})["databaseName"] = *t.DatabaseName
+		attributes["databaseName"] = *t.DatabaseName
 	}
 
 	if t.DatabaseQualifiedName != nil && *t.DatabaseQualifiedName != "" {
-		customJSON["attributes"].(map[string]interface{})["databaseQualifiedName"] = *t.DatabaseQualifiedName
+		attributes["databaseQualifiedName"] = *t.DatabaseQualifiedName
 	}
 
 	if t.ConnectionQualifiedName != nil && *t.ConnectionQualifiedName != "" {
-		customJSON["attributes"].(map[string]interface{})["connectionQualifiedName"] = *t.ConnectionQualifiedName
+		attributes["connectionQualifiedName"] = *t.ConnectionQualifiedName
 	}
 
 	if t.CertificateStatus != nil {
-		customJSON["attributes"].(map[string]interface{})["certificateStatus"] = *t.CertificateStatus
+		attributes["certificateStatus"] = *t.CertificateStatus
 	}
 
 	// Marshal the custom JSON
 	return json.MarshalIndent(customJSON, "", "  ")
 }
 
-func (ag *Table) ToJSON() ([]byte, error) {
-	return json.MarshalIndent(ag, "", "  ")
+func (t *Table) ToJSON() ([]byte, error) {
+	return json.MarshalIndent(t, "", "  ")
 }
 
-func (ag *Table) FromJSON(data []byte) error {
-	return json.Unmarshal(data, ag)
+func (t *Table) FromJSON(data []byte) error {
+	return json.Unmarshal(data, t)
 }
