@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/atlanhq/atlan-go/atlan/model"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
@@ -210,6 +211,46 @@ func (p *Persona) Updater(qualifiedName, name string, isEnabled bool) error {
 	return nil
 }
 
+func FindPersonasByName(name string) (*model.IndexSearchResponse, error) {
+	if name == "" {
+		return nil, fmt.Errorf("name cannot be empty")
+	}
+	boolQuery, err := WithActivePersona(name)
+	if err != nil {
+		return nil, err
+	}
+	pageSize := 20
+
+	request := model.IndexSearchRequest{
+		Dsl: model.Dsl{
+			From:           0,
+			Size:           pageSize,
+			Query:          boolQuery.ToJSON(),
+			TrackTotalHits: true,
+		},
+		SuppressLogs:     true,
+		ShowSearchScore:  false,
+		ExcludeMeanings:  false,
+		ExcludeAtlanTags: false,
+	}
+
+	iterator := NewIndexSearchIterator(pageSize, request)
+
+	for iterator.HasMoreResults() {
+		response, err := iterator.NextPage()
+		if err != nil {
+			return nil, fmt.Errorf("error executing search: %v", err)
+		}
+		fmt.Println("Current Page: ", iterator.CurrentPage())
+		for _, entity := range response.Entities {
+			if *entity.TypeName == "Persona" {
+				return response, err
+			}
+		}
+	}
+	return nil, nil
+}
+
 func (p *Persona) UnmarshalJSON(data []byte) error {
 
 	// Unmarshal shared fields and specific attributes.
@@ -316,6 +357,10 @@ func (p *Persona) MarshalJSON() ([]byte, error) {
 
 	if p.DisplayName != nil && *p.DisplayName != "" {
 		attributes["displayName"] = *p.DisplayName
+	}
+
+	if p.Description != nil && *p.Description != "" {
+		attributes["description"] = *p.Description
 	}
 
 	if p.PersonaUsers != nil {

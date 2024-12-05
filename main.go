@@ -11,9 +11,21 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
+	response, atlanErr := assets.FindPersonasByName("Test Persona")
+	if atlanErr != nil {
+		println("Error:", atlanErr)
+	} else {
+		for _, entity := range response.Entities {
+			if entity.TypeName != nil && *entity.TypeName == "Persona" {
+				println("Persona Found: Name:", *entity.Name, "QualifiedName:", *entity.QualifiedName)
+			}
+		}
+
+	}
+
 	/*
 		// Get Persona by Guid
-	
+
 			response, atlanErr := assets.GetByGuid[*assets.Persona]("6f04ac74-d6b8-4b5e-8c1b-2347f9e55414")
 			if atlanErr != nil {
 				fmt.Println("Error:", atlanErr)
