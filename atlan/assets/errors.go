@@ -3,6 +3,8 @@ package assets
 import (
 	"fmt"
 	"net/http"
+	"io"
+	"encoding/json"
 )
 
 type ErrorInfo struct {
@@ -152,8 +154,8 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	INVALID_REQUEST_PASSTHROUGH: {
 		HTTPErrorCode: 400,
 		ErrorID:       "ATLAN-GO-400-000",
-		ErrorMessage:  "Server responded with %s: %s. Check the details of the server's message to correct your request.",
-		UserAction:    "",
+		ErrorMessage:  "Server responded with %s: %s.%s",
+		UserAction:    "Check the details of the server's message to correct your request.",
 	},
 	MISSING_GROUP_ID: {
 		HTTPErrorCode: 400,
@@ -482,7 +484,7 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	PERMISSION_PASSTHROUGH: {
 		HTTPErrorCode: 403,
 		ErrorID:       "ATLAN-GO-403-000",
-		ErrorMessage:  "Server responded with %s: %s",
+		ErrorMessage:  "Server responded with %s: %s.%s",
 		UserAction:    "Check the details of the server's message to correct your request.",
 	},
 	UNABLE_TO_IMPERSONATE: {
@@ -500,7 +502,7 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	NOT_FOUND_PASSTHROUGH: {
 		HTTPErrorCode: 404,
 		ErrorID:       "ATLAN-GO-404-000",
-		ErrorMessage:  "Server responded with %s: %s",
+		ErrorMessage:  "Server responded with %s: %s.%s",
 		UserAction:    "Check the details of the server's message to correct your request.",
 	},
 	ASSET_NOT_FOUND_BY_GUID: {
@@ -668,7 +670,7 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	CONFLICT_PASSTHROUGH: {
 		HTTPErrorCode: 409,
 		ErrorID:       "ATLAN-GO-409-000",
-		ErrorMessage:  "Server responded with %s: %s",
+		ErrorMessage:  "Server responded with %s: %s.%s",
 		UserAction:    "Check the details of the server's message to correct your request.",
 	},
 	RESERVED_SERVICE_TYPE: {
@@ -680,13 +682,13 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	RATE_LIMIT_PASSTHROUGH: {
 		HTTPErrorCode: 429,
 		ErrorID:       "ATLAN-GO-429-000",
-		ErrorMessage:  "Server responded with %s: %s",
+		ErrorMessage:  "Server responded with %s: %s.%s",
 		UserAction:    "Check the details of the server's message to correct your request.",
 	},
 	ERROR_PASSTHROUGH: {
 		HTTPErrorCode: 500,
 		ErrorID:       "ATLAN-GO-500-000",
-		ErrorMessage:  "Server responded with %s: %s",
+		ErrorMessage:  "Server responded with %s: %s.%s",
 		UserAction:    "Check the details of the server's message to correct your request.",
 	},
 	DUPLICATE_CUSTOM_ATTRIBUTES: {
@@ -727,27 +729,49 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	},
 }
 
+
+type Cause struct {
+    ErrorType    string `json:"errorType"`
+    ErrorMessage string `json:"errorMessage"`
+    Location     string `json:"location"`
+}
+
+type ErrorResponse struct {
+    Causes  []Cause `json:"causes"`
+    ErrorID string  `json:"errorId"`
+    Message string  `json:"message"`
+}
+
 func handleApiError(response *http.Response, originalError error) error {
 	if response == nil {
 		return ThrowAtlanError(originalError, CONNECTION_ERROR, nil)
 	}
 	rc := response.StatusCode
 
+	causesString := ""
+    body, _ := io.ReadAll(response.Body)
+    var errorResponse ErrorResponse
+    if err := json.Unmarshal(body, &errorResponse); err == nil {
+        for _, cause := range errorResponse.Causes {
+            causesString += fmt.Sprintf(" %s : %s : %s \n", cause.ErrorType, cause.ErrorMessage, cause.Location)
+        }
+    }
+
 	switch rc {
 	case 400:
-		return ThrowAtlanError(originalError, INVALID_REQUEST_PASSTHROUGH, nil)
+		return ThrowAtlanError(originalError, INVALID_REQUEST_PASSTHROUGH, nil, causesString)
 	case 404:
-		return ThrowAtlanError(originalError, NOT_FOUND_PASSTHROUGH, nil)
+		return ThrowAtlanError(originalError, NOT_FOUND_PASSTHROUGH, nil, causesString)
 	case 401:
-		return ThrowAtlanError(originalError, AUTHENTICATION_PASSTHROUGH, nil)
+		return ThrowAtlanError(originalError, AUTHENTICATION_PASSTHROUGH, nil, causesString)
 	case 403:
-		return ThrowAtlanError(originalError, PERMISSION_PASSTHROUGH, nil)
+		return ThrowAtlanError(originalError, PERMISSION_PASSTHROUGH, nil, causesString)
 	case 409:
-		return ThrowAtlanError(originalError, CONFLICT_PASSTHROUGH, nil)
+		return ThrowAtlanError(originalError, CONFLICT_PASSTHROUGH, nil, causesString)
 	case 429:
-		return ThrowAtlanError(originalError, RATE_LIMIT_PASSTHROUGH, nil)
+		return ThrowAtlanError(originalError, RATE_LIMIT_PASSTHROUGH, nil, causesString)
 	default:
-		return ThrowAtlanError(originalError, ERROR_PASSTHROUGH, nil)
+		return ThrowAtlanError(originalError, ERROR_PASSTHROUGH, nil, causesString)
 	}
 }
 
