@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type ErrorInfo struct {
@@ -17,8 +18,8 @@ type ErrorInfo struct {
 type AtlanError struct {
 	ErrorCode     ErrorInfo
 	Args          []interface{}
-	OriginalError string // Error received from Atlan API
-
+	OriginalError string  // Error received from Atlan API
+	Causes        []Cause // List of causes from API response
 }
 
 func (e AtlanError) Error() string {
@@ -28,6 +29,13 @@ func (e AtlanError) Error() string {
 	}
 	if e.OriginalError != "" {
 		errorMessage += "\nError response from server: " + e.OriginalError
+	}
+
+	if len(e.Causes) > 0 {
+		errorMessage += "\nCauses:\n"
+		for _, cause := range e.Causes {
+			errorMessage += fmt.Sprintf("- %s: %s (Location: %s)\n", cause.ErrorType, cause.ErrorMessage, cause.Location)
+		}
 	}
 	return errorMessage
 }
@@ -746,12 +754,17 @@ func handleApiError(response *http.Response, originalError error) error {
 		return ThrowAtlanError(originalError, CONNECTION_ERROR, nil)
 	}
 	rc := response.StatusCode
-
-	causesString := ""
 	body, _ := io.ReadAll(response.Body)
 	var errorResponse ErrorResponse
+	var causes []Cause
+
 	if err := json.Unmarshal(body, &errorResponse); err == nil {
-		for _, cause := range errorResponse.Causes {
+		fmt.Println(errorResponse)
+		causes = errorResponse.Causes
+	}
+	var causesString string
+	if len(causes) > 0 {
+		for _, cause := range causes {
 			causesString += fmt.Sprintf(" %s : %s : %s \n", cause.ErrorType, cause.ErrorMessage, cause.Location)
 		}
 	}
@@ -791,10 +804,13 @@ func ThrowAtlanError(err error, sdkError ErrorCode, suggestion *string, args ...
 		atlanError.ErrorCode.UserAction = *suggestion
 	}
 
-	if len(args) != 0 {
-		atlanError.ErrorCode.ErrorMessage = fmt.Sprintf(
-			atlanError.ErrorCode.ErrorMessage, atlanError.Args...,
-		)
+	if len(args) > 0 {
+		if strings.Contains(atlanError.ErrorCode.ErrorMessage, "%") {
+			atlanError.ErrorCode.ErrorMessage = fmt.Sprintf(
+				atlanError.ErrorCode.ErrorMessage, args...,
+			)
+		}
+		atlanError.Args = args
 	}
 
 	return &atlanError
