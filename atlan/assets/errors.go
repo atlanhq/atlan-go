@@ -1,10 +1,10 @@
 package assets
 
 import (
-	"fmt"
-	"net/http"
-	"io"
 	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 )
 
 type ErrorInfo struct {
@@ -502,7 +502,7 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	NOT_FOUND_PASSTHROUGH: {
 		HTTPErrorCode: 404,
 		ErrorID:       "ATLAN-GO-404-000",
-		ErrorMessage:  "Server responded with %s: %s.%s",
+		ErrorMessage:  "Server responded with %s: %s.",
 		UserAction:    "Check the details of the server's message to correct your request.",
 	},
 	ASSET_NOT_FOUND_BY_GUID: {
@@ -729,17 +729,16 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 	},
 }
 
-
 type Cause struct {
-    ErrorType    string `json:"errorType"`
-    ErrorMessage string `json:"errorMessage"`
-    Location     string `json:"location"`
+	ErrorType    string `json:"errorType"`
+	ErrorMessage string `json:"errorMessage"`
+	Location     string `json:"location"`
 }
 
 type ErrorResponse struct {
-    Causes  []Cause `json:"causes"`
-    ErrorID string  `json:"errorId"`
-    Message string  `json:"message"`
+	Causes  []Cause `json:"causes"`
+	ErrorID string  `json:"errorId"`
+	Message string  `json:"message"`
 }
 
 func handleApiError(response *http.Response, originalError error) error {
@@ -749,13 +748,13 @@ func handleApiError(response *http.Response, originalError error) error {
 	rc := response.StatusCode
 
 	causesString := ""
-    body, _ := io.ReadAll(response.Body)
-    var errorResponse ErrorResponse
-    if err := json.Unmarshal(body, &errorResponse); err == nil {
-        for _, cause := range errorResponse.Causes {
-            causesString += fmt.Sprintf(" %s : %s : %s \n", cause.ErrorType, cause.ErrorMessage, cause.Location)
-        }
-    }
+	body, _ := io.ReadAll(response.Body)
+	var errorResponse ErrorResponse
+	if err := json.Unmarshal(body, &errorResponse); err == nil {
+		for _, cause := range errorResponse.Causes {
+			causesString += fmt.Sprintf(" %s : %s : %s \n", cause.ErrorType, cause.ErrorMessage, cause.Location)
+		}
+	}
 
 	switch rc {
 	case 400:
