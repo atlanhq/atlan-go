@@ -22,6 +22,12 @@ const (
 
 	// Files API
 	FILES_API = "files/"
+
+	// Users API
+	USER_API = "users/"
+
+	// Roles API
+	ROLES_API = "roles"
 )
 
 // API defines the structure of an API call.
@@ -172,6 +178,24 @@ var (
 		Method:   http.MethodDelete,
 		Status:   http.StatusNoContent,
 		Endpoint: AtlasEndpoint,
+	}
+
+	// Users API
+
+	CREATE_USERS = API{
+		Path:     USER_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	// Roles API
+
+	GET_ROLES = API{
+		Path:     ROLES_API,
+		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
 	}
 )
 

@@ -22,5 +22,5 @@ type RoleResponse struct {
 	// Number of roles in the filtered response.
 	FilterRecord *int `json:"filter_record,omitempty" `
 	// Details of each role included in the response.
-	Records []AtlanRole `json:"records" `
+	Records *[]AtlanRole `json:"records" `
 }

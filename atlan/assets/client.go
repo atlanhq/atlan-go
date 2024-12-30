@@ -23,6 +23,7 @@ type AtlanClient struct {
 	ApiKey        string
 	requestParams map[string]interface{}
 	logger        logger.Logger
+	RoleClient    *RoleClient
 	SearchAssets
 }
 
