@@ -24,7 +24,7 @@ const (
 	FILES_API = "files/"
 
 	// Users API
-	USER_API = "users/"
+	USER_API = "users"
 
 	// Roles API
 	ROLES_API = "roles"
@@ -185,6 +185,13 @@ var (
 	CREATE_USERS = API{
 		Path:     USER_API,
 		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	GET_USERS = API{
+		Path:     USER_API,
+		Method:   http.MethodGet,
 		Status:   http.StatusOK,
 		Endpoint: HeraclesEndpoint,
 	}

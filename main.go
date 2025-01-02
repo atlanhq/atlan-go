@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	_ "github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/assets"
 	_ "github.com/atlanhq/atlan-go/atlan/model/structs"
+	"log"
 )
 
 func main() {
@@ -11,16 +13,26 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	response, atlanErr := assets.FindPersonasByName("Test Persona")
-	if atlanErr != nil {
-		println("Error:", atlanErr)
-	} else {
-		for _, entity := range response.Entities {
-			if entity.TypeName != nil && *entity.TypeName == "Persona" {
-				println("Persona Found: Name:", *entity.Name, "QualifiedName:", *entity.QualifiedName)
-			}
-		}
+	usersToCreate := []assets.AtlanUser{
+		{
+			Email:         "test.user1@atlan.com",
+			WorkspaceRole: "$member",
+		},
+		{
+			Email:         "test.user2@atlan.com",
+			WorkspaceRole: "$member",
+		},
+	}
 
+	atlanUser := &assets.AtlanUser{}
+
+	createdUsers, err := atlanUser.CreateUsers(usersToCreate, true)
+	if err != nil {
+		log.Fatalf("Error creating users: %v", err)
+	}
+
+	for _, user := range createdUsers {
+		fmt.Printf("Created user: %s with role: %s\n", user.Email, user.WorkspaceRole)
 	}
 
 	/*
