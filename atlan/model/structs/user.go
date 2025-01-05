@@ -89,7 +89,7 @@ func (r *UserRequest) QueryParams() map[string]interface{} {
 	if r.PostFilter != nil {
 		qp["filter"] = *r.PostFilter
 	}
-	if r.Sort != nil {
+	if r.Sort != nil && *r.Sort != "" {
 		qp["sort"] = *r.Sort
 	}
 	if len(r.Columns) > 0 {
