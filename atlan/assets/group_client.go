@@ -66,17 +66,16 @@ func (gc *GroupClient) Update(group *AtlanGroup) error {
 }
 
 // Purge deletes a group by its unique identifier (GUID).
-func (g *AtlanGroup) Purge(guid string) error {
+func (gc *GroupClient) Purge(guid string) error {
 	if guid == "" {
 		return fmt.Errorf("GUID cannot be empty")
 	}
 
-	api, err := DELETE_GROUP.FormatPathWithParams(guid)
-	if err != nil {
-		return fmt.Errorf("failed to format API path: %w", err)
-	}
+	requestPayload := map[string]interface{}{}
+	api := &DELETE_GROUP
+	api.Path = fmt.Sprintf("groups/%s/delete", guid)
 
-	_, err = DefaultAtlanClient.CallAPI(api, nil, nil)
+	_, err := DefaultAtlanClient.CallAPI(api, nil, requestPayload)
 	if err != nil {
 		return fmt.Errorf("failed to delete group: %w", err)
 	}
@@ -208,8 +207,9 @@ func (gc *GroupClient) RemoveUsers(guid string, userIDs []string) error {
 		Users: userIDs,
 	}
 
-	api, err := GET_GROUP_MEMBERS.FormatPathWithParams(guid)
-	_, err = DefaultAtlanClient.CallAPI(api, nil, request)
+	api := &REMOVE_USERS_FROM_GROUP
+	api.Path = fmt.Sprintf("groups/%s/members/remove", guid)
+	_, err := DefaultAtlanClient.CallAPI(api, nil, request)
 	return err
 }
 
