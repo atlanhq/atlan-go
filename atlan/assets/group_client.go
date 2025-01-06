@@ -29,7 +29,40 @@ func (g *AtlanGroup) Updater(guid, path string) (*AtlanGroup, error) {
 	return &AtlanGroup{
 		ID:   &guid,
 		Path: &path,
+		Attributes: &structs.AtlanGroupAttributes{
+			Alias:       []string{},
+			CreatedAt:   []string{},
+			CreatedBy:   []string{},
+			UpdatedAt:   []string{},
+			UpdatedBy:   []string{},
+			Description: []string{},
+			IsDefault:   []string{},
+			Channels:    []string{},
+		},
+		Alias:              nil,
+		DecentralizedRoles: []interface{}{},
+		Name:               nil,
+		Personas:           []structs.Persona{},
+		Purposes:           []interface{}{},
+		UserCount:          nil, // Pointer for optional fields
 	}, nil
+}
+
+// Update updates the details of an existing group.
+// The provided `group` must have its ID populated.
+func (gc *GroupClient) Update(group *AtlanGroup) error {
+	if group.ID == nil {
+		return fmt.Errorf("group ID must be populated")
+	}
+
+	api := &UPDATE_GROUP
+	api.Path = fmt.Sprintf("groups/%s", *group.ID)
+
+	_, err := DefaultAtlanClient.CallAPI(api, nil, group)
+	if err != nil {
+		return fmt.Errorf("failed to update group: %w", err)
+	}
+	return nil
 }
 
 // Purge deletes a group by its unique identifier (GUID).
