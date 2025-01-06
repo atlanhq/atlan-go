@@ -8,6 +8,7 @@ import (
 )
 
 type AtlanUser structs.AtlanUser
+type UserClient AtlanClient
 
 type CreateUser struct {
 	Email    string `json:"email"`
@@ -21,7 +22,7 @@ type CreateUserRequest struct {
 }
 
 // Create initializes a new AtlanUser with email and role name.
-func Create(email, roleName string) (*AtlanUser, error) {
+func (u *AtlanUser) Create(email, roleName string) (*AtlanUser, error) {
 	return &AtlanUser{
 		Email:         email,
 		WorkspaceRole: roleName,
@@ -29,13 +30,13 @@ func Create(email, roleName string) (*AtlanUser, error) {
 }
 
 // Updater initializes an AtlanUser for modification with a GUID.
-func Updater(guid string) (*AtlanUser, error) {
+func (u *AtlanUser) Updater(guid string) (*AtlanUser, error) {
 	return &AtlanUser{
 		ID: guid,
 	}, nil
 }
 
-func (u *AtlanUser) CreateUsers(users []AtlanUser, returnInfo bool) ([]AtlanUser, error) {
+func (u *UserClient) CreateUsers(users []AtlanUser, returnInfo bool) ([]AtlanUser, error) {
 	if len(users) == 0 {
 		return nil, fmt.Errorf("no users provided for creation")
 	}
@@ -77,7 +78,7 @@ func (u *AtlanUser) CreateUsers(users []AtlanUser, returnInfo bool) ([]AtlanUser
 }
 
 // Get retrieves a UserResponse which contains a list of users defined in Atlan.
-func (u *AtlanUser) Get(limit int, postFilter string, sort string, count bool, offset int) (*UserResponse, error) {
+func (u *UserClient) Get(limit int, postFilter string, sort string, count bool, offset int) (*UserResponse, error) {
 	if limit == 0 {
 		limit = 20
 	}
@@ -132,7 +133,7 @@ func (u *AtlanUser) Get(limit int, postFilter string, sort string, count bool, o
 }
 
 // GetAll retrieves all users defined in Atlan.
-func (u *AtlanUser) GetAll(limit int, offset int, sort string) ([]AtlanUser, error) {
+func (u *UserClient) GetAll(limit int, offset int, sort string) ([]AtlanUser, error) {
 	if limit == 0 {
 		limit = 20
 	}
@@ -155,7 +156,7 @@ func (u *AtlanUser) GetAll(limit int, offset int, sort string) ([]AtlanUser, err
 }
 
 // GetByEmail retrieves all users with email addresses that contain the provided email.
-func (u *AtlanUser) GetByEmail(email string, limit int, offset int) ([]AtlanUser, error) {
+func (u *UserClient) GetByEmail(email string, limit int, offset int) ([]AtlanUser, error) {
 	if limit == 0 {
 		limit = 20
 	}
@@ -170,12 +171,17 @@ func (u *AtlanUser) GetByEmail(email string, limit int, offset int) ([]AtlanUser
 }
 
 // GetByEmails retrieves all users with email addresses that match the provided list of emails.
-func (u *AtlanUser) GetByEmails(emails []string, limit int, offset int) ([]AtlanUser, error) {
+func (u *UserClient) GetByEmails(emails []string, limit int, offset int) ([]AtlanUser, error) {
 	if limit == 0 {
 		limit = 20
 	}
 
-	emailFilter := `{"email":{"$in":` + fmt.Sprintf("%v", emails) + "}}"
+	emailJSON, err := json.Marshal(emails)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal usernames: %w", err)
+	}
+
+	emailFilter := fmt.Sprintf(`{"email":{"$in":%s}}`, string(emailJSON))
 	userResponse, err := u.Get(limit, emailFilter, "", true, offset)
 	if err != nil {
 		return nil, err
@@ -185,8 +191,9 @@ func (u *AtlanUser) GetByEmails(emails []string, limit int, offset int) ([]Atlan
 }
 
 // GetByUsername retrieves a user based on the username.
-func (u *AtlanUser) GetByUsername(username string) (*AtlanUser, error) {
-	userResponse, err := u.Get(5, `{"username":"`+username+`"}`, "", true, 0)
+func (u *UserClient) GetByUsername(username string) (*AtlanUser, error) {
+	postFilter := fmt.Sprintf(`{"$and":[{"username":{"$eq":"%s"}}]}`, username)
+	userResponse, err := u.Get(5, postFilter, "", true, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -199,18 +206,46 @@ func (u *AtlanUser) GetByUsername(username string) (*AtlanUser, error) {
 }
 
 // GetByUsernames retrieves users based on their usernames.
-func (u *AtlanUser) GetByUsernames(usernames []string, limit int, offset int) ([]AtlanUser, error) {
+func (u *UserClient) GetByUsernames(usernames []string, limit int, offset int) ([]AtlanUser, error) {
 	if limit == 0 {
 		limit = 5
 	}
 
-	usernameFilter := `{"username":{"$in":` + fmt.Sprintf("%v", usernames) + "}}"
+	usernamesJSON, err := json.Marshal(usernames)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal usernames: %w", err)
+	}
+
+	usernameFilter := fmt.Sprintf(`{"username":{"$in":%s}}`, string(usernamesJSON))
 	userResponse, err := u.Get(limit, usernameFilter, "", true, offset)
 	if err != nil {
 		return nil, err
 	}
 
 	return userResponse.Records, nil
+}
+
+func (u *UserClient) GetGroups(guid string, request *structs.GroupRequest) ([]*AtlanGroup, error) {
+	// If no request is provided, initialize a default one
+	if request == nil {
+		request = &structs.GroupRequest{}
+	}
+
+	api := &GET_USER_GROUPS
+	api.Path = fmt.Sprintf("users/%s/groups", guid)
+
+	queryParams := request.QueryParams()
+
+	responseData, err := DefaultAtlanClient.CallAPI(api, queryParams, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve groups for user %s: %w", guid, err)
+	}
+
+	var response GroupResponse
+	if err := json.Unmarshal(responseData, &response); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %v", err)
+	}
+	return response.Records, nil
 }
 
 // Client for searching
