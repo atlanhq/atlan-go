@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	_ "github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/assets"
 	_ "github.com/atlanhq/atlan-go/atlan/model/structs"
@@ -10,7 +11,27 @@ func main() {
 
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
-	
+
+	err := ctx.GroupClient.Purge("a99f50bc-46bf-4d08-a987-3411ef5cfc33")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	/*
+		// Remove users from the group
+		err := ctx.GroupClient.RemoveUsers("a99f50bc-46bf-4d08-a987-3411ef5cfc33", []string{"b060a754-4d16-4e13-b5a8-ba42f10aee39"})
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+	*/
+	/*
+		// Change User Role
+		roleID, _ := assets.GetRoleIDForRoleName("$admin")
+		ctx.UserClient.ChangeUserRole("b060a754-4d16-4e13-b5a8-ba42f10aee39", roleID)
+
+	*/
 	/*
 			// Add User to Groups
 			//user, _ := ctx.UserClient.GetByUsername("karanjot.singh")
