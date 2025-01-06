@@ -10,6 +10,30 @@ func main() {
 
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
+	
+	/*
+			// Add User to Groups
+			//user, _ := ctx.UserClient.GetByUsername("karanjot.singh")
+			//fmt.Println(user.ID)
+			ctx.UserClient.AddUserToGroups("b060a754-4d16-4e13-b5a8-ba42f10aee39", []string{"a99f50bc-46bf-4d08-a987-3411ef5cfc33"})
+
+		/*
+
+			// Update a Group
+
+			group := assets.AtlanGroup{}
+			tobeUpdated, _ := group.Updater("a99f50bc-46bf-4d08-a987-3411ef5cfc33", "/test_group_-_go-sdk")
+
+			//Name := "TestUpdatedName3"
+			Alias := []string{"TestAliasName4"}
+			//description := []string{"This is the updated description 1"}
+
+			//tobeUpdated.Attributes.Description = description
+			tobeUpdated.Attributes.Alias = Alias
+			ctx.GroupClient.Update(tobeUpdated)
+
+
+	*/
 
 	/*
 		// Retrieve groups in User
