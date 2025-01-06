@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	_ "github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/assets"
 	_ "github.com/atlanhq/atlan-go/atlan/model/structs"
-	"log"
 )
 
 func main() {
@@ -13,27 +11,106 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	usersToCreate := []assets.AtlanUser{
-		{
-			Email:         "test.user1@atlan.com",
-			WorkspaceRole: "$member",
-		},
-		{
-			Email:         "test.user2@atlan.com",
-			WorkspaceRole: "$member",
-		},
-	}
+	/*
+		// Retrieve groups in User
+		user, _ := ctx.UserClient.GetByUsername("karanjot.singh")
+		response, _ := ctx.UserClient.GetGroups(user.ID, nil)
+		for _, group := range response {
+			fmt.Println(*group.ID)
+		}
 
-	atlanUser := &assets.AtlanUser{}
+	*/
+	/*
+		//group, _ := ctx.GroupClient.GetByName("Admins", 10, 0)
+		groupID := "a4610821-66e6-4925-8834-52cbbeefdbeb"
+		response, _ := ctx.GroupClient.GetMembers(groupID, nil)
+		for _, user := range response {
+			fmt.Println(*user.Username)
+		}
 
-	createdUsers, err := atlanUser.CreateUsers(usersToCreate, true)
-	if err != nil {
-		log.Fatalf("Error creating users: %v", err)
-	}
+	*/
+	/*
+		// Get Multiple Users
+		users, _ := ctx.UserClient.GetByEmails([]string{"karanjot.singh@atlan.com", "chris@atlan.com"}, 5, 0)
+		for _, user := range users {
+			fmt.Println(*user.Username)
+		}
 
-	for _, user := range createdUsers {
-		fmt.Printf("Created user: %s with role: %s\n", user.Email, user.WorkspaceRole)
-	}
+	*/
+	/*
+		// Get User by Email
+		user, _ := ctx.UserClient.GetByEmail("karanjot.singh@atlan.com", 10, 0) // Maybe change these to provide nil values here
+		fmt.Println(user)
+
+	*/
+	/*
+		// Get User by Username
+		users, _ := ctx.UserClient.GetByUsername("karanjot.singh")
+		fmt.Println(*users.Username)
+
+	*/
+	/*
+		// Retrieve all users
+		users, _ := ctx.UserClient.GetAll(20, 0, "")
+		for _, user := range users {
+			fmt.Println(*user.Username)
+		}
+
+	*/
+	/*
+		// Retrieve group by name
+		groups, _ := ctx.GroupClient.GetByName("Admins", 10, 0)
+		for _, group := range groups {
+			// Do Something with the groups
+			fmt.Println(*group.Name)
+		}
+
+	*/
+	/*
+		// Retrieve all groups
+		groups, _ := ctx.GroupClient.GetAll(10, 1, "createdAt")
+		for _, group := range groups {
+			// Do Something with the groups
+			fmt.Println(*group.Name)
+		}
+
+	*/
+	/*
+		atlanGroup := assets.AtlanGroup{}
+		// Create Group
+		tobeCreated, _ := atlanGroup.Create("Test Group - Go-sdk")
+		response, err := ctx.GroupClient.Create(tobeCreated, nil)
+		if err != nil {
+			log.Fatalf("Failed to create group: %v", err)
+		}
+		fmt.Printf("Group GUID: %s\n", response.Group)
+
+	*/
+	/*
+		// Create User
+		usersToCreate := []assets.AtlanUser{
+			{
+				Email:         "test.user1@atlan.com",
+				WorkspaceRole: "$member",
+			},
+			{
+				Email:         "test.user2@atlan.com",
+				WorkspaceRole: "$member",
+			},
+		}
+
+		atlanUser := &assets.AtlanUser{}
+
+		createdUsers, err := atlanUser.CreateUsers(usersToCreate, true)
+		if err != nil {
+			log.Fatalf("Error creating users: %v", err)
+		}
+
+		for _, user := range createdUsers {
+			fmt.Printf("Created user: %s with role: %s\n", user.Email, user.WorkspaceRole)
+		}
+
+	*/
 
 	/*
 		// Get Persona by Guid
