@@ -248,6 +248,7 @@ func (uc *UserClient) GetGroups(guid string, request *structs.GroupRequest) ([]*
 	return response.Records, nil
 }
 
+// AddToGroupsRequest represents the request payload for adding a user to groups.
 type AddToGroupsRequest struct {
 	Groups []string `json:"groups"`
 }
@@ -261,7 +262,7 @@ type AddToGroupsRequest struct {
 // - groupIDs: unique identifiers (GUIDs) of the groups to add the user into.
 //
 // Errors:
-// - Returns an AtlanError
+// - Returns an AtlanError if any API communication occurs
 func (uc *UserClient) AddUserToGroups(guid string, groupIDs []string) error {
 	if guid == "" {
 		return fmt.Errorf("user GUID cannot be empty")
@@ -280,6 +281,47 @@ func (uc *UserClient) AddUserToGroups(guid string, groupIDs []string) error {
 	_, err := DefaultAtlanClient.CallAPI(api, nil, requestPayload)
 	if err != nil {
 		return fmt.Errorf("failed to add user to groups: %w", err)
+	}
+
+	return nil
+}
+
+// ChangeRoleRequest represents the request payload for changing the role of a user.
+type ChangeRoleRequest struct {
+	RoleID string `json:"roleID"`
+}
+
+/*
+ChangeUserRole changes the role of a user.
+
+Parameters:
+
+- guid: Unique identifier (GUID) of the user whose role should be changed.
+
+- roleID: Unique identifier (GUID) of the role to assign to the user.
+
+Errors:
+
+- Returns an error if any API communication issue occurs.
+*/
+func (uc *UserClient) ChangeUserRole(guid string, roleID string) error {
+	if guid == "" {
+		return fmt.Errorf("user GUID cannot be empty")
+	}
+	if roleID == "" {
+		return fmt.Errorf("role ID cannot be empty")
+	}
+
+	requestPayload := ChangeRoleRequest{
+		RoleID: roleID,
+	}
+
+	api := &CHANGE_USER_ROLE
+	api.Path = fmt.Sprintf("users/%s/role", guid)
+
+	_, err := DefaultAtlanClient.CallAPI(api, nil, requestPayload)
+	if err != nil {
+		return fmt.Errorf("failed to change user role: %w", err)
 	}
 
 	return nil
