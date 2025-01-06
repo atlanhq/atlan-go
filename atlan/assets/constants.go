@@ -28,6 +28,9 @@ const (
 
 	// Roles API
 	ROLES_API = "roles"
+
+	// Groups API
+	GROUP_API = "groups"
 )
 
 // API defines the structure of an API call.
@@ -196,11 +199,97 @@ var (
 		Endpoint: HeraclesEndpoint,
 	}
 
-	// Roles API
+	UPDATE_USERS = API{
+		Path:     USER_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	DELETE_USER = API{
+		Path:     USER_API + "/%s/delete",
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	GET_USER_GROUPS = API{
+		Path:     USER_API + "/%s/groups",
+		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	ADD_USER_TO_GROUPS = API{
+		Path:     USER_API + "/%s/groups",
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	CHANGE_USER_ROLE = API{
+		Path:     USER_API + "/%s/roles/update",
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	GET_CURRENT_USER = API{
+		Path:     USER_API + "/current",
+		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	// Roles APIs
 
 	GET_ROLES = API{
 		Path:     ROLES_API,
 		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	// Group APIs
+
+	GET_GROUPS = API{
+		Path:     GROUP_API,
+		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	CREATE_GROUP = API{
+		Path:     GROUP_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	UPDATE_GROUP = API{
+		Path:     GROUP_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	DELETE_GROUP = API{
+		Path:     GROUP_API + "/%s/delete",
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	GET_GROUP_MEMBERS = API{
+		Path:     GROUP_API + "/%s/members",
+		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	REMOVE_USERS_FROM_GROUP = API{
+		Path:     GROUP_API + "/%s/members/remove",
+		Method:   http.MethodPost,
 		Status:   http.StatusOK,
 		Endpoint: HeraclesEndpoint,
 	}
