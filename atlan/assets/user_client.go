@@ -288,7 +288,7 @@ func (uc *UserClient) AddUserToGroups(guid string, groupIDs []string) error {
 
 // ChangeRoleRequest represents the request payload for changing the role of a user.
 type ChangeRoleRequest struct {
-	RoleID string `json:"roleID"`
+	RoleID string `json:"roleId"`
 }
 
 /*
@@ -317,7 +317,7 @@ func (uc *UserClient) ChangeUserRole(guid string, roleID string) error {
 	}
 
 	api := &CHANGE_USER_ROLE
-	api.Path = fmt.Sprintf("users/%s/role", guid)
+	api.Path = fmt.Sprintf("users/%s/roles/update", guid)
 
 	_, err := DefaultAtlanClient.CallAPI(api, nil, requestPayload)
 	if err != nil {
