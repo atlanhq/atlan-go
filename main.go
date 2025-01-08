@@ -12,11 +12,27 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	err := ctx.GroupClient.Purge("a99f50bc-46bf-4d08-a987-3411ef5cfc33")
-	if err != nil {
-		fmt.Println(err)
-		return
+	users := []assets.AtlanUser{
+		{
+			Email:         "test2@atlan.com",
+			WorkspaceRole: "$member",
+		},
 	}
+
+	createdUsers, _ := ctx.UserClient.CreateUsers(users, true)
+	fmt.Println(createdUsers)
+	for _, user := range createdUsers {
+		fmt.Printf("User: %v\n", *user.Username)
+	}
+
+	/*
+		err := ctx.GroupClient.Purge("a99f50bc-46bf-4d08-a987-3411ef5cfc33")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+	*/
 	/*
 		// Remove users from the group
 		err := ctx.GroupClient.RemoveUsers("a99f50bc-46bf-4d08-a987-3411ef5cfc33", []string{"b060a754-4d16-4e13-b5a8-ba42f10aee39"})

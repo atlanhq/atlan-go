@@ -43,7 +43,7 @@ func (gr *GroupRequest) QueryParams() map[string]interface{} {
 		"offset": gr.Offset,
 		"limit":  gr.Limit,
 	}
-	if gr.PostFilter != nil {
+	if gr.PostFilter != nil && *gr.PostFilter != "" {
 		qp["filter"] = *gr.PostFilter
 	}
 	if gr.Sort != "" {
