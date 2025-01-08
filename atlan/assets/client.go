@@ -23,6 +23,9 @@ type AtlanClient struct {
 	ApiKey        string
 	requestParams map[string]interface{}
 	logger        logger.Logger
+	RoleClient    *RoleClient
+	GroupClient   *GroupClient
+	UserClient    *UserClient
 	SearchAssets
 }
 
@@ -400,6 +403,21 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 				query.Add(key, value)
 			}
 		}
+	case map[string]interface{}:
+		// When queryParams is map[string]interface{}, process accordingly
+		for key, value := range v {
+			switch v := value.(type) {
+			case string:
+				query.Add(key, v)
+			case []string:
+				for _, val := range v {
+					query.Add(key, val)
+				}
+			default:
+				// For unsupported types, you can log or handle differently
+				params[key] = value
+			}
+		}
 	default:
 		params["params"] = queryParams
 	}
@@ -449,7 +467,6 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 			params["data"] = bytes.NewBuffer(requestJSON)
 		}
 	}
-
 	// Send the request
 	response, err := ac.makeRequest(api.Method, path, params)
 	if err != nil {
@@ -620,7 +637,6 @@ func (ac *AtlanClient) makeRequest(method, path string, params map[string]interf
 	}
 
 	ac.logAPICall(req.Method, path, req)
-
 	// Finally, execute the request
 	return ac.Session.Do(req)
 }
