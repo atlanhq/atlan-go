@@ -31,6 +31,9 @@ const (
 
 	// Groups API
 	GROUP_API = "groups"
+
+	// Tokens API
+	TOKENS_API = "apikeys"
 )
 
 // API defines the structure of an API call.
@@ -290,6 +293,29 @@ var (
 	REMOVE_USERS_FROM_GROUP = API{
 		Path:     GROUP_API + "/%s/members/remove",
 		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	// Token APIs
+
+	GET_API_TOKENS = API{
+		Path:     TOKENS_API,
+		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	UPSERT_API_TOKEN = API{
+		Path:     TOKENS_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	DELETE_API_TOKEN = API{
+		Path:     TOKENS_API,
+		Method:   http.MethodDelete,
 		Status:   http.StatusOK,
 		Endpoint: HeraclesEndpoint,
 	}
