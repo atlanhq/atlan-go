@@ -12,11 +12,11 @@ This repository houses the code for a Go SDK to interact with [Atlan](https://at
 ## Installing for Development
 
 ### Initial Setup
-To get started developing or using the SDK:
+To get started developing or using the SDK, follow the steps below. For a more detailed overview, check out our [Getting Started Guide](https://developer.atlan.com/getting-started/#go):
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/atlanhq/atlan-go.git
    ```
 
 2. Ensure you have Go 1.19 or later installed. You can verify your Go version with:
