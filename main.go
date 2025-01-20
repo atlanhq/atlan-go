@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	_ "github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/assets"
 	_ "github.com/atlanhq/atlan-go/atlan/model/structs"
@@ -11,6 +12,13 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
+	// Test User Cache
+	UserId, err := assets.GetGroupNameForGroupID("58d547d8-3f4d-4b9e-9666-39980f140661")
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	fmt.Println(UserId)
+	
 	/*
 		// Delete an API Token
 		err := ctx.TokenClient.Purge("a853f1d5-f1f4-4cdb-b86d-c61df3ecade6")
