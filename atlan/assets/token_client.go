@@ -98,6 +98,11 @@ func (tc *TokenClient) Create(displayName, description *string, personas []strin
 		request.ValiditySeconds = validitySeconds
 	}
 
+	if personas == nil {
+		request.Personas = []string{}
+		request.PersonaQualifiedNames = []string{}
+	}
+
 	rawJSON, err := DefaultAtlanClient.CallAPI(&UPSERT_API_TOKEN, nil, request)
 	if err != nil {
 		return nil, err
