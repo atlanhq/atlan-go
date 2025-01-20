@@ -86,7 +86,7 @@ type UserRequest struct {
 func (r *UserRequest) QueryParams() map[string]interface{} {
 	qp := make(map[string]interface{})
 
-	if r.PostFilter != nil {
+	if r.PostFilter != nil && *r.PostFilter != "" {
 		qp["filter"] = *r.PostFilter
 	}
 	if r.Sort != nil && *r.Sort != "" {
