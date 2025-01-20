@@ -26,6 +26,7 @@ type AtlanClient struct {
 	RoleClient    *RoleClient
 	GroupClient   *GroupClient
 	UserClient    *UserClient
+	TokenClient   *TokenClient
 	SearchAssets
 }
 

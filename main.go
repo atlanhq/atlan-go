@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	_ "github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/assets"
 	_ "github.com/atlanhq/atlan-go/atlan/model/structs"
@@ -12,18 +11,69 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	users := []assets.AtlanUser{
-		{
-			Email:         "test2@atlan.com",
-			WorkspaceRole: "$member",
-		},
-	}
+	/*
+		// Delete an API Token
+		err := ctx.TokenClient.Purge("a853f1d5-f1f4-4cdb-b86d-c61df3ecade6")
+		if err != nil {
+			println("Error:", err)
+		}
+	*/
+	/*
+		// Update an API Token
+		token, _ := ctx.TokenClient.GetByName("Test-Token-Updated-4")
+		displayName := "Test-Token-Updated-5"
+		update, err := ctx.TokenClient.Update(token.GUID, &displayName, nil, nil)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(*update.Attributes.DisplayName)
 
-	createdUsers, _ := ctx.UserClient.CreateUsers(users, true)
-	fmt.Println(createdUsers)
-	for _, user := range createdUsers {
-		fmt.Printf("User: %v\n", *user.Username)
-	}
+
+	*/
+	/*
+		// Retrieve an API Token
+		token, atlanErr := ctx.TokenClient.GetByName("Test-Token")
+		if atlanErr != nil {
+			fmt.Println(atlanErr)
+		}
+		fmt.Println("Token Client ID:", *token.Attributes.ClientID)
+
+		// Retrieve by ID
+		tokenByID, atlanErr := ctx.TokenClient.GetByID("apikey-286e681a-67b5-4996-b161-5737e890c080")
+		if atlanErr != nil {
+			fmt.Println(atlanErr)
+		}
+		fmt.Println("Token Display Name:", *tokenByID.Attributes.DisplayName)
+
+
+	*/
+	/*
+		// Create Token
+		displayName := "Test-Token"
+		token, err := ctx.TokenClient.Create(&displayName, nil, nil, nil)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(*token.Attributes.AccessToken)
+
+
+	*/
+	/*
+		users := []assets.AtlanUser{
+			{
+				Email:         "test2@atlan.com",
+				WorkspaceRole: "$member",
+			},
+		}
+
+		createdUsers, _ := ctx.UserClient.CreateUsers(users, true)
+		fmt.Println(createdUsers)
+		for _, user := range createdUsers {
+			fmt.Printf("User: %v\n", *user.Username)
+		}
+
+	*/
 
 	/*
 		err := ctx.GroupClient.Purge("a99f50bc-46bf-4d08-a987-3411ef5cfc33")
@@ -172,7 +222,32 @@ func main() {
 		}
 
 	*/
+	/*
+		response, atlanErr := assets.GetAll()
+		if atlanErr != nil {
+			println("Error:", atlanErr)
+		} else {
+			fmt.Println(response)
+		}
 
+
+	*/
+	/*
+
+		response, atlanErr := assets.FindPersonasByName("Test Persona")
+		if atlanErr != nil {
+			println("Error:", atlanErr)
+		} else {
+			for _, entity := range response.Entities {
+				if entity.TypeName != nil && *entity.TypeName == "Persona" {
+					println("Persona Found: Name:", *entity.Name, "QualifiedName:", *entity.QualifiedName)
+				}
+			}
+
+		}
+
+
+	*/
 	/*
 		// Get Persona by Guid
 
