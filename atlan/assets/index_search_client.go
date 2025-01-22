@@ -177,6 +177,20 @@ func WithActivePersona(name string) (*model.BoolQuery, error) {
 	}, nil
 }
 
+// WithActivePurpose returns a query for an active purpose by name.
+func WithActivePurpose(name string) (*model.BoolQuery, error) {
+	q1, err := WithState("ACTIVE")
+	if err != nil {
+		return nil, err
+	}
+	q2 := WithTypeName("Purpose")
+	q3 := WithName(name)
+
+	return &model.BoolQuery{
+		Filter: []model.Query{q1, q2, q3},
+	}, nil
+}
+
 // Helper Functions
 
 // WithState returns a query for an entity with a specific state.
