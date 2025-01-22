@@ -1,6 +1,8 @@
 package structs
 
-import "github.com/atlanhq/atlan-go/atlan"
+import (
+	"github.com/atlanhq/atlan-go/atlan"
+)
 
 // AccessControl represents the attributes of the AccessControl asset.
 type AccessControl struct {
@@ -49,4 +51,20 @@ type Persona struct {
 	PersonaGroups *[]string `json:"personaGroups,omitempty"`
 	PersonaUsers  *[]string `json:"personaUsers,omitempty"`
 	RoleId        *string   `json:"roleId,omitempty"`
+}
+
+type Purpose struct {
+	AccessControl
+	Attributes *PurposeAttributes `json:"attributes,omitempty"`
+}
+
+// PurposeAttributes represents the additional attributes for a Purpose asset.
+type PurposeAttributes struct {
+	PurposeAtlanTags *[]AtlanTagName `json:"purposeAtlanTags,omitempty"`
+}
+
+// AtlanTagName represents the attributes of the AtlanTagName asset.
+type AtlanTagName struct {
+	ID          string `json:"id,omitempty"`
+	DisplayText string `json:"displayText,omitempty"`
 }
