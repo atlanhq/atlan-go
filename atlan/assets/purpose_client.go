@@ -300,6 +300,9 @@ func (p *Purpose) MarshalJSON() ([]byte, error) {
 		customJSON["guid"] = *p.Guid
 	}
 
+	if p.Attributes != nil && p.Attributes.PurposeAtlanTags != nil && len(*p.Attributes.PurposeAtlanTags) > 0 {
+		attributes["purposeClassifications"] = p.Attributes.PurposeAtlanTags
+	}
 	// Add access control attributes
 	if p.IsAccessControlEnabled != nil {
 		attributes["isAccessControlEnabled"] = *p.IsAccessControlEnabled
