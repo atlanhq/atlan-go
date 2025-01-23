@@ -177,7 +177,7 @@ func TestAtlasGlossaryTermMarshalling(t *testing.T) {
 	}
 
 	// Define the expected JSON data
-	expectedJSON := []byte(`{"typeName":"AtlasGlossaryTerm","guid":"433b1b64-0b16-4812-9bae-14b13e9bd645","createdBy":"user1","updatedBy":"user2","status":"ACTIVE","shortDescription":"Short description","longDescription":"Long description","example":"Example Text","abbreviation":"Abbreviation Text","usage":"Usage Text","additionalAttributes":{"key":"value"},"anchor":{"entityStatus":"ACTIVE","relationshipType":"AtlasGlossaryTermAnchor","relationshipGuid":"abe7f160-182e-4c61-bc8e-e3392404611b","relationshipStatus":"ACTIVE","typeName":"AtlasGlossaryTerm","guid":"562067ed-c56a-470d-9306-488d9c6d6448"}}`)
+	expectedJSON := []byte(`{"typeName":"AtlasGlossaryTerm","guid":"433b1b64-0b16-4812-9bae-14b13e9bd645","createdBy":"user1","updatedBy":"user2","status":"ACTIVE","shortDescription":"Short description","longDescription":"Long description","example":"Example Text","abbreviation":"Abbreviation Text","usage":"Usage Text","additionalAttributes":{"key":"value"},"anchor":{"entityStatus":"ACTIVE","relationshipType":"AtlasGlossaryTermAnchor","relationshipGuid":"abe7f160-182e-4c61-bc8e-e3392404611b","relationshipStatus":"ACTIVE","typeName":"AtlasGlossaryTerm","guid":"562067ed-c56a-470d-9306-488d9c6d6448"}}`) //nolint:lll
 
 	// Assert that the marshalled JSON matches the expected JSON data
 	assert.JSONEq(t, string(expectedJSON), string(jsonData), "Marshalled JSON does not match the expected JSON")

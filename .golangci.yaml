@@ -12,8 +12,11 @@ linters:
     - sloglint      # Detects common mistakes in using the log package.
     - testifylint   # Detects common mistakes in using the testify package.
     - whitespace
+    - lll
 
 linters-settings:
+  lll:
+    line-length: 200
 
 
 

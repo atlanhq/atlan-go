@@ -297,7 +297,8 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 		HTTPErrorCode: 400,
 		ErrorID:       "ATLAN-GO-400-022",
 		ErrorMessage:  "No admin provided for the connection.",
-		UserAction:    "You must specify at least one connection admin through adminRoles, adminGroups, or adminUsers to create a new connection. Without at least one admin, the connection will be inaccessible to all.",
+		UserAction: "You must specify at least one connection admin through adminRoles, adminGroups, or adminUsers " +
+			"to create a new connection. Without at least one admin, the connection will be inaccessible to all.",
 	},
 	MISSING_PERSONA_ID: {
 		HTTPErrorCode: 400,
@@ -465,25 +466,33 @@ var errorCodes = map[ErrorCode]ErrorInfo{
 		HTTPErrorCode: 401,
 		ErrorID:       "ATLAN-GO-401-001",
 		ErrorMessage:  "No API token provided.",
-		UserAction:    "Set your API token using `Atlan.setApiToken(\"<API-TOKEN>\");`. You can generate API tokens from the Atlan Admin Center. See https://ask.atlan.com/hc/en-us/articles/8312649180049 for details or contact support at https://ask.atlan.com/hc/en-us/requests/new if you have any questions.",
+		UserAction: "Set your API token using `Atlan.setApiToken(\"<API-TOKEN>\");`. You can generate API tokens " +
+			"from the Atlan Admin Center. See https://ask.atlan.com/hc/en-us/articles/8312649180049 for details or " +
+			"contact support at https://ask.atlan.com/hc/en-us/requests/new if you have any questions.",
 	},
 	EMPTY_API_TOKEN: {
 		HTTPErrorCode: 401,
 		ErrorID:       "ATLAN-GO-401-002",
 		ErrorMessage:  "Your API token is invalid, as it is an empty string.",
-		UserAction:    "You can double-check your API token from the Atlan Admin Center. See https://ask.atlan.com/hc/en-us/articles/8312649180049 for details or contact support at https://ask.atlan.com/hc/en-us/requests/new if you have any questions.",
+		UserAction: "You can double-check your API token from the Atlan Admin Center. " +
+			"See https://ask.atlan.com/hc/en-us/articles/8312649180049 for details or contact support " +
+			"at https://ask.atlan.com/hc/en-us/requests/new if you have any questions.",
 	},
 	INVALID_API_TOKEN: {
 		HTTPErrorCode: 401,
 		ErrorID:       "ATLAN-GO-401-003",
 		ErrorMessage:  "Your API token is invalid, as it contains whitespace.",
-		UserAction:    "You can double-check your API token from the Atlan Admin Center. See https://ask.atlan.com/hc/en-us/articles/8312649180049 for details or contact support at https://ask.atlan.com/hc/en-us/requests/new if you have any questions.",
+		UserAction: "You can double-check your API token from the Atlan Admin Center. " +
+			"See https://ask.atlan.com/hc/en-us/articles/8312649180049 for details or contact " +
+			"support at https://ask.atlan.com/hc/en-us/requests/new if you have any questions.",
 	},
 	EXPIRED_API_TOKEN: {
 		HTTPErrorCode: 401,
 		ErrorID:       "ATLAN-GO-401-004",
 		ErrorMessage:  "Your API token is no longer valid, it can no longer lookup base Atlan structures.",
-		UserAction:    "You can double-check your API token from the Atlan Admin Center. See https://ask.atlan.com/hc/en-us/articles/8312649180049 for details or contact support at https://ask.atlan.com/hc/en-us/requests/new if you have any questions.",
+		UserAction: "You can double-check your API token from the Atlan Admin Center. " +
+			"See https://ask.atlan.com/hc/en-us/articles/8312649180049 for details or contact " +
+			"support at https://ask.atlan.com/hc/en-us/requests/new if you have any questions.",
 	},
 	UNMARSHALLING_ERROR: {
 		HTTPErrorCode: 401,
