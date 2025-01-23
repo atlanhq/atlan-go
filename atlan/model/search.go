@@ -845,6 +845,7 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		structs.AuthPolicy
 		structs.AccessControl
 		structs.Persona
+		structs.Purpose
 		QualifiedName       *string           `json:"qualifiedName,omitempty"`
 		Name                *string           `json:"name,omitempty"`
 		SearchAttributes    *SearchAttributes `json:"attributes,omitempty"`

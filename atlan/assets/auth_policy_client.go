@@ -123,6 +123,14 @@ func (a *AuthPolicy) MarshalJSON() ([]byte, error) {
 		attributes["connectionQualifiedName"] = *a.ConnectionQualifiedName
 	}
 
+	if a.PolicyGroups != nil && len(*a.PolicyGroups) > 0 {
+		attributes["policyGroups"] = *a.PolicyGroups
+	}
+
+	if a.PolicyUsers != nil && len(*a.PolicyUsers) > 0 {
+		attributes["policyUsers"] = *a.PolicyUsers
+	}
+
 	// Handle nested AccessControl field
 	if a.AccessControl != nil {
 		accessControl := map[string]interface{}{}

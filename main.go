@@ -12,13 +12,191 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	// Test User Cache
-	UserId, err := assets.GetGroupNameForGroupID("58d547d8-3f4d-4b9e-9666-39980f140661")
+	// Update a Purpose
+	purpose := &assets.Purpose{}
+	err := purpose.Updater("default/yvdelhXJLpf3LGxtg46DQb", "gsdk_Purpose_7mLrt", true)
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println(err)
+		return
 	}
-	fmt.Println(UserId)
-	
+	DisplayName := "Newly Modified Test Purpose"
+	Description := "This is a modified description"
+	purpose.Name = &DisplayName
+	purpose.Description = &Description
+	response, err := assets.Save(purpose)
+	if err != nil {
+		println("Error:", err)
+	} else {
+		for _, entity := range response.MutatedEntities.UPDATE {
+			println("Response:", entity)
+			println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+		}
+
+	}
+
+	/*
+		// Delete a Purpose
+		assets.PurgeByGuid([]string{"a947beac-ae4d-4d1c-a9f8-efd9c55fe768"})
+	*/
+	/*
+		// List purposes
+		response, atlanErr := assets.NewFluentSearch(). //
+								PageSizes(20).
+								ActiveAssets().
+								AssetType("Purpose"). //
+								Execute()             //
+		if atlanErr != nil {
+			fmt.Println("Error:", atlanErr)
+		}
+		for _, entity := range response[0].Entities { //
+			if entity.TypeName != nil && *entity.TypeName == "Purpose" {
+				// Do something with the Purpose
+				fmt.Println("Purpose Found:", *entity.Name, "QualifiedName:", *entity.QualifiedName)
+				fmt.Println("Purpose guid:", *entity.Guid)
+			}
+		}
+
+
+	*/
+
+	/*
+		// Personalize the purpose
+		purpose := &assets.Purpose{}
+		purpose.Updater("default/0IFqLjT5JqnZrWOp2U1IUB", "Newly Modified Test Purpose", true)
+		purpose.DenyAssetTabs = &[]string{atlan.AssetSidebarTabLineage.Name, atlan.AssetSidebarTabRelations.Name, atlan.AssetSidebarTabQueries.Name}
+		response, _ := assets.Save(purpose)
+		for _, entity := range response.MutatedEntities.UPDATE {
+			println("Response:", entity)
+			println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+
+		}
+	*/
+	/*
+		// Add a Data Policy
+		purpose := &assets.Purpose{}
+		policy, _ := purpose.CreateDataPolicy(
+			"Test Policy for Masking Data",
+			"a947beac-ae4d-4d1c-a9f8-efd9c55fe768",
+			atlan.AuthPolicyTypeDatamask,
+			nil,
+			nil,
+			true,
+		)
+		response, err := assets.Save(policy)
+		if err != nil {
+			println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.CREATE {
+				println("Response TypeName:", entity.TypeName)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+
+		}
+
+
+	*/
+	/*
+		// Add a metadata Policy
+		purpose := &assets.Purpose{}
+		policy, _ := purpose.CreateMetadataPolicy(
+			"Test Policy 3",
+			"a947beac-ae4d-4d1c-a9f8-efd9c55fe768",
+			atlan.AuthPolicyTypeAllow,
+			[]atlan.PurposeMetadataAction{
+				atlan.PurposeMetadataActionRead,
+			},
+			nil,
+			nil,
+			true,
+		)
+		response, err := assets.Save(policy)
+		if err != nil {
+			println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.CREATE {
+				println("Response TypeName:", entity.TypeName)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+
+		}
+
+
+	*/
+	/*
+		// Activate or Deactivate a Purpose
+		purpose := &assets.Purpose{}
+		err := purpose.Updater("default/0IFqLjT5JqnZrWOp2U1IUB", "Newly Modified Test Purpose", false)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		response, err := assets.Save(purpose)
+		if err != nil {
+			println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.UPDATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+
+		}
+
+
+	*/
+	/*
+		// Update a Purpose
+		purpose := &assets.Purpose{}
+		err := purpose.Updater("default/0IFqLjT5JqnZrWOp2U1IUB", "Test Purpose Modified", true)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		DisplayName := "Newly Modified Test Purpose"
+		Description := "This is a modified description"
+		purpose.Name = &DisplayName
+		purpose.Description = &Description
+		response, err := assets.Save(purpose)
+		if err != nil {
+			println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.UPDATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+
+		}
+
+	*/
+	/*
+		// Retrieve Persona by Name
+		result, _ := assets.FindPurposesByName("Test Purpose - Go-sdk")
+		fmt.Println(*result.Entities[0].Name)
+
+	*/
+	/*
+		// Create a Purpose
+		purpose := &assets.Purpose{}
+		purpose.Creator("Test Purpose - Go-sdk", []string{"Confidential", "Issue"})
+		response, err := assets.Save(purpose)
+		if err != nil {
+			println("Error:", err)
+		} else {
+			for _, entity := range response.MutatedEntities.CREATE {
+				println("Response:", entity)
+				println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+			}
+		}
+		// a947beac-ae4d-4d1c-a9f8-efd9c55fe768
+	*/
+
+	/*
+		// Test User Cache
+		UserId, err := assets.GetGroupNameForGroupID("58d547d8-3f4d-4b9e-9666-39980f140661")
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+		fmt.Println(UserId)
+	*/
 	/*
 		// Delete an API Token
 		err := ctx.TokenClient.Purge("a853f1d5-f1f4-4cdb-b86d-c61df3ecade6")

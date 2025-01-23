@@ -25,6 +25,7 @@ type StructDef struct {
 
 type EntityDef struct {
 	TypeDef
+	TypeDefBase
 }
 
 type RelationshipDef struct {
