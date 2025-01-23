@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"reflect"
+
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
 // Unmarshal on assets changed the unmarshalling for the whole sdk asset structure

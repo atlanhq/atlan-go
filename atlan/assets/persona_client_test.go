@@ -1,9 +1,10 @@
 package assets
 
 import (
+	"testing"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var PersonaName = atlan.MakeUnique("Persona")

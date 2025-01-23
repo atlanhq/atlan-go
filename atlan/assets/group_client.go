@@ -3,8 +3,9 @@ package assets
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"strings"
+
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
 type AtlanGroup structs.AtlanGroup

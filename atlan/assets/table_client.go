@@ -3,9 +3,10 @@ package assets
 import (
 	"encoding/json"
 	"errors"
+	"strings"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
-	"strings"
 )
 
 type Table structs.Table

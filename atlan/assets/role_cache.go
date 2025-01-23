@@ -2,8 +2,9 @@ package assets
 
 import (
 	"errors"
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"sync"
+
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
 // RoleCache provides a lazily-loaded cache for translating Atlan-internal roles into their IDs and names.

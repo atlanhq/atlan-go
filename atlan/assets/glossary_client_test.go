@@ -2,9 +2,10 @@ package assets
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var GlossaryName = atlan.MakeUnique("GLS")

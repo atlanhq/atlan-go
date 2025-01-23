@@ -2,8 +2,9 @@ package assets
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIntegrationAtlanTagCache_RefreshCache(t *testing.T) {

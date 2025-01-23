@@ -2,9 +2,10 @@ package assets
 
 import (
 	"fmt"
+	"sync"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model"
-	"sync"
 )
 
 // AtlanTagCache represents a  cache for translating between Atlan-internal ID strings

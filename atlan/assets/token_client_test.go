@@ -1,10 +1,11 @@
 package assets
 
 import (
+	"testing"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var (

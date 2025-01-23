@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/atlanhq/atlan-go/atlan"
 	"hash/fnv"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/atlanhq/atlan-go/atlan"
 
 	"github.com/atlanhq/atlan-go/atlan/model"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"

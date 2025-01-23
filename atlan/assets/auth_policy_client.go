@@ -3,6 +3,7 @@ package assets
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )

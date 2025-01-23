@@ -2,10 +2,11 @@ package assets
 
 import (
 	"fmt"
-	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/stretchr/testify/assert"
 )
 
 var (

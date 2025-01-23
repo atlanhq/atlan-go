@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/atlanhq/atlan-go/config"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/atlanhq/atlan-go/config"
 
 	"github.com/atlanhq/atlan-go/atlan/logger"
 	"github.com/k0kubun/go-ansi"

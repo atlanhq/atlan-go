@@ -1,10 +1,11 @@
 package assets
 
 import (
-	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/stretchr/testify/assert"
 )
 
 var PurposeName = atlan.MakeUnique("Purpose")

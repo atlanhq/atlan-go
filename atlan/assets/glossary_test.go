@@ -2,9 +2,10 @@ package assets
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
