@@ -2883,7 +2883,6 @@ func (c *CertificateStatus) UnmarshalJSON(data []byte) error {
 	}
 
 	switch name {
-
 	case "DEPRECATED":
 		*c = CertificateStatusDeprecated
 
@@ -2929,7 +2928,6 @@ func (c *AuthPolicyType) UnmarshalJSON(data []byte) error {
 	}
 
 	switch name {
-
 	case "allow":
 		*c = AuthPolicyTypeAllow
 
@@ -2981,7 +2979,6 @@ func (c *AuthPolicyCategory) UnmarshalJSON(data []byte) error {
 	}
 
 	switch name {
-
 	case "bootstrap":
 		*c = AuthPolicyCategoryBootstrap
 
@@ -3027,7 +3024,6 @@ func (c *AuthPolicyResourceCategory) UnmarshalJSON(data []byte) error {
 	}
 
 	switch name {
-
 	case "ENTITY":
 		*c = AuthPolicyResourceCategoryEntity
 
@@ -3075,7 +3071,6 @@ func (c *DataAction) UnmarshalJSON(data []byte) error {
 	}
 
 	switch name {
-
 	case "select":
 		*c = DataActionSelect
 	default:

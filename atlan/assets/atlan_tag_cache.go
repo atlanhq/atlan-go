@@ -121,7 +121,6 @@ func (c *AtlanTagCache) GetNameForID(idstr string) (string, error) {
 	clsName, found := c.mapIDToName[idstr]
 
 	if !found && idstr != "" {
-
 		// If not found, refresh the cache and look again (could be stale)
 		if err := c.RefreshCache(); err != nil {
 			return "", err

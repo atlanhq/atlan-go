@@ -157,7 +157,6 @@ func (fs *FluentSearch) Execute() ([]*model.IndexSearchResponse, error) {
 			}
 
 			responses = append(responses, response)
-
 		}
 	}
 	return responses, nil

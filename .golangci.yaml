@@ -11,6 +11,7 @@ linters:
     - bodyclose     # Detects missing body close.
     - sloglint      # Detects common mistakes in using the log package.
     - testifylint   # Detects common mistakes in using the testify package.
+    - whitespace
 
 linters-settings:
 
