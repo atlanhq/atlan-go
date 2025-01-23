@@ -1,7 +1,6 @@
 package assets
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -11,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var TestGroupAlias = fmt.Sprintf("%s", strings.ToLower(atlan.MakeUnique("test_group")))
+var TestGroupAlias = strings.ToLower(atlan.MakeUnique("test_group"))
 
 func TestIntegrationGroupClient(t *testing.T) {
 	if testing.Short() {

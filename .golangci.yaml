@@ -13,6 +13,7 @@ linters:
     - testifylint   # Detects common mistakes in using the testify package.
     - whitespace
     - lll
+    - gosimple
 
 linters-settings:
   lll:

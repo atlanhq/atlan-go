@@ -151,9 +151,7 @@ func (uc *UserClient) GetAll(limit int, offset int, sort string) ([]AtlanUser, e
 	}
 
 	var users []AtlanUser
-	for _, user := range userResponse.Records {
-		users = append(users, user)
-	}
+	users = append(users, userResponse.Records...)
 
 	return users, nil
 }

@@ -1080,9 +1080,7 @@ func RemoveAtlanTag[T AtlanObject](
 	qualifiedName string,
 	atlanTagName string,
 ) error {
-	var api API
-
-	api = DELETE_ENTITY_BY_ATTRIBUTE
+	var api API = DELETE_ENTITY_BY_ATTRIBUTE
 	var asset T
 	assetType := reflect.TypeOf(asset).Elem()
 
