@@ -82,7 +82,6 @@ func (tc *TokenClient) GetByGUID(guid string) (*structs.ApiToken, error) {
 // validitySeconds: Validity of the token in seconds
 // returns the created API token as structs.ApiToken.
 func (tc *TokenClient) Create(displayName, description *string, personas []string, validitySeconds *int) (*structs.ApiToken, error) {
-
 	request := structs.ApiTokenRequest{
 		DisplayName:           displayName,
 		Description:           " ",

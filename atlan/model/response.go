@@ -70,6 +70,7 @@ func (amr *AssetMutationResponse) AssetsUpdated(assetType reflect.Type) []*Mutat
 	}
 	return []*MutatedAssets{}
 }
+
 func (amr *AssetMutationResponse) AssetsCreated(assetType reflect.Type) []*MutatedAssets {
 	if amr.MutatedEntities != nil && amr.MutatedEntities.CREATE != nil {
 		var assets []*MutatedAssets

@@ -13,17 +13,21 @@ import (
 
 const TestDataDirectoy = "test_data"
 
-const UrlExpiry = "10s"
-const ImageFileName = "go-sdk.png"
-const TextFileName = "go-sdk.txt"
-const TextDownloadFileName = "go-sdk-download.txt"
-const ImageDownloadFileName = "go-sdk-download.png"
-const TenantS3BucketDirectory = "presigned-url-sdk-integration-tests"
-const ExpectedTextContent = "test data 12345.\n"
+const (
+	UrlExpiry               = "10s"
+	ImageFileName           = "go-sdk.png"
+	TextFileName            = "go-sdk.txt"
+	TextDownloadFileName    = "go-sdk-download.txt"
+	ImageDownloadFileName   = "go-sdk-download.png"
+	TenantS3BucketDirectory = "presigned-url-sdk-integration-tests"
+	ExpectedTextContent     = "test data 12345.\n"
+)
 
-var ImageS3UploadFilePath = fmt.Sprintf("%s/%s", TenantS3BucketDirectory, ImageFileName)
-var TextS3UploadFilePath = fmt.Sprintf("%s/%s", TenantS3BucketDirectory, TextFileName)
-var UnsupportedURL = "https://unsupported.storage.com/upload"
+var (
+	ImageS3UploadFilePath = fmt.Sprintf("%s/%s", TenantS3BucketDirectory, ImageFileName)
+	TextS3UploadFilePath  = fmt.Sprintf("%s/%s", TenantS3BucketDirectory, TextFileName)
+	UnsupportedURL        = "https://unsupported.storage.com/upload"
+)
 
 func TestIntegrationFile(t *testing.T) {
 	if testing.Short() {

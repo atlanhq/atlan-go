@@ -64,7 +64,6 @@ func NewTypeDefResponse(rawJSON []byte) (*model.TypeDefResponse, error) {
 }
 
 func RefreshCaches(typedef model.TypeDef) error {
-
 	switch t := typedef.(type) {
 	case *model.AtlanTagDef:
 		return GetAtlanTagCache().RefreshCache()

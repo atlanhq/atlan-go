@@ -30,8 +30,7 @@ func (fs *FluentSearch) SetUtmTags(tags ...atlan.UTMTags) *FluentSearch {
 	return fs
 }
 
-type Aggregation struct {
-}
+type Aggregation struct{}
 
 // ActiveAssets Returns a query that will only match assets that are active in Atlan.
 func (fs *FluentSearch) ActiveAssets() *FluentSearch {
@@ -139,7 +138,6 @@ func (fs *FluentSearch) IncludeOnRelations(fields ...string) *FluentSearch {
 
 // Execute performs the search and returns the results.
 func (fs *FluentSearch) Execute() ([]*model.IndexSearchResponse, error) {
-
 	if fs.PageSize == 0 {
 		fs.PageSize = 300 // Set Default Page Size
 	}
@@ -186,7 +184,6 @@ func (fs *FluentSearch) SortByGuidDefault() *FluentSearch {
 
 // ToRequest converts FluentSearch to IndexSearchRequest.
 func (fs *FluentSearch) ToRequest() *model.IndexSearchRequest {
-
 	// Create a new IndexSearchRequest and set its properties based on FluentSearch
 	request := &model.IndexSearchRequest{
 		SearchRequest: model.SearchRequest{

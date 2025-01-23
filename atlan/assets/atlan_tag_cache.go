@@ -97,7 +97,6 @@ func (c *AtlanTagCache) RefreshCache() error {
 
 // GetIDForName translates the provided human-readable Atlan tag name to its Atlan-internal ID string.
 func (c *AtlanTagCache) GetIDForName(name string) (string, error) {
-
 	clsID, found := c.mapNameToID[name]
 
 	if !found && name != "" {
@@ -119,7 +118,6 @@ func (c *AtlanTagCache) GetIDForName(name string) (string, error) {
 
 // GetNameForID translates the provided Atlan-internal classification ID string to the human-readable Atlan tag name.
 func (c *AtlanTagCache) GetNameForID(idstr string) (string, error) {
-
 	clsName, found := c.mapIDToName[idstr]
 
 	if !found && idstr != "" {
@@ -127,7 +125,6 @@ func (c *AtlanTagCache) GetNameForID(idstr string) (string, error) {
 		// If not found, refresh the cache and look again (could be stale)
 		if err := c.RefreshCache(); err != nil {
 			return "", err
-
 		}
 		clsName, found = c.mapIDToName[idstr]
 

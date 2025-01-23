@@ -348,7 +348,6 @@ func (cmf *CustomMetadataField) Within(values []string) model.Query {
 		Field:  cmf.ElasticFieldName,
 		Values: values,
 	}
-
 }
 
 func (cmf *CustomMetadataField) Match(value string) model.Query {

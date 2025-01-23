@@ -126,7 +126,6 @@ func (gc *GroupClient) Create(group *AtlanGroup, userIDs []string) (*structs.Cre
 
 // Get retrieves a list of groups with optional filters.
 func (gc *GroupClient) Get(limit int, postFilter, sort string, count bool, offset int) (*GroupResponse, error) {
-
 	request := &structs.GroupRequest{
 		PostFilter: &postFilter,
 		Sort:       sort,

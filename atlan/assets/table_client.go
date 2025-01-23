@@ -112,7 +112,6 @@ func (t *Table) CreatorWithParams(name, schemaQualifiedName string, schemaName, 
 
 // UnmarshalJSON implements the JSON unmarshal interface for the Table struct.
 func (t *Table) UnmarshalJSON(data []byte) error {
-
 	Attributes := struct {
 		Name                    *string `json:"name"`
 		QualifiedName           *string `json:"qualifiedName"`

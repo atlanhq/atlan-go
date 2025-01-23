@@ -8,8 +8,10 @@ import (
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
-type AtlanUser structs.AtlanUser
-type UserClient AtlanClient
+type (
+	AtlanUser  structs.AtlanUser
+	UserClient AtlanClient
+)
 
 type CreateUser struct {
 	Email    string `json:"email"`

@@ -49,26 +49,27 @@ func (client *FileClient) GeneratePresignedURL(request *model.PresignedURLReques
 			AtlanError{
 				ErrorCode: errorCodes[UNABLE_TO_PREPARE_UPLOAD_FILE],
 				Args:      []interface{}{err.Error()},
-			}}
+			},
+		}
 	}
 	return response.URL, nil
 }
 
 // Uploads a file to Atlan's object storage.
 func (client *FileClient) UploadFile(presignedUrl string, filePath string) error {
-	var PRESIGNED_URL_UPLOAD_S3 = API{
+	PRESIGNED_URL_UPLOAD_S3 := API{
 		Path:     presignedUrl,
 		Method:   http.MethodPut,
 		Status:   http.StatusOK,
 		Endpoint: HeraclesEndpoint,
 	}
-	var PRESIGNED_URL_UPLOAD_AZURE_BLOB = API{
+	PRESIGNED_URL_UPLOAD_AZURE_BLOB := API{
 		Path:     presignedUrl,
 		Method:   http.MethodPut,
 		Status:   http.StatusCreated,
 		Endpoint: HeraclesEndpoint,
 	}
-	var PRESIGNED_URL_UPLOAD_GCS = API{
+	PRESIGNED_URL_UPLOAD_GCS := API{
 		Path:     presignedUrl,
 		Method:   http.MethodPut,
 		Status:   http.StatusOK,
@@ -81,7 +82,8 @@ func (client *FileClient) UploadFile(presignedUrl string, filePath string) error
 			AtlanError{
 				ErrorCode: errorCodes[UNABLE_TO_PREPARE_UPLOAD_FILE],
 				Args:      []interface{}{err.Error()},
-			}}
+			},
+		}
 	}
 	defer file.Close()
 
@@ -105,7 +107,7 @@ func (client *FileClient) UploadFile(presignedUrl string, filePath string) error
 
 // Downloads a file from Atlan's tenant object storage.
 func (client *FileClient) DownloadFile(presignedUrl string, filePath string) error {
-	var PRESIGNED_URL_DOWNLOAD = API{
+	PRESIGNED_URL_DOWNLOAD := API{
 		Path:     presignedUrl,
 		Method:   http.MethodGet,
 		Status:   http.StatusOK,

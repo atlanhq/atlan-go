@@ -129,7 +129,6 @@ func TestAtlasGlossaryTermUnmarshalling(t *testing.T) {
 	assert.NotNil(t, term.Anchor, "Anchor should not be nil")
 	assert.Equal(t, "AtlasGlossary", *term.Anchor.TypeName, "Unexpected anchor type name")
 	assert.Equal(t, "some_guid", *term.Anchor.Guid, "Unexpected anchor guid")
-
 }
 
 func TestAtlasGlossaryTermMarshalling(t *testing.T) {
@@ -153,10 +152,11 @@ func TestAtlasGlossaryTermMarshalling(t *testing.T) {
 			"key": "value",
 		},
 		Anchor: &structs.AtlasGlossary{
-			Asset: structs.Asset{Referenceable: structs.Referenceable{
-				TypeName: structs.StringPtr("AtlasGlossaryTerm"),
-				Guid:     structs.StringPtr("562067ed-c56a-470d-9306-488d9c6d6448"),
-			},
+			Asset: structs.Asset{
+				Referenceable: structs.Referenceable{
+					TypeName: structs.StringPtr("AtlasGlossaryTerm"),
+					Guid:     structs.StringPtr("562067ed-c56a-470d-9306-488d9c6d6448"),
+				},
 			},
 			Relation: structs.Relation{
 				DisplayText:        structs.StringPtr("Display Text"),

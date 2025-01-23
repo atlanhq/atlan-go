@@ -39,7 +39,6 @@ func (ag *AtlasGlossary) Updater(name string, qualifiedName string, glossary_gui
 }
 
 func (ag *AtlasGlossary) UnmarshalJSON(data []byte) error {
-
 	Attributes := struct {
 		Name             *string          `json:"name"`
 		QualifiedName    *string          `json:"qualifiedName"`

@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
@@ -32,7 +31,6 @@ func main() {
 			println("Response:", entity)
 			println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
 		}
-
 	}
 
 	/*

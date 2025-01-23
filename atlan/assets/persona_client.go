@@ -41,8 +41,8 @@ func (p *Persona) CreateMetadataPolicy(
 	policyType atlan.AuthPolicyType,
 	actions []atlan.PersonaMetadataAction,
 	connectionQualifiedName string,
-	resources []string) (*AuthPolicy, error) {
-
+	resources []string,
+) (*AuthPolicy, error) {
 	// Convert actions to their string values
 	var policyActions []string
 	for _, action := range actions {
@@ -83,8 +83,8 @@ func (p *Persona) CreateDataPolicy(
 	personaID string,
 	policyType atlan.AuthPolicyType,
 	connectionQualifiedName string,
-	resources []string) (*AuthPolicy, error) {
-
+	resources []string,
+) (*AuthPolicy, error) {
 	// Add "entity-type:*" to resources
 	resources = append(resources, "entity-type:*")
 
@@ -125,8 +125,8 @@ func (p *Persona) CreateGlossaryPolicy(
 	personaID string,
 	policyType atlan.AuthPolicyType,
 	actions []atlan.PersonaGlossaryAction,
-	resources []string) (*AuthPolicy, error) {
-
+	resources []string,
+) (*AuthPolicy, error) {
 	// Convert actions to their string values
 	policyActions := make([]string, len(actions))
 	for i, action := range actions {
@@ -167,7 +167,6 @@ func (p *Persona) CreateDomainPolicy(
 	actions []atlan.PersonaDomainAction,
 	resources []string,
 ) (*AuthPolicy, error) {
-
 	// Convert actions to their string values
 	policyActions := make([]string, len(actions))
 	for i, action := range actions {
@@ -253,7 +252,6 @@ func FindPersonasByName(name string) (*model.IndexSearchResponse, error) {
 }
 
 func (p *Persona) UnmarshalJSON(data []byte) error {
-
 	// Unmarshal shared fields and specific attributes.
 	attributes := struct {
 		// Attributes

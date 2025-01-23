@@ -8,10 +8,8 @@ import (
 
 const UserEmail = "gsdk-test-user@atlan.com"
 
-var (
-	// UserEmail     = fmt.Sprintf("%s@atlan.com", strings.ToLower(atlan.MakeUnique("test_user")))
-	WorkspaceRole = "$guest"
-)
+// UserEmail     = fmt.Sprintf("%s@atlan.com", strings.ToLower(atlan.MakeUnique("test_user")))
+var WorkspaceRole = "$guest"
 
 func TestIntegrationUserClient(t *testing.T) {
 	if testing.Short() {

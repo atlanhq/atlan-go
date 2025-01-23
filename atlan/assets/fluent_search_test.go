@@ -14,8 +14,10 @@ const GlossaryDescription = "Automated testing of GO SDK."
 
 var AnnouncementType = atlan.AnnouncementTypeWARNING
 
-const AnnouncementTitle = "GO SDK testing."
-const AnnouncementMessage = "Automated testing of the GO SDK."
+const (
+	AnnouncementTitle   = "GO SDK testing."
+	AnnouncementMessage = "Automated testing of the GO SDK."
+)
 
 func TestIntegrationFluentSearch(t *testing.T) {
 	if testing.Short() {
@@ -45,7 +47,6 @@ func TestIntegrationFluentSearch(t *testing.T) {
 		Where(ctx.Glossary.NAME.Eq(GlossaryName)).
 		IncludeOnResults("description", "announcementType", "announcementTitle", "announcementMessage").
 		Execute()
-
 	if err != nil {
 		fmt.Printf("Error executing search: %v\n", err)
 		return
@@ -66,7 +67,6 @@ func TestIntegrationFluentSearch(t *testing.T) {
 		Where(ctx.Glossary.NAME.StartsWith("gsdk", nil)).
 		Sort(NAME, atlan.SortOrderAscending).
 		Execute()
-
 	if err != nil {
 		fmt.Printf("Error executing search: %v\n", err)
 		return

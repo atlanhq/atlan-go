@@ -28,5 +28,4 @@ func TestGetTypeDefinitionsIntegration(t *testing.T) {
 	assert.NotEmpty(t, response.StructDefs, "Expected StructDefs to be non-empty")
 	assert.NotNil(t, response.AtlanTagDefs, "Expected AtlanTagDefs to be non-nil")
 	assert.NotEmpty(t, response.AtlanTagDefs, "Expected AtlanTagDefs to be non-empty")
-
 }

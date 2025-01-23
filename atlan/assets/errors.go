@@ -40,15 +40,17 @@ func (e AtlanError) Error() string {
 	return errorMessage
 }
 
-type ApiConnectionError struct{ AtlanError }
-type NotFoundError struct{ AtlanError }
-type InvalidRequestError struct{ AtlanError }
-type ApiError struct{ AtlanError }
-type AuthenticationError struct{ AtlanError }
-type PermissionError struct{ AtlanError }
-type ConflictError struct{ AtlanError }
-type RateLimitError struct{ AtlanError }
-type LogicError struct{ AtlanError }
+type (
+	ApiConnectionError  struct{ AtlanError }
+	NotFoundError       struct{ AtlanError }
+	InvalidRequestError struct{ AtlanError }
+	ApiError            struct{ AtlanError }
+	AuthenticationError struct{ AtlanError }
+	PermissionError     struct{ AtlanError }
+	ConflictError       struct{ AtlanError }
+	RateLimitError      struct{ AtlanError }
+	LogicError          struct{ AtlanError }
+)
 
 type ErrorCode int
 

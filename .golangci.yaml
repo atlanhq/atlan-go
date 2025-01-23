@@ -4,10 +4,12 @@ linters:
     - gosec         # Detects security problems.
     - gofmt
     - goimports
-    - gocritic
-    
+    - gocritic      # Metalinter; detects bugs, performance, and styling issues.
+    - gofumpt       # Detects whether code was gofumpt-ed.
+
 
 linters-settings:
+
 
 
 issues:

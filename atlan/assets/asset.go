@@ -787,7 +787,6 @@ func NewSearchView() *ViewFields {
 		QUERIES:              NewRelationField("queries"),
 		ATLAN_SCHEMA:         NewRelationField("atlanSchema"),
 	}
-
 }
 
 // NewAccessControlFields initializes a new instance of AccessControlFields.
@@ -957,7 +956,6 @@ func NewAuthPolicyFields() *AuthPolicyFields {
 
 // GetbyGuid retrieves an asset by guid
 func GetByGuid[T AtlanObject](guid string) (T, error) {
-
 	var asset T
 
 	if DefaultAtlanClient == nil {
@@ -991,8 +989,8 @@ func ModifyTags(api API,
 	propagate bool,
 	removePropagationOnDelete bool,
 	restrictLineagePropagation bool,
-	restrictPropagationThroughHierarchy bool) error {
-
+	restrictPropagationThroughHierarchy bool,
+) error {
 	var atlanTags []structs.AtlanTag
 
 	for _, name := range atlanTagNames {
@@ -1032,7 +1030,6 @@ func AddAtlanTags[T AtlanObject](
 	restrictLineagePropagation bool,
 	restrictPropagationThroughHierarchy bool,
 ) error {
-
 	var asset T
 	assetType := reflect.TypeOf(asset).Elem()
 
@@ -1060,7 +1057,6 @@ func UpdateAtlanTags[T AtlanObject](
 	restrictLineagePropagation bool,
 	restrictPropagationThroughHierarchy bool,
 ) error {
-
 	var asset T
 	assetType := reflect.TypeOf(asset).Elem()
 
@@ -1084,7 +1080,6 @@ func RemoveAtlanTag[T AtlanObject](
 	qualifiedName string,
 	atlanTagName string,
 ) error {
-
 	var api API
 
 	api = DELETE_ENTITY_BY_ATTRIBUTE
@@ -1121,7 +1116,6 @@ func RemoveAtlanTag[T AtlanObject](
 
 // GetByQualifiedName retrieves an asset by guid
 func GetByQualifiedName[T AtlanObject](qualifiedName string) (T, error) {
-
 	var asset T
 
 	if DefaultAtlanClient == nil {

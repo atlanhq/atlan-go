@@ -3065,9 +3065,7 @@ func (a DataAction) String() string {
 	return a.Name
 }
 
-var (
-	DataActionSelect = DataAction{"select"}
-)
+var DataActionSelect = DataAction{"select"}
 
 // UnmarshalJSON customizes the unmarshalling of a DataAction from JSON.
 func (c *DataAction) UnmarshalJSON(data []byte) error {
