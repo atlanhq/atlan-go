@@ -47,7 +47,7 @@ func TestIntegrationAtlanTagCache_GetIDForName(t *testing.T) {
 	assert.NotEmpty(t, id) // ID should be non-empty if the tag exists
 
 	// Test not found scenario
-	_, err = cache.GetIDForName("NonExistentTag")
+	_, _ = cache.GetIDForName("NonExistentTag")
 	assert.Nil(t, nil) //nolint:testifylint    // Expect error(nil) since tag does not exist
 }
 
@@ -62,6 +62,7 @@ func TestIntegrationAtlanTagCache_GetNameForID(t *testing.T) {
 	resp, _ := GetAll()
 	tagName := resp.AtlanTagDefs[0].DisplayName
 	id, err := cache.GetIDForName(tagName)
+	require.NoError(t, err)
 
 	// Assuming "BBDjIBZUNHtKPExR1Z3a5I" is a valid GUID
 	name, err := cache.GetNameForID(id)

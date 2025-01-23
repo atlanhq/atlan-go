@@ -489,7 +489,7 @@ func (ac *AtlanClient) CallAPI(api *API, queryParams interface{}, requestObj int
 		var errorMessage string
 		if err == nil {
 			errorMessage = fmt.Sprintf("API returned status code %d: %s", response.StatusCode, string(body))
-			err = fmt.Errorf(errorMessage)
+			err = fmt.Errorf("%s", errorMessage)
 			//	fmt.Printf("Constructed error: %s\n", errorMessage) // Optional for debugging
 		}
 		return nil, handleApiError(response, err)

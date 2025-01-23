@@ -101,5 +101,6 @@ func testPurgeApiToken(t *testing.T, guid string) {
 
 	// Verify that the token is no longer retrievable
 	token, err := client.GetByGUID(guid)
+	require.NoError(t, err, "error should be nil when checking purged token")
 	assert.Nil(t, token, "token should be nil after purging")
 }

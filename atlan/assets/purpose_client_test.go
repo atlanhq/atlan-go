@@ -85,6 +85,7 @@ func testPurposeCreateMetadataPolicy(t *testing.T, purposeID string) {
 		nil,
 		true,
 	)
+	require.NoError(t, err, "error should be nil while creating metadata policy")
 	response, err := Save(policy)
 	if err != nil {
 		t.Errorf("Error: %v", err)
@@ -105,6 +106,7 @@ func testPurposeCreateDataPolicy(t *testing.T, purposeID string) {
 		nil,
 		true,
 	)
+	require.NoError(t, err, "error should be nil while creating data policy")
 	response, err := Save(policy)
 	if err != nil {
 		t.Errorf("Error: %v", err)

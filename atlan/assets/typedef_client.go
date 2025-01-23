@@ -142,6 +142,9 @@ func Get(typeCategory interface{}) (*model.TypeDefResponse, error) {
 
 func (c *TypeDefClient) Create(typedef model.TypeDef) (*model.TypeDefResponse, error) {
 	payload, err := buildTypeDefRequest(typedef)
+	if err != nil {
+		return nil, err
+	}
 	rawJSON, err := c.Client.CallAPI(&CREATE_TYPE_DEFS, nil, payload)
 	if err != nil {
 		return nil, err
@@ -152,6 +155,9 @@ func (c *TypeDefClient) Create(typedef model.TypeDef) (*model.TypeDefResponse, e
 
 func (c *TypeDefClient) Update(typedef model.TypeDef) (*model.TypeDefResponse, error) {
 	payload, err := buildTypeDefRequest(typedef)
+	if err != nil {
+		return nil, err
+	}
 	rawJSON, err := c.Client.CallAPI(&UPDATE_TYPE_DEFS, nil, payload)
 	if err != nil {
 		return nil, err

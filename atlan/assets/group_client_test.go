@@ -52,6 +52,7 @@ func testCreateGroup(t *testing.T) *AtlanGroup {
 	// Create a Group
 	group := AtlanGroup{}
 	toBeCreated, err := group.Create(TestGroupAlias)
+	require.NoError(t, err, "error should be nil while creating group object")
 	// users := []string{}
 	response, err := client.Create(toBeCreated, nil)
 
@@ -61,6 +62,7 @@ func testCreateGroup(t *testing.T) *AtlanGroup {
 
 	// Retrieve created group
 	groups, err := client.GetByName(TestGroupAlias, 10, 0)
+	require.NoError(t, err, "error should be nil while retrieving group by name")
 	assert.NotNil(t, groups, "retrieved groups should not be nil")
 	assert.Equal(t, TestGroupAlias, *groups[0].Alias, "group alias should match")
 
@@ -96,6 +98,7 @@ func testAddUsersToGroup(t *testing.T, groupID string) {
 	client := &GroupClient{}
 
 	user, err := client.UserClient.GetByEmail(UserEmail, 1, 0)
+	require.NoError(t, err, "error should be nil while getting user by email")
 	err = client.UserClient.AddUserToGroups(user[0].ID, []string{groupID})
 	require.NoError(t, err, "error should be nil while adding user to group")
 

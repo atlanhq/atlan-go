@@ -109,6 +109,7 @@ func testChangeUserRole(t *testing.T, userID string) {
 	require.NoError(t, err, "error should be nil while updating user's role")
 
 	users, err = client.GetByEmails([]string{UserEmail}, 1, 0)
+	require.NoError(t, err, "error should be nil while retrieving reverted user")
 	assert.Len(t, users, 1, "exactly one user should be retrieved")
 	assert.Equal(t, revertRole, users[0].WorkspaceRole, "user role ID should match the updated role")
 }
