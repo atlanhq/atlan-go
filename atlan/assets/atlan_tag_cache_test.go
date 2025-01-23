@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +20,7 @@ func TestIntegrationAtlanTagCache_RefreshCache(t *testing.T) {
 	err := cache.RefreshCache()
 
 	// Verify
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	// Check that cache is not empty, indicating data was fetched
 	assert.NotEmpty(t, cache.cacheByID)
 }
@@ -41,12 +43,12 @@ func TestIntegrationAtlanTagCache_GetIDForName(t *testing.T) {
 	id, err := cache.GetIDForName(tagName)
 
 	// Verify
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotEmpty(t, id) // ID should be non-empty if the tag exists
 
 	// Test not found scenario
 	_, err = cache.GetIDForName("NonExistentTag")
-	assert.Nil(t, nil) // Expect error(nil) since tag does not exist
+	assert.Nil(t, nil) //nolint:testifylint    // Expect error(nil) since tag does not exist
 }
 
 func TestIntegrationAtlanTagCache_GetNameForID(t *testing.T) {
@@ -65,10 +67,10 @@ func TestIntegrationAtlanTagCache_GetNameForID(t *testing.T) {
 	name, err := cache.GetNameForID(id)
 
 	// Verify
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotEmpty(t, name) // Name should be non-empty if the ID is valid
 
 	// Test not found scenario
 	_, err = cache.GetNameForID("123456")
-	assert.Nil(t, nil) // Expect error(nil) since ID does not exist
+	require.NoError(t, err)
 }

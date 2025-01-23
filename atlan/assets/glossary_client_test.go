@@ -34,9 +34,9 @@ func testCreateGlossary(t *testing.T) (string, string) {
 		t.Errorf("Error: %v", err)
 	}
 	assert.NotNil(t, response, "fetched glossary should not be nil")
-	assert.Equal(t, 1, len(response.MutatedEntities.CREATE), "number of glossaries created should be 1")
-	assert.Equal(t, 0, len(response.MutatedEntities.UPDATE), "number of glossaries updated should be 0")
-	assert.Equal(t, 0, len(response.MutatedEntities.DELETE), "number of glossaries deleted should be 0")
+	assert.Len(t, response.MutatedEntities.CREATE, 1, "number of glossaries created should be 1")
+	assert.Empty(t, response.MutatedEntities.UPDATE, "number of glossaries updated should be 0")
+	assert.Empty(t, response.MutatedEntities.DELETE, "number of glossaries deleted should be 0")
 	assetone := response.MutatedEntities.CREATE[0]
 	assert.NotNil(t, assetone, "glossary should not be nil")
 	assert.Equal(t, GlossaryName, *assetone.Attributes.Name, "glossary name should match")
@@ -56,7 +56,7 @@ func testUpdateGlossary(t *testing.T, glossaryGUID string) {
 		fmt.Println("Error:", err)
 	}
 	assert.NotNil(t, updateresponse, "fetched glossary should not be nil")
-	assert.Equal(t, 1, len(updateresponse.MutatedEntities.UPDATE), "number of glossaries updated should be 1")
+	assert.Len(t, updateresponse.MutatedEntities.UPDATE, 1, "number of glossaries updated should be 1")
 	assert.Equal(t, *g.DisplayName, *updateresponse.MutatedEntities.UPDATE[0].Attributes.DisplayText, "glossary display name should match")
 }
 
@@ -84,6 +84,6 @@ func testDeleteGlossary(t *testing.T, glossaryGUID string) {
 		fmt.Println("Error:", err)
 	}
 	assert.NotNil(t, deleteresponse, "fetched glossary should not be nil")
-	assert.Equal(t, 1, len(deleteresponse.MutatedEntities.DELETE), "number of glossaries deleted should be 1")
+	assert.Len(t, deleteresponse.MutatedEntities.DELETE, 1, "number of glossaries deleted should be 1")
 	assert.Equal(t, glossaryGUID, deleteresponse.MutatedEntities.DELETE[0].Guid, "glossary guid should match")
 }

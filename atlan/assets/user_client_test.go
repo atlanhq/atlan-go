@@ -3,6 +3,8 @@ package assets
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -53,9 +55,9 @@ func getOrCreateTestUser(t *testing.T) *AtlanUser {
 
 	createdUsers, err := client.CreateUsers(users, true)
 
-	assert.Nil(t, err, "error should be nil while creating a user")
+	require.NoError(t, err, "error should be nil while creating a user")
 	assert.NotNil(t, createdUsers, "created users should not be nil")
-	assert.Equal(t, 1, len(createdUsers), "exactly one user should be created")
+	assert.Len(t, createdUsers, 1, "exactly one user should be created")
 
 	user := createdUsers[0]
 	assert.Equal(t, UserEmail, user.Email, "user email should match")
@@ -68,9 +70,9 @@ func testRetrieveUserByEmail(t *testing.T, email string) {
 	client := &UserClient{}
 
 	users, err := client.GetByEmail(email, 1, 0)
-	assert.Nil(t, err, "error should be nil while retrieving user by email")
+	require.NoError(t, err, "error should be nil while retrieving user by email")
 	assert.NotNil(t, users, "retrieved users should not be nil")
-	assert.Equal(t, 1, len(users), "exactly one user should be retrieved")
+	assert.Len(t, users, 1, "exactly one user should be retrieved")
 
 	user := users[0]
 	assert.Equal(t, email, user.Email, "user email should match")
@@ -80,7 +82,7 @@ func testRetrieveUserByUsername(t *testing.T, username string) {
 	client := &UserClient{}
 
 	user, err := client.GetByUsername(username)
-	assert.Nil(t, err, "error should be nil while retrieving user by username")
+	require.NoError(t, err, "error should be nil while retrieving user by username")
 	assert.NotNil(t, user, "retrieved user should not be nil")
 	assert.Equal(t, username, *user.Username, "user username should match")
 }
@@ -92,21 +94,21 @@ func testChangeUserRole(t *testing.T, userID string) {
 	newRoleID, _ := GetRoleIDForRoleName(role)
 
 	err := client.ChangeUserRole(userID, newRoleID)
-	assert.Nil(t, err, "error should be nil while updating user's role")
+	require.NoError(t, err, "error should be nil while updating user's role")
 
 	// Verify the role change
 	users, err := client.GetByEmails([]string{UserEmail}, 1, 0)
-	assert.Nil(t, err, "error should be nil while retrieving updated user")
-	assert.Equal(t, 1, len(users), "exactly one user should be retrieved")
+	require.NoError(t, err, "error should be nil while retrieving updated user")
+	assert.Len(t, users, 1, "exactly one user should be retrieved")
 	assert.Equal(t, role, users[0].WorkspaceRole, "user role ID should match the updated role")
 
 	// Revert to original role
 	revertRole := "$guest"
 	revertRoleId, _ := GetRoleIDForRoleName(revertRole)
 	err = client.ChangeUserRole(userID, revertRoleId)
-	assert.Nil(t, err, "error should be nil while updating user's role")
+	require.NoError(t, err, "error should be nil while updating user's role")
 
 	users, err = client.GetByEmails([]string{UserEmail}, 1, 0)
-	assert.Equal(t, 1, len(users), "exactly one user should be retrieved")
+	assert.Len(t, users, 1, "exactly one user should be retrieved")
 	assert.Equal(t, revertRole, users[0].WorkspaceRole, "user role ID should match the updated role")
 }

@@ -7,6 +7,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/atlanhq/atlan-go/atlan/model"
 	"github.com/stretchr/testify/assert"
 )
@@ -85,7 +87,7 @@ func testGeneratePresignedURL(t *testing.T, client *FileClient, request model.Pr
 
 func testUploadUnsupportedURL(t *testing.T, client *FileClient, presignedURL string, filePath string) {
 	err := client.UploadFile(presignedURL, filePath)
-	assert.Error(t, err, "Expected an error for unsupported presigned URL")
+	require.Error(t, err, "Expected an error for unsupported presigned URL")
 	assert.Contains(t, err.Error(), "Provided presigned URL's cloud provider storage "+
 		"is currently not supported for file uploads.", "Error message should indicate unsupported URL")
 }
@@ -105,26 +107,26 @@ func testDownloadFile(t *testing.T, client *FileClient, presignedURL string, fil
 
 	// Check if the file exists
 	_, err = os.Stat(filePath)
-	assert.NoError(t, err, "The file does not exist")
+	require.NoError(t, err, "The file does not exist")
 
 	if expectedFormat == "png" {
 		// Open the file
 		file, err := os.Open(filePath)
-		assert.NoError(t, err, "Failed to open the file")
+		require.NoError(t, err, "Failed to open the file")
 		defer file.Close()
 
 		// Check if it is a PNG image
 		_, format, err := image.DecodeConfig(file)
-		assert.NoError(t, err, "Failed to decode the image")
+		require.NoError(t, err, "Failed to decode the image")
 		assert.Equal(t, "png", format, "The file is not a PNG image")
 	} else if expectedFormat == "txt" {
 		// Read and check the file content
 		fileContent, err := os.ReadFile(filePath)
-		assert.NoError(t, err, "Failed to read the text file")
+		require.NoError(t, err, "Failed to read the text file")
 		assert.Equal(t, ExpectedTextContent, string(fileContent), "The file content does not match the expected content")
 	}
 
 	// Remove the file
 	err = os.Remove(filePath)
-	assert.NoError(t, err, "Failed to remove the file")
+	require.NoError(t, err, "Failed to remove the file")
 }

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
 
@@ -33,7 +35,7 @@ func TestAtlasGlossaryUnmarshalling(t *testing.T) {
 	err := glossary.UnmarshalJSON(jsonData)
 
 	// Assert that there is no error during unmarshalling
-	assert.NoError(t, err, "Error unmarshalling JSON")
+	require.NoError(t, err, "Error unmarshalling JSON")
 
 	// Assert that the unmarshalled glossary matches the expected glossary
 	assert.Equal(t, "Test Glossary", *glossary.Name, "Unexpected glossary name")
@@ -80,7 +82,7 @@ func TestAtlasGlossaryMarshalling(t *testing.T) {
 	}`)
 
 	// Assert that there is no error during marshalling
-	assert.NoError(t, err, "Error marshalling AtlasGlossary to JSON")
+	require.NoError(t, err, "Error marshalling AtlasGlossary to JSON")
 
 	// Assert that the marshalled JSON data matches the expected JSON data
 	assert.JSONEq(t, string(expectedJSON), string(jsonData), "Marshalled JSON does not match expected JSON")

@@ -53,7 +53,7 @@ func TestIntegrationFluentSearch(t *testing.T) {
 	}
 
 	assert.NotNil(t, searchResult, "search result should not be nil")
-	assert.Equal(t, 1, len(searchResult), "number of glossaries should be 1")
+	assert.Len(t, searchResult, 1, "number of glossaries should be 1")
 	assert.Equal(t, GlossaryName, *searchResult[0].Entities[0].DisplayName, "glossary name should match")
 	assert.Equal(t, GlossaryDescription, *searchResult[0].Entities[0].Description, "glossary description should exist")
 	assert.Equal(t, AnnouncementType, *searchResult[0].Entities[0].AnnouncementType, "announcement type should exist")
@@ -72,7 +72,7 @@ func TestIntegrationFluentSearch(t *testing.T) {
 		return
 	}
 
-	assert.Equal(t, 1, len(searchResult), "number of glossaries should be 1")
+	assert.Len(t, searchResult, 1, "number of glossaries should be 1")
 	assert.Equal(t, "g", string((*searchResult[0].Entities[0].DisplayName)[0]), "glossary name should start with G")
 
 	// Delete already created glossary
