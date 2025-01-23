@@ -30,8 +30,8 @@ type MutatedAssets struct {
 // Used in RetrieveMinimal Function
 
 type MutatedEntities struct {
-	//assets that were assets_updated. The detailed properties of the returned asset will vary based on
-	//the type of asset, but listed in the example are the common set of properties across assets.
+	// assets that were assets_updated. The detailed properties of the returned asset will vary based on
+	// the type of asset, but listed in the example are the common set of properties across assets.
 	UPDATE []*MutatedAssets `json:"UPDATE"`
 
 	// assets that were created. The detailed properties of the returned asset will vary based on the

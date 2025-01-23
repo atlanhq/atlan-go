@@ -747,10 +747,10 @@ func main() {
 			fmt.Println("Atlan tags added successfully.")
 		}
 	*/
-	//schemaName := "WIDEWORLDIMPORTERS_PURCHASING"
-	//dataBaseName := "RAW"
-	//dataBaseQualifiedName := "default/snowflake/1723642516/RAW"
-	//connectionQualifiedName := "default/snowflake/1723642516"
+	// schemaName := "WIDEWORLDIMPORTERS_PURCHASING"
+	// dataBaseName := "RAW"
+	// dataBaseQualifiedName := "default/snowflake/1723642516/RAW"
+	// connectionQualifiedName := "default/snowflake/1723642516"
 
 	/*
 		t.Creator("TestTable6", "default/snowflake/1723642516/RAW/WIDEWORLDIMPORTERS_PURCHASING")
@@ -862,7 +862,7 @@ func main() {
 
 
 	*/
-	//structs.GetAll()
+	// structs.GetAll()
 
 	/*
 		g := &structs.AtlasGlossary{}
@@ -990,9 +990,9 @@ func main() {
 				println("Response:", *response.TypeName)
 			}
 	*/
-	//structs.GetAtlanTagCache().RefreshCache()
-	//id, _ := structs.GetAtlanTagCache().GetIDForName("Hourly")
-	//fmt.Println("Print Response:", id)
+	// structs.GetAtlanTagCache().RefreshCache()
+	// id, _ := structs.GetAtlanTagCache().GetIDForName("Hourly")
+	// fmt.Println("Print Response:", id)
 
 	/*
 		structs.GetCustomMetadataCache().RefreshCache()
@@ -1016,7 +1016,7 @@ func main() {
 
 		fmt.Println("Category:", *ctx.Category)
 	*/
-	//structs.Init()
+	// structs.Init()
 	/*
 		response, err := structs.GetGlossaryByGuid("f273e814-f80e-4699-83f3-9462a153fb14")
 		if err != nil {
@@ -1024,7 +1024,7 @@ func main() {
 		}
 		print("Response:", response.Name)
 	*/
-	//response, err := structs.FindCategoryByName("Oak Ridge", "DDwycTZ007zZYxRajRVDK")
+	// response, err := structs.FindCategoryByName("Oak Ridge", "DDwycTZ007zZYxRajRVDK")
 
 	/*
 		response, err := structs.FindGlossaryByName("go-sdk-test")
@@ -1058,13 +1058,13 @@ func main() {
 		fmt.Println("Total Results", response1.ApproximateCount)
 		fmt.Println("Typename:", *response1.Entities[0].TypeName)
 	*/
-	//if err != nil {
+	// if err != nil {
 	//	fmt.Printf("Error fetching model: %v\n", err)
 	//}
 
-	//fmt.Printf("Response: %+v\n", response)
+	// fmt.Printf("Response: %+v\n", response)
 
-	//ctx := structs.NewContext()
+	// ctx := structs.NewContext()
 
 	// structs.Init()
 	/*
@@ -1082,7 +1082,7 @@ func main() {
 			}
 		}
 	*/
-	//Modify an existing Glossary
+	// Modify an existing Glossary
 	/*
 		g := &structs.AtlasGlossary{}
 		DisplayName := "Testing5"
@@ -1098,8 +1098,8 @@ func main() {
 		}
 	*/
 	// Deleting an asset
-	//structs.DeleteByGuid([]string{"024f11b6-a9fa-4f45-84f5-f734c47c4743", "b280b09b-5c28-45c4-a899-d8535fb651eb", "8679e70a-513e-4e2e-9861-4f5559206f36"})
-	//structs.DeleteByGuid([]string{"dbe090bd-1549-4cce-98dd-6542138963f1"})
+	// structs.DeleteByGuid([]string{"024f11b6-a9fa-4f45-84f5-f734c47c4743", "b280b09b-5c28-45c4-a899-d8535fb651eb", "8679e70a-513e-4e2e-9861-4f5559206f36"})
+	// structs.DeleteByGuid([]string{"dbe090bd-1549-4cce-98dd-6542138963f1"})
 	/*
 		resp, _ := structs.PurgeByGuid([]string{"1d9f74c6-faa9-4840-ac9e-21723b4c63ca"})
 		for _, entity := range resp.MutatedEntities.DELETE {
@@ -1112,7 +1112,7 @@ func main() {
 		}
 	*/
 
-	//query := ctx.Glossary.TYPENAME.Eq("AtlasGlossary", nil)
+	// query := ctx.Glossary.TYPENAME.Eq("AtlasGlossary", nil)
 	/*
 		excludeCondition := &model.TermQuery{
 			Field: structs.NAME,
@@ -1182,10 +1182,10 @@ func main() {
 		fmt.Printf("Atlan tag name for %s: %s\n", tagID, tagName)
 
 	*/
-	//structs.GetCache().RefreshCache()
-	//structs.GetCache()
-	//a, _ := structs.GetCache().GetIDForName("PII")
-	//fmt.Printf("ID for name is : %s\n", a)
+	// structs.GetCache().RefreshCache()
+	// structs.GetCache()
+	// a, _ := structs.GetCache().GetIDForName("PII")
+	// fmt.Printf("ID for name is : %s\n", a)
 	/*
 		tagName := "Hourly"
 		tagID, err := structs.GetIDForName(tagName)
@@ -1231,7 +1231,7 @@ func main() {
 			fmt.Printf("Anchor Guid: %s\n", gt.Anchor.Guid)
 			fmt.Printf("Tags Typename %s\n", gt.Tags[0].TypeName)
 	*/
-	//fmt.Println("Retrieved Typedef:")
-	//fmt.Printf("DisplayName: %s\n", t.AtlanTagDefs[1].DisplayName)
+	// fmt.Println("Retrieved Typedef:")
+	// fmt.Printf("DisplayName: %s\n", t.AtlanTagDefs[1].DisplayName)
 	//
 }

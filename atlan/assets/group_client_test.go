@@ -20,7 +20,7 @@ func TestIntegrationGroupClient(t *testing.T) {
 
 	NewContext()
 
-	//ctx.EnableLogging("debug")
+	// ctx.EnableLogging("debug")
 
 	// Test creating a group
 	group := testCreateGroup(t)
@@ -75,7 +75,7 @@ func testRetrieveAllGroups(t *testing.T) {
 	assert.Nil(t, err, "error should be nil while retrieving all groups")
 	assert.NotNil(t, groups, "retrieved groups should not be nil")
 	assert.GreaterOrEqual(t, len(groups), 1, "at least one group should exist")
-	//for _, group := range groups {
+	// for _, group := range groups {
 	//	log.Printf("Group name: %s", *group.Name)
 	//}
 }
@@ -88,7 +88,7 @@ func testRetrieveGroupByName(t *testing.T) {
 	assert.NotNil(t, groups, "retrieved groups should not be nil")
 	assert.GreaterOrEqual(t, len(groups), 1, "at least one group should be retrieved")
 	assert.Equal(t, TestGroupAlias, *groups[0].Alias, "group alias should match")
-	//for _, group := range groups {
+	// for _, group := range groups {
 	//	log.Printf("Retrieved group name: %s", *group.Name)
 	//}
 }

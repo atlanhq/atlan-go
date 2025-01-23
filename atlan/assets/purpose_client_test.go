@@ -16,7 +16,7 @@ func TestIntegrationPurpose(t *testing.T) {
 	}
 
 	NewContext()
-	//ctx.EnableLogging("debug")
+	// ctx.EnableLogging("debug")
 
 	purposeID, purposeQualifiedName := testCreatePurpose(t)
 	testRetrievePurpose(t, purposeID)
@@ -137,7 +137,7 @@ func testDeletePurpose(t *testing.T, purposeID string) {
 	if err != nil {
 		t.Errorf("Error: %v", err)
 	}
-	//for _, deleted := range DeleteResponse.MutatedEntities.DELETE {
+	// for _, deleted := range DeleteResponse.MutatedEntities.DELETE {
 	//	t.Logf("Deleted: %v", deleted)
 	//}
 	assert.NotNil(t, DeleteResponse, "fetched purpose should not be nil")

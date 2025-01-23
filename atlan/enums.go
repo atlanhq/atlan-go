@@ -2773,7 +2773,7 @@ func (u *UTMTags) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	switch UtmTags {
+	switch UtmTags { //nolint:gocritic
 	case "page_home":
 		*u = PAGE_HOME
 		switch UtmTags {

@@ -35,7 +35,7 @@ func TestIntegrationAtlanTagCache_GetIDForName(t *testing.T) {
 	resp, _ := GetAll()
 	tagName := resp.AtlanTagDefs[0].DisplayName
 
-	//_ = cache.RefreshCache()
+	// _ = cache.RefreshCache()
 
 	fmt.Println("Tag Name: ", tagName)
 	id, err := cache.GetIDForName(tagName)

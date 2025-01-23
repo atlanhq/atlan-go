@@ -20,7 +20,7 @@ func TestIntegrationUserClient(t *testing.T) {
 
 	NewContext()
 
-	//ctx.EnableLogging("debug")
+	// ctx.EnableLogging("debug")
 
 	// Test user creation
 	createdUser := getOrCreateTestUser(t)

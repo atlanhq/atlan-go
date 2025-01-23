@@ -154,7 +154,7 @@ func (fs *FluentSearch) Execute() ([]*model.IndexSearchResponse, error) {
 		{
 			response, err := iterator.NextPage()
 			if err != nil {
-				//fmt.Printf("Error executing search: %v\n", err)
+				// fmt.Printf("Error executing search: %v\n", err)
 				return nil, err
 			}
 

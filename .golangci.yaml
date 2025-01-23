@@ -1,0 +1,14 @@
+linters:
+  disable-all: true
+  enable:
+    - gosec         # Detects security problems.
+    - gofmt
+    - goimports
+    - gocritic
+    
+
+linters-settings:
+
+
+issues:
+

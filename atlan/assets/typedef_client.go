@@ -71,7 +71,7 @@ func RefreshCaches(typedef model.TypeDef) error {
 	case *model.CustomMetadataDef:
 		return GetCustomMetadataCache().RefreshCache()
 	case model.EnumDef:
-		//return EnumCache.RefreshCache()
+		// return EnumCache.RefreshCache()
 	default:
 		return AtlanError{ErrorCode: errorCodes[UNABLE_TO_UPDATE_TYPEDEF_CATEGORY], Args: []interface{}{t}}
 	}
@@ -167,7 +167,7 @@ func (c *TypeDefClient) Purge(name string, typedefType model.TypeDef) error {
 	case *model.CustomMetadataDef:
 		internalName, _ = GetCustomMetadataCache().GetIDForName(name)
 	case *model.EnumDef:
-		//internalName = name
+		// internalName = name
 	case *model.AtlanTagDef:
 		internalName, _ = GetAtlanTagCache().GetIDForName(name)
 	default:
@@ -184,7 +184,7 @@ func (c *TypeDefClient) Purge(name string, typedefType model.TypeDef) error {
 	case *model.CustomMetadataDef:
 		GetCustomMetadataCache().RefreshCache()
 	case *model.EnumDef:
-		//EnumCache.refreshCache()
+		// EnumCache.refreshCache()
 	case *model.AtlanTagDef:
 		RefreshCache()
 	default:
