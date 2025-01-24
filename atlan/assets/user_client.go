@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
-type AtlanUser structs.AtlanUser
-type UserClient AtlanClient
+type (
+	AtlanUser  structs.AtlanUser
+	UserClient AtlanClient
+)
 
 type CreateUser struct {
 	Email    string `json:"email"`
@@ -148,9 +151,7 @@ func (uc *UserClient) GetAll(limit int, offset int, sort string) ([]AtlanUser, e
 	}
 
 	var users []AtlanUser
-	for _, user := range userResponse.Records {
-		users = append(users, user)
-	}
+	users = append(users, userResponse.Records...)
 
 	return users, nil
 }

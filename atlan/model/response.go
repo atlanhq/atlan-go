@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"reflect"
+
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
 // Unmarshal on assets changed the unmarshalling for the whole sdk asset structure
@@ -29,8 +30,8 @@ type MutatedAssets struct {
 // Used in RetrieveMinimal Function
 
 type MutatedEntities struct {
-	//assets that were assets_updated. The detailed properties of the returned asset will vary based on
-	//the type of asset, but listed in the example are the common set of properties across assets.
+	// assets that were assets_updated. The detailed properties of the returned asset will vary based on
+	// the type of asset, but listed in the example are the common set of properties across assets.
 	UPDATE []*MutatedAssets `json:"UPDATE"`
 
 	// assets that were created. The detailed properties of the returned asset will vary based on the
@@ -69,6 +70,7 @@ func (amr *AssetMutationResponse) AssetsUpdated(assetType reflect.Type) []*Mutat
 	}
 	return []*MutatedAssets{}
 }
+
 func (amr *AssetMutationResponse) AssetsCreated(assetType reflect.Type) []*MutatedAssets {
 	if amr.MutatedEntities != nil && amr.MutatedEntities.CREATE != nil {
 		var assets []*MutatedAssets

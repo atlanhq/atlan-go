@@ -1,10 +1,13 @@
 package assets
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var (
@@ -41,7 +44,7 @@ func testCreateApiToken(t *testing.T) *structs.ApiToken {
 	client := &TokenClient{}
 
 	token, err := client.Create(&TestDisplayName, &TestDescription, nil, &MaxValiditySeconds)
-	assert.Nil(t, err, "error should be nil while creating an API token")
+	require.NoError(t, err, "error should be nil while creating an API token")
 	assert.NotNil(t, token, "created token should not be nil")
 	assert.Equal(t, TestDisplayName, *token.Attributes.DisplayName, "token display name should match")
 	assert.Equal(t, TestDescription, *token.Attributes.Description, "token description should match")
@@ -53,7 +56,7 @@ func testRetrieveTokenByName(t *testing.T, displayName string, guid string) {
 	client := &TokenClient{}
 
 	token, err := client.GetByName(displayName)
-	assert.Nil(t, err, "error should be nil while retrieving token by display name")
+	require.NoError(t, err, "error should be nil while retrieving token by display name")
 	assert.NotNil(t, token, "retrieved token should not be nil")
 	assert.Equal(t, displayName, *token.DisplayName, "token display name should match")
 	assert.Equal(t, TestDescription, *token.Attributes.Description, "token description should match")
@@ -64,7 +67,7 @@ func testRetrieveTokenByID(t *testing.T, clientID string) {
 	client := &TokenClient{}
 
 	token, err := client.GetByID(clientID)
-	assert.Nil(t, err, "error should be nil while retrieving token by client ID")
+	require.NoError(t, err, "error should be nil while retrieving token by client ID")
 	assert.NotNil(t, token, "retrieved token should not be nil")
 	assert.Equal(t, clientID, *token.ClientID, "token client ID should match")
 }
@@ -73,7 +76,7 @@ func testRetrieveTokenByGUID(t *testing.T, guid string) {
 	client := &TokenClient{}
 
 	token, err := client.GetByGUID(guid)
-	assert.Nil(t, err, "error should be nil while retrieving token by GUID")
+	require.NoError(t, err, "error should be nil while retrieving token by GUID")
 	assert.NotNil(t, token, "retrieved token should not be nil")
 	assert.Equal(t, guid, *token.GUID, "token GUID should match")
 }
@@ -84,7 +87,7 @@ func testUpdateApiToken(t *testing.T, guid string) {
 	newDescription := atlan.MakeUnique("Updated description")
 	newDisplayName := atlan.MakeUnique("Updated display name")
 	token, err := client.Update(&guid, &newDisplayName, &newDescription, nil)
-	assert.Nil(t, err, "error should be nil while updating API token")
+	require.NoError(t, err, "error should be nil while updating API token")
 	assert.NotNil(t, token, "updated token should not be nil")
 	assert.Equal(t, newDescription, *token.Attributes.Description, "token description should be updated")
 }
@@ -94,9 +97,10 @@ func testPurgeApiToken(t *testing.T, guid string) {
 
 	// Purge the API token
 	err := client.Purge(guid)
-	assert.Nil(t, err, "error should be nil while purging API token")
+	require.NoError(t, err, "error should be nil while purging API token")
 
 	// Verify that the token is no longer retrievable
 	token, err := client.GetByGUID(guid)
+	require.NoError(t, err, "error should be nil when checking purged token")
 	assert.Nil(t, token, "token should be nil after purging")
 }

@@ -14,8 +14,10 @@ const GlossaryDescription = "Automated testing of GO SDK."
 
 var AnnouncementType = atlan.AnnouncementTypeWARNING
 
-const AnnouncementTitle = "GO SDK testing."
-const AnnouncementMessage = "Automated testing of the GO SDK."
+const (
+	AnnouncementTitle   = "GO SDK testing."
+	AnnouncementMessage = "Automated testing of the GO SDK."
+)
 
 func TestIntegrationFluentSearch(t *testing.T) {
 	if testing.Short() {
@@ -45,14 +47,13 @@ func TestIntegrationFluentSearch(t *testing.T) {
 		Where(ctx.Glossary.NAME.Eq(GlossaryName)).
 		IncludeOnResults("description", "announcementType", "announcementTitle", "announcementMessage").
 		Execute()
-
 	if err != nil {
 		fmt.Printf("Error executing search: %v\n", err)
 		return
 	}
 
 	assert.NotNil(t, searchResult, "search result should not be nil")
-	assert.Equal(t, 1, len(searchResult), "number of glossaries should be 1")
+	assert.Len(t, searchResult, 1, "number of glossaries should be 1")
 	assert.Equal(t, GlossaryName, *searchResult[0].Entities[0].DisplayName, "glossary name should match")
 	assert.Equal(t, GlossaryDescription, *searchResult[0].Entities[0].Description, "glossary description should exist")
 	assert.Equal(t, AnnouncementType, *searchResult[0].Entities[0].AnnouncementType, "announcement type should exist")
@@ -66,13 +67,12 @@ func TestIntegrationFluentSearch(t *testing.T) {
 		Where(ctx.Glossary.NAME.StartsWith("gsdk", nil)).
 		Sort(NAME, atlan.SortOrderAscending).
 		Execute()
-
 	if err != nil {
 		fmt.Printf("Error executing search: %v\n", err)
 		return
 	}
 
-	assert.Equal(t, 1, len(searchResult), "number of glossaries should be 1")
+	assert.Len(t, searchResult, 1, "number of glossaries should be 1")
 	assert.Equal(t, "g", string((*searchResult[0].Entities[0].DisplayName)[0]), "glossary name should start with G")
 
 	// Delete already created glossary

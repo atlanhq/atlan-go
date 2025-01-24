@@ -40,9 +40,7 @@ func NewCustomMetadataCache(atlanClient *AtlanClient) *CustomMetadataCache {
 	}
 }
 
-var (
-	customMetadataCaches = make(map[string]*CustomMetadataCache)
-)
+var customMetadataCaches = make(map[string]*CustomMetadataCache)
 
 func RefreshCustomMetadataCache() {
 	GetCustomMetadataCache().RefreshCache()
@@ -372,13 +370,11 @@ func (c *CustomMetadataCache) GetCustomMetadataDef(name string) (model.CustomMet
 	baID, _ := c.GetIDForName(name)
 	if baID == "" {
 		return model.CustomMetadataDef{}, ThrowAtlanError(nil, CM_NOT_FOUND_BY_NAME, nil, name)
-
 	}
 	if typedef, ok := c.CacheByID[baID]; ok {
 		return typedef, nil
 	}
 	return model.CustomMetadataDef{}, ThrowAtlanError(nil, CM_NOT_FOUND_BY_NAME, nil, name)
-
 }
 
 /*
@@ -403,5 +399,4 @@ func (c *CustomMetadataCache) GetAttributeDef(attrID string) (model.AttributeDef
 		return attrDef, nil
 	}
 	return model.AttributeDef{}, ThrowAtlanError(nil, CM_ATTR_NOT_FOUND_BY_ID, nil, attrID)
-
 }

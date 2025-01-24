@@ -54,7 +54,7 @@ func (sf *SearchableField) GetInternalFieldName() string {
 // HasAnyValue Returns a query that will only match assets that have some non-null, non-empty value
 // (no matter what actual value) for the field.
 func (sf *SearchableField) HasAnyValue() model.Query {
-	return &model.Exists{sf.ElasticFieldName}
+	return &model.Exists{Field: sf.ElasticFieldName}
 }
 
 // Order Returns a condition to sort results by the field, in the specified order.
@@ -348,7 +348,6 @@ func (cmf *CustomMetadataField) Within(values []string) model.Query {
 		Field:  cmf.ElasticFieldName,
 		Values: values,
 	}
-
 }
 
 func (cmf *CustomMetadataField) Match(value string) model.Query {

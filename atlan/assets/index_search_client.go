@@ -79,8 +79,8 @@ func FindGlossaryByName(glossaryName string) (*model.IndexSearchResponse, error)
 		}
 	}
 	// Call the search function
-	//response, err := search(request)
-	//if err != nil {
+	// response, err := search(request)
+	// if err != nil {
 	//	return nil, fmt.Errorf("error executing search: %v", err)
 	//}
 
@@ -124,8 +124,8 @@ func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*mod
 		}
 	}
 	// Call the search function
-	//response, err := search(request)
-	//if err != nil {
+	// response, err := search(request)
+	// if err != nil {
 	//	return nil, fmt.Errorf("error executing search: %v", err)
 	//}
 

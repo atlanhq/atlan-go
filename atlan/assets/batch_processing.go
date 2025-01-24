@@ -2,6 +2,7 @@ package assets
 
 import (
 	"errors"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model"
 )

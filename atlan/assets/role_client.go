@@ -3,8 +3,9 @@ package assets
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
 	"strconv"
+
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
 type RoleClient struct {

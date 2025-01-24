@@ -1,9 +1,10 @@
 package assets
 
 import (
+	"testing"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var PersonaName = atlan.MakeUnique("Persona")
@@ -30,9 +31,9 @@ func testCreatePersona(t *testing.T) (string, string) {
 		t.Errorf("Error: %v", err)
 	}
 	assert.NotNil(t, response, "fetched persona should not be nil")
-	assert.Equal(t, 1, len(response.MutatedEntities.CREATE), "number of personas created should be 1")
-	assert.Equal(t, 0, len(response.MutatedEntities.UPDATE), "number of personas updated should be 0")
-	assert.Equal(t, 0, len(response.MutatedEntities.DELETE), "number of personas deleted should be 0")
+	assert.Len(t, response.MutatedEntities.CREATE, 1, "number of personas created should be 1")
+	assert.Empty(t, response.MutatedEntities.UPDATE, "number of personas updated should be 0")
+	assert.Empty(t, response.MutatedEntities.DELETE, "number of personas deleted should be 0")
 	CreatedPersona := response.MutatedEntities.CREATE[0]
 	assert.NotNil(t, CreatedPersona, "persona should not be nil")
 	assert.Equal(t, PersonaName, *CreatedPersona.Attributes.Name, "persona name should match")
@@ -60,7 +61,7 @@ func testUpdatePersona(t *testing.T, personaQualifiedName string) {
 		t.Errorf("Error: %v", err)
 	}
 	assert.NotNil(t, updateresponse, "fetched persona should not be nil")
-	assert.Equal(t, 1, len(updateresponse.MutatedEntities.UPDATE), "number of personas updated should be 1")
+	assert.Len(t, updateresponse.MutatedEntities.UPDATE, 1, "number of personas updated should be 1")
 	assert.Equal(t, *p.Name, *updateresponse.MutatedEntities.UPDATE[0].Attributes.Name, "persona display name should match")
 }
 
@@ -70,7 +71,7 @@ func testDeletePersona(t *testing.T, personaID string) {
 		t.Errorf("Error: %v", err)
 	}
 	assert.NotNil(t, deleteresponse, "fetched persona should not be nil")
-	assert.Equal(t, 1, len(deleteresponse.MutatedEntities.DELETE), "number of personas deleted should be 1")
+	assert.Len(t, deleteresponse.MutatedEntities.DELETE, 1, "number of personas deleted should be 1")
 	assert.Equal(t, personaID, deleteresponse.MutatedEntities.DELETE[0].Guid, "persona guid should match")
 }
 

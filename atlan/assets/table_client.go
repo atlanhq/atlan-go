@@ -3,9 +3,10 @@ package assets
 import (
 	"encoding/json"
 	"errors"
+	"strings"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
-	"strings"
 )
 
 type Table structs.Table
@@ -111,7 +112,6 @@ func (t *Table) CreatorWithParams(name, schemaQualifiedName string, schemaName, 
 
 // UnmarshalJSON implements the JSON unmarshal interface for the Table struct.
 func (t *Table) UnmarshalJSON(data []byte) error {
-
 	Attributes := struct {
 		Name                    *string `json:"name"`
 		QualifiedName           *string `json:"qualifiedName"`

@@ -1,8 +1,9 @@
 package structs
 
 import (
-	"github.com/atlanhq/atlan-go/atlan"
 	"time"
+
+	"github.com/atlanhq/atlan-go/atlan"
 )
 
 type Connection struct {

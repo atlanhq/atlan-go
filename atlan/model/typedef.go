@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/atlanhq/atlan-go/atlan"
 )
 

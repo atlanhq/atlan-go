@@ -2773,7 +2773,7 @@ func (u *UTMTags) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	switch UtmTags {
+	switch UtmTags { //nolint:gocritic
 	case "page_home":
 		*u = PAGE_HOME
 		switch UtmTags {
@@ -2883,7 +2883,6 @@ func (c *CertificateStatus) UnmarshalJSON(data []byte) error {
 	}
 
 	switch name {
-
 	case "DEPRECATED":
 		*c = CertificateStatusDeprecated
 
@@ -2929,7 +2928,6 @@ func (c *AuthPolicyType) UnmarshalJSON(data []byte) error {
 	}
 
 	switch name {
-
 	case "allow":
 		*c = AuthPolicyTypeAllow
 
@@ -2981,7 +2979,6 @@ func (c *AuthPolicyCategory) UnmarshalJSON(data []byte) error {
 	}
 
 	switch name {
-
 	case "bootstrap":
 		*c = AuthPolicyCategoryBootstrap
 
@@ -3027,7 +3024,6 @@ func (c *AuthPolicyResourceCategory) UnmarshalJSON(data []byte) error {
 	}
 
 	switch name {
-
 	case "ENTITY":
 		*c = AuthPolicyResourceCategoryEntity
 
@@ -3065,9 +3061,7 @@ func (a DataAction) String() string {
 	return a.Name
 }
 
-var (
-	DataActionSelect = DataAction{"select"}
-)
+var DataActionSelect = DataAction{"select"}
 
 // UnmarshalJSON customizes the unmarshalling of a DataAction from JSON.
 func (c *DataAction) UnmarshalJSON(data []byte) error {
@@ -3077,7 +3071,6 @@ func (c *DataAction) UnmarshalJSON(data []byte) error {
 	}
 
 	switch name {
-
 	case "select":
 		*c = DataActionSelect
 	default:

@@ -2,6 +2,7 @@ package structs
 
 import (
 	"encoding/json"
+
 	"github.com/atlanhq/atlan-go/atlan"
 )
 

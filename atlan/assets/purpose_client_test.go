@@ -1,10 +1,13 @@
 package assets
 
 import (
-	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/stretchr/testify/assert"
 )
 
 var PurposeName = atlan.MakeUnique("Purpose")
@@ -15,7 +18,7 @@ func TestIntegrationPurpose(t *testing.T) {
 	}
 
 	NewContext()
-	//ctx.EnableLogging("debug")
+	// ctx.EnableLogging("debug")
 
 	purposeID, purposeQualifiedName := testCreatePurpose(t)
 	testRetrievePurpose(t, purposeID)
@@ -31,16 +34,16 @@ func testCreatePurpose(t *testing.T) (string, string) {
 	// Create Purpose
 	atlanTags := []string{"Issue", "Confidential"}
 	err := p.Creator(PurposeName, atlanTags)
-	assert.NoError(t, err, "creator should not return an error")
+	require.NoError(t, err, "creator should not return an error")
 
 	response, err := Save(p)
 	if err != nil {
 		t.Errorf("Error: %v", err)
 	}
 	assert.NotNil(t, response, "fetched purpose should not be nil")
-	assert.Equal(t, 1, len(response.MutatedEntities.CREATE), "number of purposes created should be 1")
-	assert.Equal(t, 0, len(response.MutatedEntities.UPDATE), "number of purposes updated should be 0")
-	assert.Equal(t, 0, len(response.MutatedEntities.DELETE), "number of purposes deleted should be 0")
+	assert.Len(t, response.MutatedEntities.CREATE, 1, "number of purposes created should be 1")
+	assert.Empty(t, response.MutatedEntities.UPDATE, "number of purposes updated should be 0")
+	assert.Empty(t, response.MutatedEntities.DELETE, "number of purposes deleted should be 0")
 	CreatedPurpose := response.MutatedEntities.CREATE[0]
 	assert.NotNil(t, CreatedPurpose, "purpose should not be nil")
 	assert.Equal(t, PurposeName, *CreatedPurpose.Attributes.Name, "purpose name should match")
@@ -82,12 +85,13 @@ func testPurposeCreateMetadataPolicy(t *testing.T, purposeID string) {
 		nil,
 		true,
 	)
+	require.NoError(t, err, "error should be nil while creating metadata policy")
 	response, err := Save(policy)
 	if err != nil {
 		t.Errorf("Error: %v", err)
 	}
 	assert.NotNil(t, response, "fetched policy should not be nil")
-	assert.Equal(t, 1, len(response.MutatedEntities.CREATE), "number of policies added should be 1")
+	assert.Len(t, response.MutatedEntities.CREATE, 1, "number of policies added should be 1")
 	CreatedPolicy := response.MutatedEntities.CREATE[0]
 	assert.NotNil(t, CreatedPolicy, "policy should not be nil")
 }
@@ -102,12 +106,13 @@ func testPurposeCreateDataPolicy(t *testing.T, purposeID string) {
 		nil,
 		true,
 	)
+	require.NoError(t, err, "error should be nil while creating data policy")
 	response, err := Save(policy)
 	if err != nil {
 		t.Errorf("Error: %v", err)
 	}
 	assert.NotNil(t, response, "fetched policy should not be nil")
-	assert.Equal(t, 1, len(response.MutatedEntities.CREATE), "number of policies added should be 1")
+	assert.Len(t, response.MutatedEntities.CREATE, 1, "number of policies added should be 1")
 	CreatedPolicy := response.MutatedEntities.CREATE[0]
 	assert.NotNil(t, CreatedPolicy, "policy should not be nil")
 }
@@ -117,7 +122,7 @@ func testUpdatePurpose(t *testing.T, purposeQualifiedName string) {
 	NewName := atlan.MakeUnique("test-update-purpose")
 	Description := atlan.MakeUnique("test-update-purpose-description")
 	err := p.Updater(purposeQualifiedName, PurposeName, true)
-	assert.NoError(t, err, "updater should not return an error")
+	require.NoError(t, err, "updater should not return an error")
 
 	p.Name = &NewName
 	p.Description = &Description
@@ -126,7 +131,7 @@ func testUpdatePurpose(t *testing.T, purposeQualifiedName string) {
 		t.Errorf("Error: %v", err)
 	}
 	assert.NotNil(t, UpdaterResponse, "fetched purpose should not be nil")
-	assert.Equal(t, 1, len(UpdaterResponse.MutatedEntities.UPDATE), "number of purposes updated should be 1")
+	assert.Len(t, UpdaterResponse.MutatedEntities.UPDATE, 1, "number of purposes updated should be 1")
 	assert.Equal(t, *p.Name, *UpdaterResponse.MutatedEntities.UPDATE[0].Attributes.Name, "purpose name should match")
 	assert.Equal(t, *p.Description, *UpdaterResponse.MutatedEntities.UPDATE[0].Attributes.Description, "purpose description should match")
 }
@@ -136,11 +141,11 @@ func testDeletePurpose(t *testing.T, purposeID string) {
 	if err != nil {
 		t.Errorf("Error: %v", err)
 	}
-	//for _, deleted := range DeleteResponse.MutatedEntities.DELETE {
+	// for _, deleted := range DeleteResponse.MutatedEntities.DELETE {
 	//	t.Logf("Deleted: %v", deleted)
 	//}
 	assert.NotNil(t, DeleteResponse, "fetched purpose should not be nil")
-	assert.Equal(t, 3, len(DeleteResponse.MutatedEntities.DELETE), "number of purposes deleted should be 3") // 3 because of the metadata and data policies
+	assert.Len(t, DeleteResponse.MutatedEntities.DELETE, 3, "number of purposes deleted should be 3") // 3 because of the metadata and data policies
 
 	// Collect GUIDs from the server response
 	serverGuids := make([]string, len(DeleteResponse.MutatedEntities.DELETE))

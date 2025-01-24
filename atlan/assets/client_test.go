@@ -8,6 +8,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/exp/slog"
 )
@@ -29,7 +31,7 @@ func TestEnvConfig(t *testing.T) {
 
 	// Initialize client
 	err := Init()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Assert API key and base URL are correctly set
 	assert.Equal(t, "your_api_key", DefaultAtlanClient.ApiKey)
@@ -44,7 +46,7 @@ func TestEnvConfigUsingContext(t *testing.T) {
 	// Initialize client
 	ctx, err := Context(baseURL, apiKey)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Assert API key and base URL are correctly set
 	assert.Equal(t, apiKey, ctx.ApiKey)
@@ -70,7 +72,7 @@ func TestContextWithNormalizedURL(t *testing.T) {
 			// Initialize client context with the test input
 			ctx, err := Context(test.input, apiKey)
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Ensure the base URL is normalized correctly
 			assert.Equal(t, test.expected, ctx.host)
@@ -135,7 +137,7 @@ func TestCallAPI(t *testing.T) {
 	response, err := ctx.CallAPI(api, nil, nil)
 
 	// Check if there's no error
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Define expected response as JSON object
 	expectedResponse := map[string]string{"message": "success"}
@@ -143,7 +145,7 @@ func TestCallAPI(t *testing.T) {
 	// Unmarshal actual response into JSON object
 	var actualResponse map[string]string
 	err = json.Unmarshal(response, &actualResponse)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Compare expected and actual responses
 	assert.Equal(t, expectedResponse, actualResponse)

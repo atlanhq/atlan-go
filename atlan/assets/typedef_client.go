@@ -3,6 +3,7 @@ package assets
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model"
 )
@@ -63,14 +64,13 @@ func NewTypeDefResponse(rawJSON []byte) (*model.TypeDefResponse, error) {
 }
 
 func RefreshCaches(typedef model.TypeDef) error {
-
 	switch t := typedef.(type) {
 	case *model.AtlanTagDef:
 		return GetAtlanTagCache().RefreshCache()
 	case *model.CustomMetadataDef:
 		return GetCustomMetadataCache().RefreshCache()
 	case model.EnumDef:
-		//return EnumCache.RefreshCache()
+		// return EnumCache.RefreshCache()
 	default:
 		return AtlanError{ErrorCode: errorCodes[UNABLE_TO_UPDATE_TYPEDEF_CATEGORY], Args: []interface{}{t}}
 	}
@@ -142,6 +142,9 @@ func Get(typeCategory interface{}) (*model.TypeDefResponse, error) {
 
 func (c *TypeDefClient) Create(typedef model.TypeDef) (*model.TypeDefResponse, error) {
 	payload, err := buildTypeDefRequest(typedef)
+	if err != nil {
+		return nil, err
+	}
 	rawJSON, err := c.Client.CallAPI(&CREATE_TYPE_DEFS, nil, payload)
 	if err != nil {
 		return nil, err
@@ -152,6 +155,9 @@ func (c *TypeDefClient) Create(typedef model.TypeDef) (*model.TypeDefResponse, e
 
 func (c *TypeDefClient) Update(typedef model.TypeDef) (*model.TypeDefResponse, error) {
 	payload, err := buildTypeDefRequest(typedef)
+	if err != nil {
+		return nil, err
+	}
 	rawJSON, err := c.Client.CallAPI(&UPDATE_TYPE_DEFS, nil, payload)
 	if err != nil {
 		return nil, err
@@ -166,7 +172,7 @@ func (c *TypeDefClient) Purge(name string, typedefType model.TypeDef) error {
 	case *model.CustomMetadataDef:
 		internalName, _ = GetCustomMetadataCache().GetIDForName(name)
 	case *model.EnumDef:
-		//internalName = name
+		// internalName = name
 	case *model.AtlanTagDef:
 		internalName, _ = GetAtlanTagCache().GetIDForName(name)
 	default:
@@ -183,7 +189,7 @@ func (c *TypeDefClient) Purge(name string, typedefType model.TypeDef) error {
 	case *model.CustomMetadataDef:
 		GetCustomMetadataCache().RefreshCache()
 	case *model.EnumDef:
-		//EnumCache.refreshCache()
+		// EnumCache.refreshCache()
 	case *model.AtlanTagDef:
 		RefreshCache()
 	default:

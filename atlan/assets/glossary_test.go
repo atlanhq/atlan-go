@@ -2,9 +2,12 @@ package assets
 
 import (
 	"encoding/json"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -32,7 +35,7 @@ func TestAtlasGlossaryUnmarshalling(t *testing.T) {
 	err := glossary.UnmarshalJSON(jsonData)
 
 	// Assert that there is no error during unmarshalling
-	assert.NoError(t, err, "Error unmarshalling JSON")
+	require.NoError(t, err, "Error unmarshalling JSON")
 
 	// Assert that the unmarshalled glossary matches the expected glossary
 	assert.Equal(t, "Test Glossary", *glossary.Name, "Unexpected glossary name")
@@ -79,7 +82,7 @@ func TestAtlasGlossaryMarshalling(t *testing.T) {
 	}`)
 
 	// Assert that there is no error during marshalling
-	assert.NoError(t, err, "Error marshalling AtlasGlossary to JSON")
+	require.NoError(t, err, "Error marshalling AtlasGlossary to JSON")
 
 	// Assert that the marshalled JSON data matches the expected JSON data
 	assert.JSONEq(t, string(expectedJSON), string(jsonData), "Marshalled JSON does not match expected JSON")
@@ -128,7 +131,6 @@ func TestAtlasGlossaryTermUnmarshalling(t *testing.T) {
 	assert.NotNil(t, term.Anchor, "Anchor should not be nil")
 	assert.Equal(t, "AtlasGlossary", *term.Anchor.TypeName, "Unexpected anchor type name")
 	assert.Equal(t, "some_guid", *term.Anchor.Guid, "Unexpected anchor guid")
-
 }
 
 func TestAtlasGlossaryTermMarshalling(t *testing.T) {
@@ -152,10 +154,11 @@ func TestAtlasGlossaryTermMarshalling(t *testing.T) {
 			"key": "value",
 		},
 		Anchor: &structs.AtlasGlossary{
-			Asset: structs.Asset{Referenceable: structs.Referenceable{
-				TypeName: structs.StringPtr("AtlasGlossaryTerm"),
-				Guid:     structs.StringPtr("562067ed-c56a-470d-9306-488d9c6d6448"),
-			},
+			Asset: structs.Asset{
+				Referenceable: structs.Referenceable{
+					TypeName: structs.StringPtr("AtlasGlossaryTerm"),
+					Guid:     structs.StringPtr("562067ed-c56a-470d-9306-488d9c6d6448"),
+				},
 			},
 			Relation: structs.Relation{
 				DisplayText:        structs.StringPtr("Display Text"),
@@ -174,7 +177,7 @@ func TestAtlasGlossaryTermMarshalling(t *testing.T) {
 	}
 
 	// Define the expected JSON data
-	expectedJSON := []byte(`{"typeName":"AtlasGlossaryTerm","guid":"433b1b64-0b16-4812-9bae-14b13e9bd645","createdBy":"user1","updatedBy":"user2","status":"ACTIVE","shortDescription":"Short description","longDescription":"Long description","example":"Example Text","abbreviation":"Abbreviation Text","usage":"Usage Text","additionalAttributes":{"key":"value"},"anchor":{"entityStatus":"ACTIVE","relationshipType":"AtlasGlossaryTermAnchor","relationshipGuid":"abe7f160-182e-4c61-bc8e-e3392404611b","relationshipStatus":"ACTIVE","typeName":"AtlasGlossaryTerm","guid":"562067ed-c56a-470d-9306-488d9c6d6448"}}`)
+	expectedJSON := []byte(`{"typeName":"AtlasGlossaryTerm","guid":"433b1b64-0b16-4812-9bae-14b13e9bd645","createdBy":"user1","updatedBy":"user2","status":"ACTIVE","shortDescription":"Short description","longDescription":"Long description","example":"Example Text","abbreviation":"Abbreviation Text","usage":"Usage Text","additionalAttributes":{"key":"value"},"anchor":{"entityStatus":"ACTIVE","relationshipType":"AtlasGlossaryTermAnchor","relationshipGuid":"abe7f160-182e-4c61-bc8e-e3392404611b","relationshipStatus":"ACTIVE","typeName":"AtlasGlossaryTerm","guid":"562067ed-c56a-470d-9306-488d9c6d6448"}}`) //nolint:lll
 
 	// Assert that the marshalled JSON matches the expected JSON data
 	assert.JSONEq(t, string(expectedJSON), string(jsonData), "Marshalled JSON does not match the expected JSON")
