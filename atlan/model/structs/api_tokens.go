@@ -3,9 +3,16 @@ package structs
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 )
 
-const ServiceAccount = "SERVICE_ACCOUNT_"
+const (
+	ServiceAccount = "SERVICE_ACCOUNT_"
+	// The value was previously set to 13 years (409968000 secs).
+	// It has been reverted to 5 years due to an integer overflow issue in Keycloak.
+	// https://github.com/keycloak/keycloak/issues/19671
+	MaxValidity = 157680000 // 5 years in seconds
+)
 
 // ApiTokenPersona represents a linked persona in the API token model.
 type ApiTokenPersona struct {
@@ -135,9 +142,10 @@ type ApiTokenRequest struct {
 func (r *ApiTokenRequest) SetMaxValidity() {
 	if r.ValiditySeconds != nil {
 		if *r.ValiditySeconds < 0 {
-			*r.ValiditySeconds = 409968000
-		} else if *r.ValiditySeconds > 409968000 {
-			*r.ValiditySeconds = 409968000
+			*r.ValiditySeconds = MaxValidity // Treat negative numbers as "infinite" (never expire)
+		} else if *r.ValiditySeconds > MaxValidity {
+			// Otherwise use "infinite" as the ceiling for values
+			*r.ValiditySeconds = int(math.Min(float64(*r.ValiditySeconds), MaxValidity))
 		}
 	}
 	if r.Personas == nil {
