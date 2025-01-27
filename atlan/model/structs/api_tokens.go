@@ -6,8 +6,10 @@ import (
 	"math"
 )
 
-const ServiceAccount = "SERVICE_ACCOUNT_"
-const MaxValidity = 157680000
+const (
+	ServiceAccount = "SERVICE_ACCOUNT_"
+	MaxValidity    = 157680000
+)
 
 // ApiTokenPersona represents a linked persona in the API token model.
 type ApiTokenPersona struct {
