@@ -13,7 +13,7 @@ import (
 var (
 	TestDisplayName    = atlan.MakeUnique("test-api-token")
 	TestDescription    = atlan.MakeUnique("Test API Token Description")
-	MaxValiditySeconds = 409968000
+	MaxValiditySeconds = 157680000
 )
 
 func TestIntegrationTokenClient(t *testing.T) {
