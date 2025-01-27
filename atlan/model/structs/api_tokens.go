@@ -8,7 +8,10 @@ import (
 
 const (
 	ServiceAccount = "SERVICE_ACCOUNT_"
-	MaxValidity    = 157680000
+	// The value was previously set to 13 years (409968000 secs).
+	// It has been reverted to 5 years due to an integer overflow issue in Keycloak.
+	// https://github.com/keycloak/keycloak/issues/19671
+	MaxValidity = 157680000 // 5 years in seconds
 )
 
 // ApiTokenPersona represents a linked persona in the API token model.
