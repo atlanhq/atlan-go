@@ -71,6 +71,7 @@ type AssetFields struct {
 	VIEWER_GROUPS              *KeywordField
 	CONNECTOR_NAME             *KeywordTextField
 	CONNECTION_NAME            *KeywordTextField
+	CONNECTION_QUALIFIED_NAME  *KeywordTextField
 }
 
 type CatalogFields struct {
@@ -366,6 +367,7 @@ func NewSearchTable() *AtlasTableFields {
 					VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
 					VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
 					CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+					CONNECTION_QUALIFIED_NAME:  NewKeywordTextField("connectionQualifiedName", "connectionQualifiedName", "connectionQualifiedName.text"),
 				},
 				INPUT_TO_PROCESSES:        NewRelationField("inputToProcesses"),
 				OUTPUT_FROM_AIRFLOW_TASKS: NewRelationField("outputFromAirflowTasks"),
@@ -432,6 +434,7 @@ func NewSearchColumn() *ColumnFields {
 					VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
 					VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
 					CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+					CONNECTION_QUALIFIED_NAME:  NewKeywordTextField("connectionQualifiedName", "connectionQualifiedName", "connectionQualifiedName.text"),
 				},
 				INPUT_TO_PROCESSES:        NewRelationField("inputToProcesses"),
 				OUTPUT_FROM_AIRFLOW_TASKS: NewRelationField("outputFromAirflowTasks"),
@@ -561,6 +564,7 @@ func NewSearchConnection() *ConnectionFields {
 			VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
 			VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
 			CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+			CONNECTION_QUALIFIED_NAME:  NewKeywordTextField("connectionQualifiedName", "connectionQualifiedName", "connectionQualifiedName.text"),
 		},
 		CATEGORY:                        NewKeywordField("category", "category"),
 		SUB_CATEGORY:                    NewKeywordField("subCategory", "subCategory"),
@@ -628,6 +632,7 @@ func NewSearchGlossary() *AtlasGlossaryFields {
 			VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
 			VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
 			CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+			CONNECTION_QUALIFIED_NAME:  NewKeywordTextField("connectionQualifiedName", "connectionQualifiedName", "connectionQualifiedName.text"),
 		},
 	}
 }
@@ -669,6 +674,7 @@ func NewSearchMaterialisedView() *MaterialisedViewFields {
 					VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
 					VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
 					CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+					CONNECTION_QUALIFIED_NAME:  NewKeywordTextField("connectionQualifiedName", "connectionQualifiedName", "connectionQualifiedName.text"),
 				},
 				INPUT_TO_PROCESSES:        NewRelationField("inputToProcesses"),
 				OUTPUT_FROM_AIRFLOW_TASKS: NewRelationField("outputFromAirflowTasks"),
@@ -749,6 +755,7 @@ func NewSearchView() *ViewFields {
 					VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
 					VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
 					CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+					CONNECTION_QUALIFIED_NAME:  NewKeywordTextField("connectionQualifiedName", "connectionQualifiedName", "connectionQualifiedName.text"),
 				},
 				INPUT_TO_PROCESSES:        NewRelationField("inputToProcesses"),
 				OUTPUT_FROM_AIRFLOW_TASKS: NewRelationField("outputFromAirflowTasks"),
@@ -835,6 +842,7 @@ func NewAccessControlFields() *AccessControlFields {
 			VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
 			VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
 			CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+			CONNECTION_QUALIFIED_NAME:  NewKeywordTextField("connectionQualifiedName", "connectionQualifiedName", "connectionQualifiedName.text"),
 		},
 	}
 }
@@ -886,6 +894,7 @@ func NewPersonaFields() *PersonaFields {
 				VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
 				VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
 				CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+				CONNECTION_QUALIFIED_NAME:  NewKeywordTextField("connectionQualifiedName", "connectionQualifiedName", "connectionQualifiedName.text"),
 			},
 		},
 		PERSONA_GROUPS: NewKeywordField("personaGroups", "personaGroups"),
@@ -930,6 +939,7 @@ func NewAuthPolicyFields() *AuthPolicyFields {
 			VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
 			VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
 			CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+			CONNECTION_QUALIFIED_NAME:  NewKeywordTextField("connectionQualifiedName", "connectionQualifiedName", "connectionQualifiedName.text"),
 		},
 		POLICY_TYPE:               NewKeywordField("policyType", "policyType"),
 		POLICY_SERVICE_NAME:       NewKeywordField("policyServiceName", "policyServiceName"),
