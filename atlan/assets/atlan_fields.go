@@ -107,6 +107,16 @@ func NewKeywordField(atlanFieldName, keywordFieldName string) *KeywordField {
 	}
 }
 
+// StartsWith Returns a query that will match all assets whose field has a value that starts with
+// the provided value. Note that this can also be a case-insensitive match.
+func (kf *KeywordField) StartsWith(value string, caseInsensitive *bool) model.Query {
+	return &model.PrefixQuery{
+		Field:           kf.KeywordFieldName,
+		Value:           value,
+		CaseInsensitive: caseInsensitive,
+	}
+}
+
 func (kf *KeywordField) GetKeywordFieldName() string {
 	return kf.KeywordFieldName
 }
