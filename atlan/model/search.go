@@ -709,6 +709,30 @@ func (sa *SearchAssets) MarshalJSON() ([]byte, error) {
 		customJSON["guid"] = *sa.Guid
 	}
 
+	if sa.Status != nil {
+		customJSON["status"] = *sa.Status
+	}
+
+	if sa.CreatedBy != nil {
+		customJSON["createdBy"] = *sa.CreatedBy
+	}
+
+	if sa.CreateTime != nil {
+		customJSON["createTime"] = *sa.CreateTime
+	}
+
+	if sa.UpdateTime != nil {
+		customJSON["updateTime"] = *sa.UpdateTime
+	}
+
+	if sa.UpdatedBy != nil {
+		customJSON["updatedBy"] = *sa.UpdatedBy
+	}
+
+	if sa.DisplayText != nil && *sa.DisplayText != "" {
+		customJSON["DisplayText"] = *sa.DisplayText
+	}
+
 	if sa.Asset.DisplayName != nil && *sa.Asset.DisplayName != "" {
 		attributes["DisplayText"] = *sa.Asset.DisplayName
 	}
@@ -832,6 +856,27 @@ func (sa *SearchAssets) MarshalJSON() ([]byte, error) {
 		attributes["roleId"] = *sa.RoleId
 	}
 
+	// Handle nested AccessControl field
+	accessControl := map[string]interface{}{}
+
+	if sa.AccessControl.Guid != nil && *sa.AccessControl.Guid != "" {
+		accessControl["guid"] = *sa.AccessControl.Guid
+	}
+
+	if sa.AccessControl.TypeName != nil && *sa.AccessControl.TypeName != "" {
+		accessControl["typeName"] = *sa.AccessControl.TypeName
+	}
+
+	if sa.AccessControl.UniqueAttributes.QualifiedName != nil && *sa.AccessControl.UniqueAttributes.QualifiedName != "" {
+		accessControl["uniqueAttributes"] = map[string]interface{}{
+			"qualifiedName": sa.AccessControl.UniqueAttributes.QualifiedName,
+		}
+	}
+
+	if len(accessControl) > 0 {
+		attributes["accessControl"] = accessControl
+	}
+
 	// Marshal the custom JSON
 	return json.MarshalIndent(customJSON, "", "  ")
 }
@@ -843,14 +888,15 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		structs.Table
 		structs.Column
 		structs.AuthPolicy
-		structs.AccessControl
 		structs.Persona
 		structs.Purpose
-		QualifiedName       *string           `json:"qualifiedName,omitempty"`
-		Name                *string           `json:"name,omitempty"`
-		SearchAttributes    *SearchAttributes `json:"attributes,omitempty"`
-		SearchMeanings      []Meanings        `json:"meanings,omitempty"`
-		NotNull             *bool             `json:"notNull,omitempty"`
+		structs.AccessControl
+		QualifiedName    *string           `json:"qualifiedName,omitempty"`
+		Name             *string           `json:"name,omitempty"`
+		SearchAttributes *SearchAttributes `json:"attributes,omitempty"`
+		SearchMeanings   []Meanings        `json:"meanings,omitempty"`
+		NotNull          *bool             `json:"notNull,omitempty"`
+
 		rawSearchAttributes map[string]interface{}
 	}
 
@@ -877,6 +923,8 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 	sa.Column = aux.Column
 	sa.NotNull = aux.NotNull
 	sa.SearchMeanings = meaningsData.SearchMeanings
+	sa.AuthPolicy = aux.AuthPolicy
+	sa.AccessControl = aux.AccessControl
 
 	// Check if any search attributes are present
 	if aux.SearchAttributes != nil {
@@ -989,6 +1037,13 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		sa.PersonaGroups = aux.SearchAttributes.PersonaGroups
 		sa.PersonaUsers = aux.SearchAttributes.PersonaUsers
 		sa.RoleId = aux.SearchAttributes.RoleId
+
+		if aux.SearchAttributes.AccessControl != nil {
+			// Attributes under AccessControl struct
+			sa.AccessControl.TypeName = aux.SearchAttributes.AccessControl.TypeName
+			sa.AccessControl.Guid = aux.SearchAttributes.AccessControl.Guid
+			sa.AccessControl.UniqueAttributes.QualifiedName = aux.SearchAttributes.AccessControl.UniqueAttributes.QualifiedName
+		}
 
 		// Populate `rawSearchAttributes` (necessary for setting `SearchAssets.CustomMetadataSets`)
 		// First, unmarshal the data into a `rawSearchAsset` map
