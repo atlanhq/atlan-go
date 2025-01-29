@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	_ "github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/assets"
 	_ "github.com/atlanhq/atlan-go/atlan/model/structs"
@@ -12,27 +10,120 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	// Update a Purpose
-	purpose := &assets.Purpose{}
-	err := purpose.Updater("default/yvdelhXJLpf3LGxtg46DQb", "gsdk_Purpose_7mLrt", true)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	DisplayName := "Newly Modified Test Purpose"
-	Description := "This is a modified description"
-	purpose.Name = &DisplayName
-	purpose.Description = &Description
-	response, err := assets.Save(purpose)
-	if err != nil {
-		println("Error:", err)
-	} else {
-		for _, entity := range response.MutatedEntities.UPDATE {
-			println("Response:", entity)
-			println("Entity ID:", entity.Guid, "Display Text:", entity.DisplayText)
+	/*
+		// Find the GUID of a specific policy in a persona
+		PurposeName := "Test-go-sdk-Purpose"
+		result, atlanErr := assets.FindPurposesByName(PurposeName)
+		if atlanErr != nil {
+			log.Fatal(atlanErr)
 		}
-	}
+		fmt.Println(*result.Entities[0].Guid)
+		purpose, _ := assets.GetByGuid[*assets.Purpose](*result.Entities[0].Guid)
+		for _, policy := range *purpose.Policies {
+			println("Policy Found: Guid:", *policy.Guid)
+			println("Policy Found: Name:", *policy.DisplayName)
+		}
+	*/
+	/*
+		// Find the GUID of a specific policy in a persona
+		PersonaName := "Test Persona - Go-sdk"
+		result, atlanErr := assets.FindPersonasByName(PersonaName)
+		if atlanErr != nil {
+			log.Fatal(atlanErr)
+		}
+		fmt.Println(*result.Entities[0].Guid)
+		persona, _ := assets.GetByGuid[*assets.Persona](*result.Entities[0].Guid)
+		for _, policy := range *persona.Policies {
+			println("Policy Found: Guid:", *policy.Guid)
+			println("Policy Found: Name:", *policy.DisplayName)
+		}
 
+	*/
+	/*
+		// Update Policy through Persona/Purpose
+		response, atlanErr := assets.NewFluentSearch().
+			AssetType("AuthPolicy").
+			Where(ctx.AuthPolicy.POLICY_CATEGORY.Eq("persona")).
+			Where(ctx.AuthPolicy.GUID.Eq("da6bc10c-c2f0-4945-9592-9b4cc75cbc7b")).
+			//Where(ctx.AuthPolicy.POLICY_RESOURCES.StartsWith("entity:default/snowflake/1738006574", nil)).
+			IncludeOnResults(ctx.AuthPolicy.NAME.GetAtlanFieldName()).
+			IncludeOnResults(ctx.AuthPolicy.ACCESS_CONTROL.GetAtlanFieldName()).
+			IncludeOnResults(ctx.AuthPolicy.POLICY_RESOURCES.GetAtlanFieldName()).
+			IncludeOnResults(ctx.AuthPolicy.CONNECTION_QUALIFIED_NAME.GetAtlanFieldName()).
+			IncludeOnResults(ctx.AuthPolicy.POLICY_TYPE.GetAtlanFieldName()).
+			IncludeOnResults(ctx.AuthPolicy.POLICY_SUB_CATEGORY.GetAtlanFieldName()).
+			IncludeOnRelations(ctx.AccessControl.IS_ACCESS_CONTROL_ENABLED.GetAtlanFieldName()).
+			IncludeOnRelations(ctx.AccessControl.NAME.GetAtlanFieldName()).
+			Execute()
+		if atlanErr != nil {
+			log.Fatal(atlanErr)
+		}
+		for _, entity := range response[0].Entities {
+			if entity.TypeName != nil && *entity.TypeName == "AuthPolicy" {
+				fmt.Println("AuthPolicy Found: Name:", *entity.Name, "QualifiedName:", *entity.QualifiedName)
+				fmt.Println("AuthPolicy guid:", *entity.Guid)
+				fmt.Println("Policy Resources:", *entity.PolicyResources)
+				fmt.Println(*entity.AccessControl.TypeName)
+				entity.PolicyType = &atlan.AuthPolicyTypeDeny
+				_, err := assets.Save(&entity)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+		}
+
+	*/
+	/*
+		// Retrieving policies from a purpose
+		response, atlanErr := assets.NewFluentSearch().
+			AssetType("AuthPolicy").
+			Where(ctx.AuthPolicy.POLICY_CATEGORY.Eq("purpose")).
+			//Where(ctx.AuthPolicy.POLICY_RESOURCES.StartsWith("tag:TLwvfawpBhZb6JIQgVc0Fn", nil)).
+			IncludeOnResults(ctx.AuthPolicy.NAME.GetAtlanFieldName()).
+			IncludeOnResults(ctx.AuthPolicy.ACCESS_CONTROL.GetAtlanFieldName()).
+			IncludeOnResults(ctx.AuthPolicy.POLICY_RESOURCES.GetAtlanFieldName()).
+			IncludeOnRelations(ctx.AccessControl.IS_ACCESS_CONTROL_ENABLED.GetAtlanFieldName()).
+			IncludeOnRelations(ctx.AccessControl.NAME.GetAtlanFieldName()).
+			Execute()
+		if atlanErr != nil {
+			log.Fatal(atlanErr)
+		}
+		for _, entity := range response[0].Entities {
+			if entity.TypeName != nil && *entity.TypeName == "AuthPolicy" {
+				println("AuthPolicy Found: Name:", *entity.Name, "QualifiedName:", *entity.QualifiedName)
+				println("AuthPolicy guid:", *entity.Guid)
+				println("Policy Resources:", *entity.PolicyResources)
+			}
+		}
+
+	*/
+	/*
+		// Retrieving policies from a persona
+		response, atlanErr := assets.NewFluentSearch().
+			AssetType("AuthPolicy").
+			Where(ctx.AuthPolicy.POLICY_CATEGORY.Eq("persona")).
+			Where(ctx.AuthPolicy.POLICY_RESOURCES.StartsWith("entity:default/snowflake/1738006457", nil)).
+			IncludeOnResults(ctx.AuthPolicy.NAME.GetAtlanFieldName()).
+			IncludeOnResults(ctx.AuthPolicy.ACCESS_CONTROL.GetAtlanFieldName()).
+			IncludeOnResults(ctx.AuthPolicy.POLICY_RESOURCES.GetAtlanFieldName()).
+			IncludeOnResults(ctx.AuthPolicy.CONNECTION_QUALIFIED_NAME.GetAtlanFieldName()).
+			IncludeOnResults(ctx.AuthPolicy.POLICY_TYPE.GetAtlanFieldName()).
+			IncludeOnResults(ctx.AuthPolicy.POLICY_SUB_CATEGORY.GetAtlanFieldName()).
+			IncludeOnRelations(ctx.AccessControl.IS_ACCESS_CONTROL_ENABLED.GetAtlanFieldName()).
+			IncludeOnRelations(ctx.AccessControl.NAME.GetAtlanFieldName()).
+			Execute()
+		if atlanErr != nil {
+			log.Fatal(atlanErr)
+		}
+		for _, entity := range response[0].Entities {
+			if entity.TypeName != nil && *entity.TypeName == "AuthPolicy" {
+				fmt.Println("AuthPolicy Found: Name:", *entity.Name, "QualifiedName:", *entity.QualifiedName)
+				fmt.Println("AuthPolicy guid:", *entity.Guid)
+				fmt.Println("Policy Resources:", *entity.PolicyResources)
+			}
+		}
+
+	*/
 	/*
 		// Delete a Purpose
 		assets.PurgeByGuid([]string{"a947beac-ae4d-4d1c-a9f8-efd9c55fe768"})

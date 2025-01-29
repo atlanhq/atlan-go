@@ -17,6 +17,9 @@ type AccessControl struct {
 	DefaultNavigation       *string       `json:"defaultNavigation,omitempty"`
 	DisplayPreferences      *[]string     `json:"displayPreferences,omitempty"`
 	Policies                *[]AuthPolicy `json:"policies,omitempty"` // Relationship
+	UniqueAttributes        struct {
+		QualifiedName *string `json:"qualifiedName,omitempty"`
+	} `json:"uniqueAttributes,omitempty"`
 }
 
 // AuthPolicy represents a policy with various attributes.

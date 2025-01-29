@@ -241,6 +241,18 @@ func (p *Purpose) UnmarshalJSON(data []byte) error {
 
 		// Purpose-specific attributes
 		PurposeAtlanTags *[]structs.AtlanTagName `json:"purposeAtlanTags,omitempty"`
+
+		// Access Control-specific Attributes
+		IsAccessControlEnabled  *bool         `json:"isAccessControlEnabled,omitempty"`
+		DenyCustomMetadataGuids *[]string     `json:"denyCustomMetadataGuids,omitempty"`
+		DenyAssetTabs           *[]string     `json:"denyAssetTabs,omitempty"`
+		DenyAssetFilters        *[]string     `json:"denyAssetFilters,omitempty"`
+		ChannelLink             *string       `json:"channelLink,omitempty"`
+		DenyAssetTypes          *[]string     `json:"denyAssetTypes,omitempty"`
+		DenyNavigationPages     *[]string     `json:"denyNavigationPages,omitempty"`
+		DefaultNavigation       *string       `json:"defaultNavigation,omitempty"`
+		DisplayPreferences      *[]string     `json:"displayPreferences,omitempty"`
+		Policies                *[]AuthPolicy `json:"policies,omitempty"`
 	}{}
 	base, err := UnmarshalBaseEntity(data, &attributes)
 	if err != nil {
@@ -262,6 +274,30 @@ func (p *Purpose) UnmarshalJSON(data []byte) error {
 	p.Name = attributes.Name
 	p.Attributes = &structs.PurposeAttributes{
 		PurposeAtlanTags: attributes.PurposeAtlanTags,
+	}
+
+	// Map Access Control Attributes
+	p.IsAccessControlEnabled = attributes.IsAccessControlEnabled
+	p.DenyCustomMetadataGuids = attributes.DenyCustomMetadataGuids
+	p.DenyAssetTabs = attributes.DenyAssetTabs
+	p.DenyAssetFilters = attributes.DenyAssetFilters
+	p.ChannelLink = attributes.ChannelLink
+	p.DenyAssetTypes = attributes.DenyAssetTypes
+	p.DenyNavigationPages = attributes.DenyNavigationPages
+	p.DefaultNavigation = attributes.DefaultNavigation
+	p.DisplayPreferences = attributes.DisplayPreferences
+
+	// Unmarshal RelationshipAttributes for Policies
+	if base.Entity.RelationshipAttributes != nil {
+		relationshipAttributes := struct {
+			Policies []structs.AuthPolicy `json:"policies,omitempty"`
+		}{}
+
+		if err := json.Unmarshal(base.Entity.RelationshipAttributes, &relationshipAttributes); err != nil {
+			return err
+		}
+		// Map the Policies field
+		p.Policies = &relationshipAttributes.Policies
 	}
 
 	return nil
