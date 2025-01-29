@@ -21,53 +21,77 @@ func (a *AuthPolicy) Updater(name string, qualifiedName string) error {
 	return nil
 }
 
+// UnmarshalJSON unmarshal a AuthPolicy from JSON.
 func (a *AuthPolicy) UnmarshalJSON(data []byte) error {
-	// Define a temporary structure with the expected JSON structure.
-	var temp struct {
-		ReferredEntities map[string]interface{} `json:"referredEntities"`
-		Entity           struct {
-			TypeName               string            `json:"typeName"`
-			AttributesJSON         json.RawMessage   `json:"attributes"`
-			Guid                   string            `json:"guid"`
-			IsIncomplete           bool              `json:"isIncomplete"`
-			Status                 atlan.AtlanStatus `json:"status"`
-			CreatedBy              string            `json:"createdBy"`
-			UpdatedBy              string            `json:"updatedBy"`
-			CreateTime             int64             `json:"createTime"`
-			UpdateTime             int64             `json:"updateTime"`
-			Version                int               `json:"version"`
-			RelationshipAttributes struct {
-				SchemaRegistrySubjects []structs.SchemaRegistrySubject `json:"schemaRegistrySubjects"`
-				McMonitors             []structs.MCMonitor             `json:"mcMonitors"`
-				Terms                  []structs.AtlasGlossaryTerm     `json:"terms"`
-				OutputPortDataProducts []string                        `json:"outputPortDataProducts"`
-				AtlasGlossary          []structs.AtlasGlossary         `json:"AtlasGlossary"`
-				AccessControl          []structs.AccessControl         `json:"AccessControl"`
-				Policies               []structs.AuthPolicy            `json:"policies"`
-			} `json:"relationshipAttributes"`
-		}
-	}
+	attributes := struct {
+		// Base attributes
+		QualifiedName *string `json:"qualifiedName,omitempty"`
+		Name          *string `json:"name,omitempty"`
 
-	// Unmarshal the JSON data into the temporary structure.
-	if err := json.Unmarshal(data, &temp); err != nil {
+		// AuthPolicy specific attributes
+		PolicyType              *atlan.AuthPolicyType               `json:"policyType,omitempty"`
+		PolicyServiceName       *string                             `json:"policyServiceName,omitempty"`
+		PolicyCategory          *string                             `json:"policyCategory,omitempty"`
+		PolicySubCategory       *string                             `json:"policySubCategory,omitempty"`
+		PolicyUsers             *[]string                           `json:"policyUsers,omitempty"`
+		PolicyGroups            *[]string                           `json:"policyGroups,omitempty"`
+		PolicyRoles             *[]string                           `json:"policyRoles,omitempty"`
+		PolicyActions           *[]string                           `json:"policyActions,omitempty"`
+		PolicyResources         *[]string                           `json:"policyResources,omitempty"`
+		PolicyResourceCategory  *string                             `json:"policyResourceCategory,omitempty"`
+		PolicyPriority          *int                                `json:"policyPriority,omitempty"`
+		IsPolicyEnabled         *bool                               `json:"isPolicyEnabled,omitempty"`
+		PolicyMaskType          *string                             `json:"policyMaskType,omitempty"`
+		PolicyValiditySchedule  *[]atlan.AuthPolicyValiditySchedule `json:"policyValiditySchedule,omitempty"`
+		PolicyResourceSignature *string                             `json:"policyResourceSignature,omitempty"`
+		PolicyDelegateAdmin     *bool                               `json:"policyDelegateAdmin,omitempty"`
+		PolicyConditions        *[]atlan.AuthPolicyCondition        `json:"policyConditions,omitempty"`
+		AccessControl           *structs.AccessControl              `json:"accessControl,omitempty"` // Relationship
+	}{}
+
+	// Unmarshal Base attributes
+	base, err := UnmarshalBaseEntity(data, &attributes)
+	if err != nil {
 		return err
 	}
 
-	// Unmarshal the attributes JSON into the entity.
-	if err := json.Unmarshal(temp.Entity.AttributesJSON, &a); err != nil {
-		return err
-	}
+	// Map base entity fields.
+	a.Guid = &base.Entity.Guid
+	a.TypeName = &base.Entity.TypeName
+	a.IsIncomplete = &base.Entity.IsIncomplete
+	a.Status = &base.Entity.Status
+	a.CreatedBy = &base.Entity.CreatedBy
+	a.UpdatedBy = &base.Entity.UpdatedBy
+	a.CreateTime = &base.Entity.CreateTime
+	a.UpdateTime = &base.Entity.UpdateTime
 
-	// Set the GUID and TypeName.
-	a.Guid = &temp.Entity.Guid
-	a.TypeName = &temp.Entity.TypeName
+	// Map AuthPolicy specific attributes to AuthPolicy fields.
+	a.UniqueAttributes.QualifiedName = attributes.QualifiedName
+	a.Name = attributes.Name
+	a.PolicyType = attributes.PolicyType
+	a.PolicyServiceName = attributes.PolicyServiceName
+	a.PolicyCategory = attributes.PolicyCategory
+	a.PolicySubCategory = attributes.PolicySubCategory
+	a.PolicyUsers = attributes.PolicyUsers
+	a.PolicyGroups = attributes.PolicyGroups
+	a.PolicyRoles = attributes.PolicyRoles
+	a.PolicyActions = attributes.PolicyActions
+	a.PolicyResources = attributes.PolicyResources
+	a.PolicyResourceCategory = attributes.PolicyResourceCategory
+	a.PolicyPriority = attributes.PolicyPriority
+	a.IsPolicyEnabled = attributes.IsPolicyEnabled
+	a.PolicyMaskType = attributes.PolicyMaskType
+	a.PolicyValiditySchedule = attributes.PolicyValiditySchedule
+	a.PolicyResourceSignature = attributes.PolicyResourceSignature
+	a.PolicyDelegateAdmin = attributes.PolicyDelegateAdmin
+	a.PolicyConditions = attributes.PolicyConditions
+	a.AccessControl = attributes.AccessControl
 
 	return nil
 }
 
+// MarshalJSON Marshals the AuthPolicy asset into a JSON object.
 func (a *AuthPolicy) MarshalJSON() ([]byte, error) {
-	// Marshal the AccessControl asset into a JSON object.
-
 	// Construct the custom JSON structure
 	customJSON := map[string]interface{}{
 		"typeName": "AuthPolicy",
@@ -142,6 +166,12 @@ func (a *AuthPolicy) MarshalJSON() ([]byte, error) {
 
 		if a.AccessControl.TypeName != nil && *a.AccessControl.TypeName != "" {
 			accessControl["typeName"] = *a.AccessControl.TypeName
+		}
+
+		if a.AccessControl.UniqueAttributes.QualifiedName != nil && *a.AccessControl.UniqueAttributes.QualifiedName != "" {
+			accessControl["uniqueAttributes"] = map[string]interface{}{
+				"qualifiedName": *a.AccessControl.UniqueAttributes.QualifiedName,
+			}
 		}
 
 		attributes["accessControl"] = accessControl
