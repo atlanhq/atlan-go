@@ -32,6 +32,7 @@ type SearchAssets struct {
 	AccessControl    *AccessControlFields
 	Persona          *PersonaFields
 	AuthPolicy       *AuthPolicyFields
+	Purpose          *PurposeFields
 	// Add other assets here
 }
 
@@ -308,6 +309,11 @@ type AuthPolicyFields struct {
 	POLICY_DELEGATE_ADMIN     *BooleanField
 	POLICY_CONDITIONS         *KeywordField
 	ACCESS_CONTROL            *RelationField
+}
+
+type PurposeFields struct {
+	AccessControlFields
+	PURPOSE_CLASSIFICATIONS *KeywordField
 }
 
 // NewSearchTable returns a new AtlasTable object for Searching
@@ -959,6 +965,60 @@ func NewAuthPolicyFields() *AuthPolicyFields {
 		POLICY_DELEGATE_ADMIN:     NewBooleanField("policyDelegateAdmin", "policyDelegateAdmin"),
 		POLICY_CONDITIONS:         NewKeywordField("policyConditions", "policyConditions"),
 		ACCESS_CONTROL:            NewRelationField("accessControl"),
+	}
+}
+
+// NewPurposeFields initializes a new instance of PersonaFields.
+func NewPurposeFields() *PurposeFields {
+	return &PurposeFields{
+		AccessControlFields: AccessControlFields{
+			IS_ACCESS_CONTROL_ENABLED:  NewBooleanField("isAccessControlEnabled", "isAccessControlEnabled"),
+			DENY_CUSTOM_METADATA_GUIDS: NewKeywordField("denyCustomMetadataGuids", "denyCustomMetadataGuids"),
+			DENY_ASSET_TABS:            NewKeywordField("denyAssetTabs", "denyAssetTabs"),
+			DENY_ASSET_FILTERS:         NewTextField("denyAssetFilters", "denyAssetFilters"),
+			CHANNEL_LINK:               NewTextField("channelLink", "channelLink"),
+			DENY_ASSET_TYPES:           NewTextField("denyAssetTypes", "denyAssetTypes"),
+			DENY_NAVIGATION_PAGES:      NewTextField("denyNavigationPages", "denyNavigationPages"),
+			DEFAULT_NAVIGATION:         NewTextField("defaultNavigation", "defaultNavigation"),
+			DISPLAY_PREFERENCES:        NewKeywordField("displayPreferences", "displayPreferences"),
+			POLICIES:                   NewRelationField("policies"),
+			AssetFields: AssetFields{
+				AttributesFields: AttributesFields{
+					TYPENAME:              NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
+					GUID:                  NewKeywordField("guid", "__guid"),
+					CREATED_BY:            NewKeywordField("createdBy", "__createdBy"),
+					UPDATED_BY:            NewKeywordField("updatedBy", "__modifiedBy"),
+					STATUS:                NewKeywordField("status", "__state"),
+					ATLAN_TAGS:            NewKeywordTextField("classificationNames", "__traitNames", "__classificationsText"),
+					PROPOGATED_ATLAN_TAGS: NewKeywordTextField("classificationNames", "__propagatedTraitNames", "__classificationsText"),
+					ASSIGNED_TERMS:        NewKeywordTextField("meanings", "__meanings", "__meaningsText"),
+					SUPERTYPE_NAMES:       NewKeywordTextField("typeName", "__superTypeNames.keyword", "__superTypeNames"),
+					CREATE_TIME:           NewNumericField("createTime", "__timestamp"),
+					UPDATE_TIME:           NewNumericField("updateTime", "__modificationTimestamp"),
+					QUALIFIED_NAME:        NewKeywordTextField("qualifiedName", "qualifiedName", "qualifiedName.text"),
+				},
+				NAME:                       NewKeywordTextStemmedField("name", "name.keyword", "name", "name"),
+				DISPLAY_NAME:               NewKeywordTextField("displayName", "displayName.keyword", "displayName"),
+				DESCRIPTION:                NewKeywordTextField("description", "description", "description.text"),
+				USER_DESCRIPTION:           NewKeywordTextField("userDescription", "userDescription", "userDescription.text"),
+				TENET_ID:                   NewKeywordField("tenetId", "tenetId"),
+				CERTIFICATE_STATUS:         NewKeywordTextField("certificateStatus", "certificateStatus", "certificateStatus.text"),
+				CERTIFICATE_STATUS_MESSAGE: NewKeywordField("certificateStatusMessage", "certificateStatusMessage"),
+				CERTIFICATE_UPDATED_BY:     NewNumericField("certificateUpdatedBy", "certificateUpdatedBy"),
+				ANNOUNCEMENT_TITLE:         NewKeywordField("announcementTitle", "announcementTitle"),
+				ANNOUNCEMENT_MESSAGE:       NewKeywordTextField("announcementMessage", "announcementMessage", "announcementMessage.text"),
+				ANNOUNCEMENT_TYPE:          NewKeywordField("announcementType", "announcementType"),
+				ANNOUNCEMENT_UPDATED_AT:    NewNumericField("announcementUpdatedAt", "announcementUpdatedAt"),
+				ANNOUNCEMENT_UPDATED_BY:    NewKeywordField("announcementUpdatedBy", "announcementUpdatedBy"),
+				OWNER_USERS:                NewKeywordTextField("ownerUsers", "ownerUsers", "ownerUsers.text"),
+				ADMIN_USERS:                NewKeywordField("adminUsers", "adminUsers"),
+				VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
+				VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
+				CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+				CONNECTION_QUALIFIED_NAME:  NewKeywordTextField("connectionQualifiedName", "connectionQualifiedName", "connectionQualifiedName.text"),
+			},
+		},
+		PURPOSE_CLASSIFICATIONS: NewKeywordField("purposeClassifications", "purposeClassifications"),
 	}
 }
 
