@@ -41,7 +41,7 @@ func (a *AuthPolicy) UnmarshalJSON(data []byte) error {
 		PolicyResourceCategory  *string                             `json:"policyResourceCategory,omitempty"`
 		PolicyPriority          *int                                `json:"policyPriority,omitempty"`
 		IsPolicyEnabled         *bool                               `json:"isPolicyEnabled,omitempty"`
-		PolicyMaskType          *string                             `json:"policyMaskType,omitempty"`
+		PolicyMaskType          *atlan.DataMaskingType              `json:"policyMaskType,omitempty"`
 		PolicyValiditySchedule  *[]atlan.AuthPolicyValiditySchedule `json:"policyValiditySchedule,omitempty"`
 		PolicyResourceSignature *string                             `json:"policyResourceSignature,omitempty"`
 		PolicyDelegateAdmin     *bool                               `json:"policyDelegateAdmin,omitempty"`
@@ -154,6 +154,10 @@ func (a *AuthPolicy) MarshalJSON() ([]byte, error) {
 
 	if a.PolicyUsers != nil && len(*a.PolicyUsers) > 0 {
 		attributes["policyUsers"] = *a.PolicyUsers
+	}
+
+	if a.PolicyMaskType != nil {
+		attributes["policyMaskType"] = *a.PolicyMaskType
 	}
 
 	// Handle nested AccessControl field

@@ -40,7 +40,7 @@ type AuthPolicy struct {
 	PolicyResourceCategory  *string                             `json:"policyResourceCategory,omitempty"`
 	PolicyPriority          *int                                `json:"policyPriority,omitempty"`
 	IsPolicyEnabled         *bool                               `json:"isPolicyEnabled,omitempty"`
-	PolicyMaskType          *string                             `json:"policyMaskType,omitempty"`
+	PolicyMaskType          *atlan.DataMaskingType              `json:"policyMaskType,omitempty"`
 	PolicyValiditySchedule  *[]atlan.AuthPolicyValiditySchedule `json:"policyValiditySchedule,omitempty"`
 	PolicyResourceSignature *string                             `json:"policyResourceSignature,omitempty"`
 	PolicyDelegateAdmin     *bool                               `json:"policyDelegateAdmin,omitempty"`

@@ -3200,3 +3200,51 @@ func (c *AssetFilterGroup) UnmarshalJSON(data []byte) error {
 	}
 	return nil
 }
+
+type DataMaskingType struct {
+	Name string
+}
+
+func (d DataMaskingType) String() string {
+	return d.Name
+}
+
+var (
+	DataMaskingTypeSHOWFIRST4 = DataMaskingType{"MASK_SHOW_FIRST_4"}
+	DataMaskingTypeSHOWLAST4  = DataMaskingType{"MASK_SHOW_LAST_4"}
+	DataMaskingTypeHASH       = DataMaskingType{"MASK_HASH"}
+	DataMaskingTypeNULLIFY    = DataMaskingType{"MASK_NULL"}
+	DataMaskingTypeREDACT     = DataMaskingType{"MASK_REDACT"}
+)
+
+// UnmarshalJSON customizes the unmarshalling of a DataMaskingType from JSON.
+func (d *DataMaskingType) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return err
+	}
+
+	switch name {
+	case "MASK_SHOW_FIRST_4":
+		*d = DataMaskingTypeSHOWFIRST4
+
+	case "MASK_SHOW_LAST_4":
+		*d = DataMaskingTypeSHOWLAST4
+
+	case "MASK_HASH":
+		*d = DataMaskingTypeHASH
+	case "MASK_NULL":
+		*d = DataMaskingTypeNULLIFY
+	case "MASK_REDACT":
+		*d = DataMaskingTypeREDACT
+	default:
+		*d = DataMaskingType{Name: name}
+	}
+
+	return nil
+}
+
+// MarshalJSON customizes the marshalling of a DataMaskingType to JSON.
+func (d DataMaskingType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.Name)
+}
