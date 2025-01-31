@@ -140,6 +140,7 @@ func newDefaultSearchAssets() SearchAssets {
 		Persona:          NewPersonaFields(),
 		AccessControl:    NewAccessControlFields(),
 		AuthPolicy:       NewAuthPolicyFields(),
+		Purpose:          NewPurposeFields(),
 	}
 }
 
