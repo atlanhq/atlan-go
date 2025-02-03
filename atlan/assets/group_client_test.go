@@ -97,7 +97,12 @@ func testRetrieveGroupByName(t *testing.T) {
 func testAddUsersToGroup(t *testing.T, groupID string) {
 	client := &GroupClient{}
 
-	user, err := client.UserClient.GetByEmail(UserEmail, 1, 0)
+	// This is a dependency issue on user-client test (which creates the user). This test runs before the user-client test
+	// which creates an issue if the user doesn't exist. So, we add a check here.
+	// Checks if the test user exists or not and creates it if it doesn't
+	testUser := getOrCreateTestUser(t)
+	// Directly uses the Email from the created / existing user
+	user, err := client.UserClient.GetByEmail(testUser.Email, 1, 0)
 	require.NoError(t, err, "error should be nil while getting user by email")
 	err = client.UserClient.AddUserToGroups(user[0].ID, []string{groupID})
 	require.NoError(t, err, "error should be nil while adding user to group")
