@@ -1,5 +1,11 @@
 package structs
 
+import (
+	"time"
+
+	"github.com/atlanhq/atlan-go/atlan"
+)
+
 // PackageParameter represents package-related parameters.
 type PackageParameter struct {
 	Parameter string                 `json:"parameter"`
@@ -76,24 +82,42 @@ type Workflow struct {
 	Payload  []PackageParameter `json:"payload,omitempty"`
 }
 
+// WorkflowAsset defines the Asset structure for a workflow.
+type WorkflowAsset struct {
+	Asset
+	WorkflowAttributes *WorkflowAttributes `json:"workflowAttributes"`
+}
+
+// WorkflowAttributes captures attributes of a workflow.
+type WorkflowAttributes struct {
+	WorkflowTemplateGuid *string    `json:"workflowTemplateGuid,omitempty"`
+	WorkflowType         *string    `json:"workflowType,omitempty"`
+	WorkflowConfig       *string    `json:"workflowConfig,omitempty"`
+	WorkflowStatus       *string    `json:"workflowStatus,omitempty"`
+	WorkflowRunExpiresIn *string    `json:"workflowRunExpiresIn,omitempty"`
+	WorkflowCreatedBy    *string    `json:"workflowCreatedBy,omitempty"`
+	WorkflowUpdatedBy    *string    `json:"workflowUpdatedBy,omitempty"`
+	WorkflowDeletedAt    *time.Time `json:"workflowDeletedAt,omitempty"`
+}
+
 // WorkflowSearchResultStatus captures the status of a workflow search result.
 type WorkflowSearchResultStatus struct {
-	ArtifactGCStatus           map[string]interface{} `json:"artifactGCStatus,omitempty"`
-	ArtifactRepositoryRef      interface{}            `json:"artifactRepositoryRef,omitempty"`
-	CompressedNodes            *string                `json:"compressedNodes,omitempty"`
-	EstimatedDuration          *int                   `json:"estimatedDuration,omitempty"`
-	Conditions                 []interface{}          `json:"conditions,omitempty"`
-	Message                    *string                `json:"message,omitempty"`
-	FinishedAt                 *string                `json:"finishedAt,omitempty"`
-	Nodes                      interface{}            `json:"nodes,omitempty"`
-	Outputs                    *WorkflowParameters    `json:"outputs,omitempty"`
-	Phase                      *string                `json:"phase,omitempty"`
-	Progress                   *string                `json:"progress,omitempty"`
-	ResourcesDuration          map[string]int         `json:"resourcesDuration,omitempty"`
-	StartedAt                  *string                `json:"startedAt,omitempty"`
-	StoredTemplates            interface{}            `json:"storedTemplates,omitempty"`
-	StoredWorkflowTemplateSpec interface{}            `json:"storedWorkflowTemplateSpec,omitempty"`
-	Synchronization            map[string]interface{} `json:"synchronization,omitempty"`
+	ArtifactGCStatus           map[string]interface{}    `json:"artifactGCStatus,omitempty"`
+	ArtifactRepositoryRef      interface{}               `json:"artifactRepositoryRef,omitempty"`
+	CompressedNodes            *string                   `json:"compressedNodes,omitempty"`
+	EstimatedDuration          *int                      `json:"estimatedDuration,omitempty"`
+	Conditions                 []interface{}             `json:"conditions,omitempty"`
+	Message                    *string                   `json:"message,omitempty"`
+	FinishedAt                 *string                   `json:"finishedAt,omitempty"`
+	Nodes                      interface{}               `json:"nodes,omitempty"`
+	Outputs                    *WorkflowParameters       `json:"outputs,omitempty"`
+	Phase                      *atlan.AtlanWorkflowPhase `json:"phase,omitempty"`
+	Progress                   *string                   `json:"progress,omitempty"`
+	ResourcesDuration          map[string]int            `json:"resourcesDuration,omitempty"`
+	StartedAt                  *string                   `json:"startedAt,omitempty"`
+	StoredTemplates            interface{}               `json:"storedTemplates,omitempty"`
+	StoredWorkflowTemplateSpec interface{}               `json:"storedWorkflowTemplateSpec,omitempty"`
+	Synchronization            map[string]interface{}    `json:"synchronization,omitempty"`
 }
 
 // WorkflowSearchResultDetail contains detailed information about a workflow search result.
@@ -117,7 +141,7 @@ type WorkflowSearchResult struct {
 }
 
 // Status returns the workflow phase if available.
-func (w *WorkflowSearchResult) Status() *string {
+func (w *WorkflowSearchResult) Status() *atlan.AtlanWorkflowPhase {
 	if w.Source.Status != nil {
 		return w.Source.Status.Phase
 	}
