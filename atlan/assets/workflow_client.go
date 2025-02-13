@@ -3,6 +3,7 @@ package assets
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/atlanhq/atlan-go/atlan"
@@ -13,6 +14,7 @@ import (
 const (
 	workflowRunSchedule = "orchestration.atlan.com/schedule"
 	workflowRunTimezone = "orchestration.atlan.com/timezone"
+	MonitorSleepSeconds = 5
 )
 
 type WorkflowClient struct {
@@ -184,7 +186,7 @@ func (w *WorkflowClient) FindCurrentRun(workflowName string) (*structs.WorkflowS
 	}
 
 	for _, result := range response.Hits.Hits {
-		if *result.Source.Status.Phase == atlan.AtlanWorkflowPhasePending.Name || *result.Source.Status.Phase == atlan.AtlanWorkflowPhaseRunning.Name {
+		if *result.Source.Status.Phase == atlan.AtlanWorkflowPhasePending || *result.Source.Status.Phase == atlan.AtlanWorkflowPhaseRunning {
 			return &result, nil
 		}
 	}
@@ -347,4 +349,205 @@ func (w *WorkflowClient) UpdateOwner(workflowName, username string) (*structs.Wo
 	}
 
 	return &response, nil
+}
+
+// Methods related to workflow schedules
+
+// Monitor the status of the workflow's run.
+func (w *WorkflowClient) Monitor(workflowResponse *structs.WorkflowResponse, logger *log.Logger) (*atlan.AtlanWorkflowPhase, error) {
+	if workflowResponse.Metadata == nil || *workflowResponse.Metadata.Name == "" {
+		if logger != nil {
+			logger.Println("Skipping workflow monitoring — nothing to monitor.")
+		}
+		return nil, nil
+	}
+
+	name := workflowResponse.Metadata.Name
+	var status *atlan.AtlanWorkflowPhase
+
+	for status == nil || (*status != atlan.AtlanWorkflowPhaseSuccess && *status != atlan.AtlanWorkflowPhaseError && *status != atlan.AtlanWorkflowPhaseFailed) {
+		time.Sleep(MonitorSleepSeconds * time.Second)
+		runDetails, _ := w.FindLatestRun(*name)
+		if runDetails != nil {
+			status = runDetails.Status()
+		}
+		if logger != nil {
+			logger.Printf("Workflow status: %s\n", status)
+		}
+	}
+	if logger != nil {
+		logger.Printf("Workflow completion status: %s\n", status)
+	}
+	return status, nil
+}
+
+func (w *WorkflowClient) addSchedule(workflow *structs.WorkflowSearchResultDetail, schedule *structs.WorkflowSchedule) {
+	if workflow.Metadata.Annotations == nil {
+		workflow.Metadata.Annotations = make(map[string]string)
+	}
+	workflow.Metadata.Annotations[workflowRunSchedule] = schedule.CronSchedule
+	workflow.Metadata.Annotations[workflowRunTimezone] = schedule.Timezone
+}
+
+func (w *WorkflowClient) AddSchedule(workflow interface{}, schedule *structs.WorkflowSchedule) (*structs.WorkflowResponse, error) {
+	workflowToUpdate, err := w.handleWorkflowTypes(workflow)
+	if err != nil {
+		return nil, err
+	}
+
+	w.addSchedule(workflowToUpdate, schedule)
+
+	api := &WORKFLOW_UPDATE
+	api.Path = fmt.Sprintf("workflows/%s", *workflowToUpdate.Metadata.Name)
+
+	rawJSON, err := DefaultAtlanClient.CallAPI(api, nil, workflowToUpdate)
+	if err != nil {
+		return nil, err
+	}
+
+	var response structs.WorkflowResponse
+	if err := json.Unmarshal(rawJSON, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+func (w *WorkflowClient) RemoveSchedule(workflow interface{}) (*structs.WorkflowResponse, error) {
+	workflowToUpdate, err := w.handleWorkflowTypes(workflow)
+	if err != nil {
+		return nil, err
+	}
+
+	if workflowToUpdate.Metadata.Annotations != nil {
+		delete(workflowToUpdate.Metadata.Annotations, workflowRunSchedule)
+	}
+
+	api := &WORKFLOW_UPDATE
+	api.Path = fmt.Sprintf("workflows/%s", *workflowToUpdate.Metadata.Name)
+
+	rawJSON, err := DefaultAtlanClient.CallAPI(api, nil, workflowToUpdate)
+	if err != nil {
+		return nil, err
+	}
+
+	var response structs.WorkflowResponse
+	if err := json.Unmarshal(rawJSON, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+func (w *WorkflowClient) GetAllScheduledRuns() ([]structs.WorkflowScheduleResponse, error) {
+	rawJSON, err := DefaultAtlanClient.CallAPI(&GET_ALL_SCHEDULE_RUNS, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var response []structs.WorkflowScheduleResponse
+	if err := json.Unmarshal(rawJSON, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+func (w *WorkflowClient) GetScheduledRun(workflowName string) (*structs.WorkflowScheduleResponse, error) {
+	api := &GET_SCHEDULE_RUN
+	api.Path = fmt.Sprintf("schedules/%s/cron", workflowName)
+
+	rawJSON, err := DefaultAtlanClient.CallAPI(api, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var response structs.WorkflowScheduleResponse
+	if err := json.Unmarshal(rawJSON, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+func (w *WorkflowClient) FindScheduleQuery(savedQueryID string, maxResults int) ([]structs.WorkflowSearchResult, error) {
+	if maxResults <= 0 {
+		maxResults = 10
+	}
+
+	var query model.Query = &model.BoolQuery{
+		Filter: []model.Query{
+			&model.NestedQuery{
+				Path: "metadata",
+				Query: &model.PrefixQuery{
+					Field: "metadata.name.keyword",
+					Value: fmt.Sprintf("asq-%s", savedQueryID),
+				},
+			},
+			&model.NestedQuery{
+				Path: "metadata",
+				Query: &model.TermQuery{
+					Field: "metadata.annotations.package.argoproj.io/name.keyword",
+					Value: "@atlan/schedule-query",
+				},
+			},
+		},
+	}
+
+	request := model.WorkflowSearchRequest{
+		Query: query,
+		Size:  maxResults,
+	}
+
+	rawJSON, err := DefaultAtlanClient.CallAPI(&WORKFLOW_INDEX_SEARCH, nil, request)
+	if err != nil {
+		return nil, err
+	}
+
+	var response structs.WorkflowSearchResponse
+	if err := json.Unmarshal(rawJSON, &response); err != nil {
+		return nil, err
+	}
+
+	if response.Hits.Hits != nil {
+		return response.Hits.Hits, nil
+	}
+	return nil, nil
+}
+
+func (w *WorkflowClient) ReRunScheduleQuery(scheduleQueryID string) (*structs.WorkflowRunResponse, error) {
+	request := structs.ReRunRequest{
+		Namespace:    "default",
+		ResourceName: scheduleQueryID,
+	}
+
+	rawJSON, err := DefaultAtlanClient.CallAPI(&WORKFLOW_OWNER_RERUN, nil, &request)
+	if err != nil {
+		return nil, err
+	}
+
+	var response structs.WorkflowRunResponse
+	if err := json.Unmarshal(rawJSON, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+func (w *WorkflowClient) FindScheduleQueryBetween(request structs.ScheduleQueriesSearchRequest, missed bool) ([]structs.WorkflowRunResponse, error) {
+	queryParams := map[string]string{
+		"startDate": request.StartDate,
+		"endDate":   request.EndDate,
+	}
+
+	searchAPI := SCHEDULE_QUERY_WORKFLOWS_SEARCH
+	if missed {
+		searchAPI = SCHEDULE_QUERY_WORKFLOWS_MISSED
+	}
+
+	rawJSON, err := DefaultAtlanClient.CallAPI(&searchAPI, queryParams, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var response []structs.WorkflowRunResponse
+	if err := json.Unmarshal(rawJSON, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
