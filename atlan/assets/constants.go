@@ -34,6 +34,17 @@ const (
 
 	// Tokens API
 	TOKENS_API = "apikeys"
+
+	// Workflows API
+	WORKFLOW_API                        = "workflows"
+	WORKFLOW_INDEX_API                  = "workflows/indexsearch"
+	WORKFLOW_INDEX_RUN_API              = "runs/indexsearch"
+	SCHEDULE_QUERY_WORKFLOWS_SEARCH_API = "runs/cron/scheduleQueriesBetweenDuration"
+	SCHEDULE_QUERY_WORKFLOWS_MISSED_API = "runs/cron/missedScheduleQueriesBetweenDuration"
+	WORKFLOW_OWNER_RERUN_API            = "workflows/triggerAsOwner"
+	WORKFLOW_RERUN_API                  = "workflows/submit"
+	WORKFLOW_RUN_API                    = "workflows?submit=true"
+	WORKFLOW_SCHEDULE_RUN               = "runs"
 )
 
 // API defines the structure of an API call.
@@ -316,6 +327,96 @@ var (
 	DELETE_API_TOKEN = API{
 		Path:     TOKENS_API,
 		Method:   http.MethodDelete,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	// Workflows
+
+	SCHEDULE_QUERY_WORKFLOWS_SEARCH = API{
+		Path:     SCHEDULE_QUERY_WORKFLOWS_SEARCH_API,
+		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	SCHEDULE_QUERY_WORKFLOWS_MISSED = API{
+		Path:     SCHEDULE_QUERY_WORKFLOWS_MISSED_API,
+		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	WORKFLOW_INDEX_SEARCH = API{
+		Path:     WORKFLOW_INDEX_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	WORKFLOW_INDEX_RUN_SEARCH = API{
+		Path:     WORKFLOW_INDEX_RUN_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	// triggers a workflow using the current user's credentials
+
+	WORKFLOW_RERUN = API{
+		Path:     WORKFLOW_RUN_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	// triggers a workflow using the workflow owner's credentials
+
+	WORKFLOW_OWNER_RERUN = API{
+		Path:     WORKFLOW_OWNER_RERUN_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	WORKFLOW_UPDATE = API{
+		Path:     WORKFLOW_API + "/%s",
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	WORKFLOW_ARCHIVE = API{
+		Path:     WORKFLOW_API + "/%s/archive",
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	GET_ALL_SCHEDULE_RUNS = API{
+		Path:     WORKFLOW_SCHEDULE_RUN + "/cron",
+		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	GET_SCHEDULE_RUN = API{
+		Path:     WORKFLOW_SCHEDULE_RUN + "/cron/%s",
+		Method:   http.MethodGet,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	STOP_WORKFLOW_RUN = API{
+		Path:     WORKFLOW_SCHEDULE_RUN + "/%s/stop",
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
+
+	WORKFLOW_CHANGE_OWNER = API{
+		Path:     WORKFLOW_API + "/%s/changeownership",
+		Method:   http.MethodPost,
 		Status:   http.StatusOK,
 		Endpoint: HeraclesEndpoint,
 	}

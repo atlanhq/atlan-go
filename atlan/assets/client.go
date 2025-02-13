@@ -19,15 +19,16 @@ import (
 
 // AtlanClient defines the Atlan API client structure.
 type AtlanClient struct {
-	Session       *http.Client
-	host          string
-	ApiKey        string
-	requestParams map[string]interface{}
-	logger        logger.Logger
-	RoleClient    *RoleClient
-	GroupClient   *GroupClient
-	UserClient    *UserClient
-	TokenClient   *TokenClient
+	Session        *http.Client
+	host           string
+	ApiKey         string
+	requestParams  map[string]interface{}
+	logger         logger.Logger
+	RoleClient     *RoleClient
+	GroupClient    *GroupClient
+	UserClient     *UserClient
+	TokenClient    *TokenClient
+	WorkflowClient *WorkflowClient
 	SearchAssets
 }
 
