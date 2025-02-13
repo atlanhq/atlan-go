@@ -3,10 +3,11 @@ package assets
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/atlanhq/atlan-go/atlan"
 	"github.com/atlanhq/atlan-go/atlan/model"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
-	"time"
 )
 
 const (
@@ -20,7 +21,6 @@ type WorkflowClient struct {
 
 // FindByType searches for workflows by their type prefix.
 func (w *WorkflowClient) FindByType(prefix atlan.WorkflowPackage, maxResults int) ([]structs.WorkflowSearchResult, error) {
-
 	var query model.Query = &model.BoolQuery{
 		Filter: []model.Query{
 			&model.NestedQuery{
@@ -221,7 +221,6 @@ func (w *WorkflowClient) GetRuns(workflowName string, workflowPhase atlan.AtlanW
 
 // Stop stops a running workflow.
 func (w *WorkflowClient) Stop(workflowRunID string) (*structs.WorkflowRunResponse, error) {
-
 	api := &STOP_WORKFLOW_RUN
 	api.Path = fmt.Sprintf("runs/%s/stop", workflowRunID)
 
@@ -314,7 +313,6 @@ func (w *WorkflowClient) Rerun(workflow interface{}, idempotent bool) (*structs.
 
 // Update modifies the configuration of an existing workflow.
 func (w *WorkflowClient) Update(workflow *structs.Workflow) (*structs.WorkflowResponse, error) {
-
 	api := &WORKFLOW_UPDATE
 	api.Path = fmt.Sprintf("workflows/%s", *workflow.Metadata.Name)
 
@@ -333,7 +331,6 @@ func (w *WorkflowClient) Update(workflow *structs.Workflow) (*structs.WorkflowRe
 
 // UpdateOwner assigns a new owner to the workflow.
 func (w *WorkflowClient) UpdateOwner(workflowName, username string) (*structs.WorkflowResponse, error) {
-
 	api := &WORKFLOW_CHANGE_OWNER
 	api.Path = fmt.Sprintf("workflows/%s/changeownership", workflowName)
 
