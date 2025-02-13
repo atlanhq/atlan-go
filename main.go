@@ -1,15 +1,103 @@
 package main
 
-import (
-	_ "github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/assets"
-	_ "github.com/atlanhq/atlan-go/atlan/model/structs"
-)
+import "github.com/atlanhq/atlan-go/atlan/assets"
 
 func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
+	/*
+		// Update a workflow
+		result, _ := ctx.WorkflowClient.FindByID("csa-admin-export-1739443119")
+
+		workflowTask := result.Source.Spec.Templates[0].DAG.Tasks[0]
+		workflowParams := workflowTask.Arguments.Parameters
+
+		fmt.Println(workflowTask)
+		fmt.Println(workflowParams)
+
+		for _, option := range workflowParams {
+			if option.Name == "enable-lineage" {
+				option.Value = true
+				fmt.Println(option)
+			}
+		}
+
+		response, err := ctx.WorkflowClient.Update(result.ToWorkflow())
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(response)
+	*/
+	/*
+		// Delete a Workflow
+		_ = ctx.WorkflowClient.Delete("csa-admin-export-1739368706")
+	*/
+	/*
+		// Stop a running workflow
+		runs, err := ctx.WorkflowClient.GetRuns("csa-admin-export-1739368706", atlan.AtlanWorkflowPhaseRunning, 0, 100)
+		if err != nil {
+			fmt.Println(err)
+		}
+		response, err := ctx.WorkflowClient.Stop(runs[0].ID)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(response)
+
+	*/
+	/*
+		// Retrieve runs by their phase:
+		result, err := ctx.WorkflowClient.GetRuns("csa-admin-export-1739368706", atlan.AtlanWorkflowPhaseSuccess, 0, 100)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(result)
+	*/
+	/*
+		// Retrieve an existing workflow latest run:
+		result, err := ctx.WorkflowClient.FindCurrentRun("csa-admin-export-1739368706")
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(result)
+	*/
+	/*
+		// Retrieve an existing workflow latest run:
+		result, err := ctx.WorkflowClient.FindLatestRun("csa-admin-export-1739172254")
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(*result.Source.Metadata.CreationTimestamp)
+
+	*/
+	/*
+		// Retrieve an existing workflow run by its ID:
+		result, err := ctx.WorkflowClient.FindRunByID("csa-admin-export-1739172254-skdzt")
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(*result.Source.Metadata.CreationTimestamp)
+	*/
+	/*
+		// Retrieve an existing workflow by its ID:
+		result, err := ctx.WorkflowClient.FindByID("csa-admin-export-1739172254\n\n")
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(result)
+
+
+	*/
+	/*
+		// Retrieve existing workflows by its type:
+		result, err := ctx.WorkflowClient.FindByType(atlan.WorkflowPackageSnowflakeMiner, 5)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(result)
+
+	*/
 	/*
 		// Find the GUID of a specific policy in a persona
 		PurposeName := "Test-go-sdk-Purpose"
