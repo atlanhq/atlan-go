@@ -266,10 +266,27 @@ func (w *WorkflowClient) handleWorkflowTypes(workflow interface{}) (*structs.Wor
 
 	case *structs.WorkflowSearchResultDetail:
 		return wf, nil
+	case *structs.Workflow:
+		return convertWorkflowToSearchResult(wf)
 
 	default:
 		return nil, fmt.Errorf("invalid workflow type provided")
 	}
+}
+
+// convertWorkflowToSearchResult converts a Workflow into WorkflowSearchResultDetail.
+func convertWorkflowToSearchResult(wf *structs.Workflow) (*structs.WorkflowSearchResultDetail, error) {
+	if wf == nil {
+		return nil, fmt.Errorf("workflow is nil")
+	}
+	if wf.Metadata == nil || wf.Spec == nil {
+		return nil, fmt.Errorf("workflow metadata or spec is nil")
+	}
+
+	return &structs.WorkflowSearchResultDetail{
+		Metadata: *wf.Metadata,
+		Spec:     *wf.Spec,
+	}, nil
 }
 
 // Rerun executes the workflow immediately if it has been run before.
@@ -560,10 +577,8 @@ func (w *WorkflowClient) Run(workflow interface{}, schedule *structs.WorkflowSch
 	}
 
 	if schedule != nil {
-		_, err := w.AddSchedule(workflow, schedule)
-		if err != nil {
-			return nil, err
-		}
+		workflowToUpdate, _ := w.handleWorkflowTypes(workflow)
+		w.addSchedule(workflowToUpdate, schedule)
 	}
 
 	responseData, err := DefaultAtlanClient.CallAPI(&WORKFLOW_RUN, nil, workflow)

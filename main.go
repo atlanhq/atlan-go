@@ -1,12 +1,38 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/atlanhq/atlan-go/atlan/assets"
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
 func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
+
+	// Add a schedule directly on run
+
+	miner := assets.NewSnowflakeMiner("default/snowflake/1739484068").
+		Direct(1739491200, "snowflake-database", "ACCOUNT_USAGE").
+		ExcludeUsers([]string{"karanjot.singh"}).
+		PopularityWindow(30).
+		NativeLineage(true).
+		CustomConfig(map[string]interface{}{
+			"test":    true,
+			"feature": 1234,
+		}).
+		ToWorkflow()
+
+	Schedule := structs.WorkflowSchedule{CronSchedule: "45 5 * * *", Timezone: "Europe/Paris"}
+
+	// Run the workflow
+	response, err := ctx.WorkflowClient.Run(miner, &Schedule)
+	if err != nil {
+		fmt.Println("Error running workflow:", err)
+		return
+	}
+	fmt.Println(response.Spec)
 
 	/*
 		// Running Snowflake Miner
