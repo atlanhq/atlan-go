@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/atlanhq/atlan-go/atlan/assets"
 )
 
@@ -9,9 +8,26 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	// To retrieve an existing scheduled workflow run by its name:
-	response, _ := ctx.WorkflowClient.GetScheduledRun("atlan-snowflake-miner-1739824311")
-	fmt.Println(response)
+	/*
+		// Remove a schedule
+		existingWorkflow, _ := ctx.WorkflowClient.FindByType(atlan.WorkflowPackageSnowflakeMiner, 1)
+		response, _ := ctx.WorkflowClient.RemoveSchedule(existingWorkflow[0])
+		fmt.Println(response)
+	*/
+	/*
+		// Get all scheduled runs
+		response, err := ctx.WorkflowClient.GetAllScheduledRuns()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(*response.Metadata.ResourceVersion)
+	*/
+	/*
+		// To retrieve an existing scheduled workflow run by its name:
+		response, _ := ctx.WorkflowClient.GetScheduledRun("atlan-snowflake-miner-1739824311")
+		fmt.Println(response)
+
+	*/
 	/*
 		// add a schedule to an existing workflow run
 		existingWorkflow, _ := ctx.WorkflowClient.FindByType(atlan.WorkflowPackageSnowflakeMiner, 1)
