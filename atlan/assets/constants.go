@@ -420,6 +420,13 @@ var (
 		Status:   http.StatusOK,
 		Endpoint: HeraclesEndpoint,
 	}
+
+	WORKFLOW_RUN = API{
+		Path:     WORKFLOW_RUN_API,
+		Method:   http.MethodPost,
+		Status:   http.StatusOK,
+		Endpoint: HeraclesEndpoint,
+	}
 )
 
 // Constants for the Atlas search DSL
