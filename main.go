@@ -1,11 +1,35 @@
 package main
 
-import "github.com/atlanhq/atlan-go/atlan/assets"
+import (
+	"github.com/atlanhq/atlan-go/atlan/assets"
+)
 
 func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
+	/*
+		// Running Snowflake Miner
+		miner := assets.NewSnowflakeMiner("default/snowflake/1739484068").
+			Direct(1739491200, "snowflake-database", "ACCOUNT_USAGE").
+			ExcludeUsers([]string{"karanjot.singh"}).
+			PopularityWindow(30).
+			NativeLineage(true).
+			CustomConfig(map[string]interface{}{
+				"test":    true,
+				"feature": 1234,
+			}).
+			ToWorkflow()
+
+		// Run the workflow
+		response, err := ctx.WorkflowClient.Run(miner, nil)
+		if err != nil {
+			fmt.Println("Error running workflow:", err)
+			return
+		}
+
+		fmt.Println("Workflow started successfully:", response)
+	*/
 	/*
 		// Update a workflow
 		result, _ := ctx.WorkflowClient.FindByID("csa-admin-export-1739443119")
