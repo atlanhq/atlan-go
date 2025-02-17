@@ -22,7 +22,13 @@ type SnowflakeMiner struct {
 	PackageLogo    string
 }
 
-// NewSnowflakeMiner initializes a Snowflake miner
+// NewSnowflakeMiner initializes a new Snowflake miner.
+//
+// Param:
+//   - connectionQualifiedName: the qualified name of the connection to use for the miner
+//
+// Returns:
+//   - SnowflakeMiner instance, initialized with the provided connection qualified name and default values
 func NewSnowflakeMiner(connectionQualifiedName string) *SnowflakeMiner {
 	return &SnowflakeMiner{
 		AbstractMiner: NewAbstractMiner(
@@ -40,7 +46,15 @@ func NewSnowflakeMiner(connectionQualifiedName string) *SnowflakeMiner {
 	}
 }
 
-// Direct sets up the miner to extract directly from Snowflake
+// Direct sets up the miner to extract directly from Snowflake using the specified start epoch and database/schema.
+//
+// Param:
+//   - startEpoch: the epoch time from which to start mining
+//   - database: the database name to extract from (can be empty for the default database)
+//   - schema: the schema name to extract from (can be empty for the default schema)
+//
+// Returns:
+//   - SnowflakeMiner instance, set up for direct extraction from Snowflake
 func (s *SnowflakeMiner) Direct(startEpoch int64, database, schema string) *SnowflakeMiner {
 	if database == "" && schema == "" {
 		s.Parameters = append(s.Parameters, structs.NameValuePair{Name: "snowflake-database", Value: "default"})
@@ -55,28 +69,52 @@ func (s *SnowflakeMiner) Direct(startEpoch int64, database, schema string) *Snow
 	return s
 }
 
-// ExcludeUsers excludes certain users from usage metrics
+// ExcludeUsers excludes certain users from being considered in the usage metrics calculation for assets (e.g., system users).
+//
+// Param:
+//   - users: a list of user names to exclude from the usage metrics
+//
+// Returns:
+//   - SnowflakeMiner instance, updated with the specified users to exclude
 func (s *SnowflakeMiner) ExcludeUsers(users []string) *SnowflakeMiner {
 	userJSON, _ := json.Marshal(users)
 	s.Parameters = append(s.Parameters, structs.NameValuePair{Name: "popularity-exclude-user-config", Value: string(userJSON)})
 	return s
 }
 
-// PopularityWindow sets the number of days for popularity metrics
+// PopularityWindow sets the number of days to consider for calculating popularity metrics for assets.
+//
+// Param:
+//   - days: number of days to use for the popularity window (default is 30)
+//
+// Returns:
+//   - SnowflakeMiner instance, updated with the popularity window configuration
 func (s *SnowflakeMiner) PopularityWindow(days int) *SnowflakeMiner {
 	s.AdvancedConfig = true
 	s.Parameters = append(s.Parameters, structs.NameValuePair{Name: "popularity-window-days", Value: strconv.Itoa(days)})
 	return s
 }
 
-// NativeLineage enables or disables native lineage from Snowflake
+// NativeLineage enables or disables the use of Snowflake's native lineage feature for tracking lineage information.
+//
+// Param:
+//   - enabled: if true, native lineage from Snowflake will be enabled
+//
+// Returns:
+//   - SnowflakeMiner instance, updated with the native lineage setting
 func (s *SnowflakeMiner) NativeLineage(enabled bool) *SnowflakeMiner {
 	s.AdvancedConfig = true
 	s.Parameters = append(s.Parameters, structs.NameValuePair{Name: "native-lineage-active", Value: fmt.Sprintf("%t", enabled)})
 	return s
 }
 
-// CustomConfig sets a custom configuration for the miner
+// CustomConfig sets a custom configuration JSON for the Snowflake miner, allowing experimental feature flags or custom settings.
+//
+// Param:
+//   - config: a map of custom configurations to be applied to the miner
+//
+// Returns:
+//   - SnowflakeMiner instance, updated with the custom configuration
 func (s *SnowflakeMiner) CustomConfig(config map[string]interface{}) *SnowflakeMiner {
 	if len(config) > 0 {
 		configJSON, _ := json.Marshal(config)
