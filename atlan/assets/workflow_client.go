@@ -455,16 +455,18 @@ func (w *WorkflowClient) RemoveSchedule(workflow interface{}) (*structs.Workflow
 	return &response, nil
 }
 
-func (w *WorkflowClient) GetAllScheduledRuns() ([]structs.WorkflowScheduleResponse, error) {
+func (w *WorkflowClient) GetAllScheduledRuns() (*structs.WorkflowScheduleResponse, error) {
 	rawJSON, err := DefaultAtlanClient.CallAPI(&GET_ALL_SCHEDULE_RUNS, nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	var response []structs.WorkflowScheduleResponse
+	var response *structs.WorkflowScheduleResponse
+
 	if err := json.Unmarshal(rawJSON, &response); err != nil {
 		return nil, err
 	}
+
 	return response, nil
 }
 
