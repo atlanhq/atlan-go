@@ -1,11 +1,11 @@
 package assets
 
 import (
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
+	"encoding/json"
 	"time"
-)
 
-import "encoding/json"
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
+)
 
 // AbstractPackage represents a base package
 type AbstractPackage struct {

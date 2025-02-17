@@ -3,8 +3,9 @@ package assets
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/atlanhq/atlan-go/atlan"
 	"strconv"
+
+	"github.com/atlanhq/atlan-go/atlan"
 
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
@@ -111,7 +112,7 @@ func (s *SnowflakeMiner) GetMetadata() *structs.WorkflowMetadata {
 			"orchestration.atlan.com/marketplaceLink": fmt.Sprintf("https://packages.atlan.com/-/web/detail/%s", s.PackageName),
 			"orchestration.atlan.com/name":            "Snowflake Miner",
 			"package.argoproj.io/author":              "Atlan",
-			"package.argoproj.io/description":         "Package to mine query history data from Snowflake and store it for further processing. The data mined will be used for generating lineage and usage metrics.",
+			"package.argoproj.io/description":         "Package to mine query history data from Snowflake and store it for further processing. The data mined will be used for generating lineage and usage metrics.", //nolint
 			"package.argoproj.io/homepage":            fmt.Sprintf("https://packages.atlan.com/-/web/detail/%s", s.PackageName),
 			"package.argoproj.io/keywords":            `["snowflake","warehouse","connector","miner"]`,
 			"package.argoproj.io/name":                s.PackageName,
