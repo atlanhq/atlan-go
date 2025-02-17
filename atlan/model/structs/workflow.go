@@ -86,7 +86,7 @@ type Workflow struct {
 // WorkflowAsset defines the Asset structure for a workflow.
 type WorkflowAsset struct {
 	Asset
-	WorkflowAttributes *WorkflowAttributes `json:"workflowAttributes"`
+	WorkflowAttributes *WorkflowAttributes `json:"Attributes"`
 }
 
 // WorkflowAttributes captures attributes of a workflow.
@@ -226,4 +226,23 @@ type WorkflowScheduleResponse struct {
 	Spec             *WorkflowScheduleSpec   `json:"spec,omitempty"`
 	Status           *WorkflowScheduleStatus `json:"status,omitempty"`
 	WorkflowMetadata *WorkflowMetadata       `json:"workflowMetadata,omitempty"`
+}
+
+// WorkflowRun defines a workflow run as an Asset.
+type WorkflowRun struct {
+	Asset
+	WorkflowRunAttributes *WorkflowRunAttributes `json:"Attributes"`
+}
+
+type WorkflowRunAttributes struct {
+	WorkflowRunGuid        *string `json:"workflowRunGuid,omitempty"`
+	WorkflowRunType        *string `json:"workflowRunType,omitempty"`
+	WorkflowRunOnAssetGuid *string `json:"workflowRunOnAssetGuid,omitempty"`
+	WorkflowRunComment     *string `json:"workflowRunComment,omitempty"`
+	WorkflowRunConfig      *string `json:"workflowRunConfig,omitempty"`
+	WorkflowRunStatus      *string `json:"workflowRunStatus,omitempty"`
+	WorkflowRunExpiresAt   *string `json:"workflowRunExpiresAt,omitempty"`
+	WorkflowRunCreatedBy   *string `json:"workflowRunCreatedBy,omitempty"`
+	WorkflowRunUpdatedBy   *string `json:"workflowRunUpdatedBy,omitempty"`
+	WorkflowRunDeletedAt   *string `json:"workflowRunDeletedAt,omitempty"`
 }
