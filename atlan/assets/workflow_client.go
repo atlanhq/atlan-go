@@ -470,7 +470,7 @@ func (w *WorkflowClient) GetAllScheduledRuns() ([]structs.WorkflowScheduleRespon
 
 func (w *WorkflowClient) GetScheduledRun(workflowName string) (*structs.WorkflowScheduleResponse, error) {
 	api := &GET_SCHEDULE_RUN
-	api.Path = fmt.Sprintf("schedules/%s/cron", workflowName)
+	api.Path = fmt.Sprintf("runs/cron/%s-cron", workflowName)
 
 	rawJSON, err := DefaultAtlanClient.CallAPI(api, nil, nil)
 	if err != nil {
