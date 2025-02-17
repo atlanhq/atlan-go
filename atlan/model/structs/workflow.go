@@ -1,6 +1,7 @@
 package structs
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/atlanhq/atlan-go/atlan"
@@ -8,9 +9,9 @@ import (
 
 // PackageParameter represents package-related parameters.
 type PackageParameter struct {
-	Parameter string                 `json:"parameter"`
-	Type      string                 `json:"type"`
-	Body      map[string]interface{} `json:"body"`
+	Parameter string          `json:"parameter"`
+	Type      string          `json:"type"`
+	Body      json.RawMessage `json:"body"`
 }
 
 // WorkflowMetadata captures metadata about a workflow.

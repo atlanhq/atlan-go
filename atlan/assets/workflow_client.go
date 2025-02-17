@@ -2,6 +2,7 @@ package assets
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -550,4 +551,30 @@ func (w *WorkflowClient) FindScheduleQueryBetween(request structs.ScheduleQuerie
 		return nil, err
 	}
 	return response, nil
+}
+
+// Run executes an Atlan workflow with an optional schedule.
+func (w *WorkflowClient) Run(workflow interface{}, schedule *structs.WorkflowSchedule) (*structs.WorkflowResponse, error) {
+	if workflow == nil {
+		return nil, errors.New("workflow cannot be nil")
+	}
+
+	if schedule != nil {
+		_, err := w.AddSchedule(workflow, schedule)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	responseData, err := DefaultAtlanClient.CallAPI(&WORKFLOW_RUN, nil, workflow)
+	if err != nil {
+		return nil, fmt.Errorf("error executing workflow: %w", err)
+	}
+
+	var workflowResponse structs.WorkflowResponse
+	if err := json.Unmarshal(responseData, &workflowResponse); err != nil {
+		return nil, fmt.Errorf("failed to parse workflow response: %w", err)
+	}
+
+	return &workflowResponse, nil
 }
