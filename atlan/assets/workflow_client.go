@@ -96,6 +96,11 @@ func (w *WorkflowClient) FindByID(id string) (*structs.WorkflowSearchResult, err
 	if len(response.Hits.Hits) > 0 {
 		return &response.Hits.Hits[0], nil
 	}
+
+	if len(response.Hits.Hits) == 0 {
+		return nil, errors.New("no workflow found")
+	}
+
 	return nil, nil
 }
 
