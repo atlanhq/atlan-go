@@ -1,15 +1,314 @@
 package main
 
 import (
-	_ "github.com/atlanhq/atlan-go/atlan"
+	"fmt"
+
 	"github.com/atlanhq/atlan-go/atlan/assets"
-	_ "github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
 func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
+	workflowJSON := `{
+		"metadata": {
+			"labels": {
+				"orchestration.atlan.com/certified": "true",
+				"orchestration.atlan.com/source": "snowflake",
+				"orchestration.atlan.com/sourceCategory": "warehouse",
+				"orchestration.atlan.com/type": "miner",
+				"orchestration.atlan.com/verified": "true",
+				"package.argoproj.io/installer": "argopm",
+				"package.argoproj.io/name": "a-t-ratlans-l-a-s-hsnowflake-miner",
+				"package.argoproj.io/parent": "",
+				"package.argoproj.io/registry": "local",
+				"package.argoproj.io/version": "1.1.70",
+				"orchestration.atlan.com/atlan-ui": "true"
+			},
+			"annotations": {
+				"orchestration.atlan.com/allowSchedule": "true",
+				"orchestration.atlan.com/categories": "warehouse,miner",
+				"orchestration.atlan.com/dependentPackage": "",
+				"orchestration.atlan.com/docsUrl": "https://ask.atlan.com/hc/en-us/articles/6482067592337",
+				"orchestration.atlan.com/emoji": "🚀",
+				"orchestration.atlan.com/icon": "https://docs.snowflake.com/en/_images/logo-snowflake-sans-text.png",
+				"orchestration.atlan.com/logo": "https://1amiydhcmj36tz3733v94f15-wpengine.netdna-ssl.com/wp-content/themes/snowflake/assets/img/logo-blue.svg",
+				"orchestration.atlan.com/marketplaceLink": "https://packages.atlan.com/-/web/detail/@atlan/snowflake-miner",
+				"orchestration.atlan.com/name": "Snowflake Miner",
+				"package.argoproj.io/author": "Atlan",
+				"package.argoproj.io/description": "Package to mine query history data from Snowflake and store it for further processing. The data mined will be used for generating lineage and usage metrics.",
+				"package.argoproj.io/homepage": "https://packages.atlan.com/-/web/detail/@atlan/snowflake-miner",
+				"package.argoproj.io/keywords": "[\"snowflake\",\"warehouse\",\"connector\",\"miner\"]",
+				"package.argoproj.io/name": "@atlan/snowflake-miner",
+				"package.argoproj.io/parent": ".",
+				"package.argoproj.io/registry": "local",
+				"package.argoproj.io/repository": "https://github.com/atlanhq/marketplace-packages.git",
+				"package.argoproj.io/support": "support@atlan.com",
+				"orchestration.atlan.com/atlanName": "atlan-snowflake-miner-1739813867"
+			},
+			"name": "atlan-snowflake-miner-1739813867",
+			"namespace": "default"
+		},
+		"spec": {
+			"templates": [
+				{
+					"name": "main",
+					"dag": {
+						"tasks": [
+							{
+								"name": "run",
+								"arguments": {
+									"parameters": [
+										{
+											"name": "connection-qualified-name",
+											"value": "default/snowflake/1739484068"
+										},
+										{
+											"name": "extraction-method",
+											"value": "query_history"
+										},
+										{
+											"name": "miner-start-time-epoch",
+											"value": "1739491200"
+										},
+										{
+											"name": "snowflake-database",
+											"value": "default"
+										},
+										{
+											"name": "database-name",
+											"value": "SNOWFLAKE"
+										},
+										{
+											"name": "schema-name",
+											"value": "ACCOUNT_USAGE"
+										},
+										{
+											"name": "sql-json-key",
+											"value": "QUERY_TEXT"
+										},
+										{
+											"name": "catalog-json-key",
+											"value": "DATABASE_NAME"
+										},
+										{
+											"name": "schema-json-key",
+											"value": "SCHEMA_NAME"
+										},
+										{
+											"name": "session-json-key",
+											"value": "SESSION_ID"
+										},
+										{
+											"name": "popularity-window-days",
+											"value": 30
+										},
+										{
+											"name": "calculate-popularity",
+											"value": "true"
+										},
+										{
+											"name": "control-config-strategy",
+											"value": "default"
+										},
+										{
+											"name": "native-lineage-active",
+											"value": false
+										}
+									]
+								},
+								"templateRef": {
+									"name": "atlan-snowflake-miner",
+									"template": "main",
+									"clusterScope": true
+								}
+							}
+						]
+					}
+				}
+			],
+			"entrypoint": "main",
+			"workflowMetadata": {
+				"annotations": {
+					"package.argoproj.io/name": "@atlan/snowflake-miner"
+				}
+			}
+		},
+		"payload": []
+	}` // Run the workflow
+	response, err := ctx.WorkflowClient.Run(workflowJSON, nil)
+	if err != nil {
+		fmt.Println("Error running workflow:", err)
+		return
+	}
+
+	fmt.Println("Workflow started successfully:", response)
+
+	/*
+		// Remove a schedule
+		existingWorkflow, _ := ctx.WorkflowClient.FindByType(atlan.WorkflowPackageSnowflakeMiner, 1)
+		response, _ := ctx.WorkflowClient.RemoveSchedule(existingWorkflow[0])
+		fmt.Println(response)
+	*/
+	/*
+		// Get all scheduled runs
+		response, err := ctx.WorkflowClient.GetAllScheduledRuns()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(*response.Metadata.ResourceVersion)
+	*/
+	/*
+		// To retrieve an existing scheduled workflow run by its name:
+		response, _ := ctx.WorkflowClient.GetScheduledRun("atlan-snowflake-miner-1739824311")
+		fmt.Println(response)
+
+	*/
+	/*
+		// add a schedule to an existing workflow run
+		existingWorkflow, _ := ctx.WorkflowClient.FindByType(atlan.WorkflowPackageSnowflakeMiner, 1)
+		Schedule := structs.WorkflowSchedule{CronSchedule: "25 5 * * *", Timezone: "Europe/Paris"}
+		response, _ := ctx.WorkflowClient.AddSchedule(existingWorkflow[0], &Schedule)
+		fmt.Println(response)
+
+	*/
+	/*
+		// Add a schedule directly on run
+		miner := assets.NewSnowflakeMiner("default/snowflake/1739484068").
+			Direct(1739491200, "snowflake-database", "ACCOUNT_USAGE").
+			ExcludeUsers([]string{"karanjot.singh"}).
+			PopularityWindow(30).
+			NativeLineage(true).
+			CustomConfig(map[string]interface{}{
+				"test":    true,
+				"feature": 1234,
+			}).
+			ToWorkflow()
+
+		Schedule := structs.WorkflowSchedule{CronSchedule: "45 5 * * *", Timezone: "Europe/Paris"}
+
+		// Run the workflow
+		response, err := ctx.WorkflowClient.Run(miner, &Schedule)
+		if err != nil {
+			fmt.Println("Error running workflow:", err)
+			return
+		}
+		fmt.Println(response.Spec)
+	*/
+	/*
+		// Running Snowflake Miner
+		miner := assets.NewSnowflakeMiner("default/snowflake/1739484068").
+			Direct(1739491200, "snowflake-database", "ACCOUNT_USAGE").
+			ExcludeUsers([]string{"karanjot.singh"}).
+			PopularityWindow(30).
+			NativeLineage(true).
+			CustomConfig(map[string]interface{}{
+				"test":    true,
+				"feature": 1234,
+			}).
+			ToWorkflow()
+
+		// Run the workflow
+		response, err := ctx.WorkflowClient.Run(miner, nil)
+		if err != nil {
+			fmt.Println("Error running workflow:", err)
+			return
+		}
+
+		fmt.Println("Workflow started successfully:", response)
+	*/
+	/*
+		// Update a workflow
+		result, _ := ctx.WorkflowClient.FindByID("csa-admin-export-1739443119")
+
+		workflowTask := result.Source.Spec.Templates[0].DAG.Tasks[0]
+		workflowParams := workflowTask.Arguments.Parameters
+
+		fmt.Println(workflowTask)
+		fmt.Println(workflowParams)
+
+		for _, option := range workflowParams {
+			if option.Name == "enable-lineage" {
+				option.Value = true
+				fmt.Println(option)
+			}
+		}
+
+		response, err := ctx.WorkflowClient.Update(result.ToWorkflow())
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(response)
+	*/
+	/*
+		// Delete a Workflow
+		_ = ctx.WorkflowClient.Delete("csa-admin-export-1739368706")
+	*/
+	/*
+		// Stop a running workflow
+		runs, err := ctx.WorkflowClient.GetRuns("csa-admin-export-1739368706", atlan.AtlanWorkflowPhaseRunning, 0, 100)
+		if err != nil {
+			fmt.Println(err)
+		}
+		response, err := ctx.WorkflowClient.Stop(runs[0].ID)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(response)
+
+	*/
+	/*
+		// Retrieve runs by their phase:
+		result, err := ctx.WorkflowClient.GetRuns("csa-admin-export-1739368706", atlan.AtlanWorkflowPhaseSuccess, 0, 100)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(result)
+	*/
+	/*
+		// Retrieve an existing workflow latest run:
+		result, err := ctx.WorkflowClient.FindCurrentRun("csa-admin-export-1739368706")
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(result)
+	*/
+	/*
+		// Retrieve an existing workflow latest run:
+		result, err := ctx.WorkflowClient.FindLatestRun("csa-admin-export-1739172254")
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(*result.Source.Metadata.CreationTimestamp)
+
+	*/
+	/*
+		// Retrieve an existing workflow run by its ID:
+		result, err := ctx.WorkflowClient.FindRunByID("csa-admin-export-1739172254-skdzt")
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(*result.Source.Metadata.CreationTimestamp)
+	*/
+	/*
+		// Retrieve an existing workflow by its ID:
+		result, err := ctx.WorkflowClient.FindByID("csa-admin-export-1739172254\n\n")
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(result)
+
+
+	*/
+	/*
+		// Retrieve existing workflows by its type:
+		result, err := ctx.WorkflowClient.FindByType(atlan.WorkflowPackageSnowflakeMiner, 5)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(result)
+
+	*/
 	/*
 		// Find the GUID of a specific policy in a persona
 		PurposeName := "Test-go-sdk-Purpose"

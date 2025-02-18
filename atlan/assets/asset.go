@@ -316,6 +316,33 @@ type PurposeFields struct {
 	PURPOSE_CLASSIFICATIONS *KeywordField
 }
 
+type WorkflowFields struct {
+	AssetFields
+	WORKFLOW_TEMPLATE_GUID  *KeywordField
+	WORKFLOW_TYPE           *KeywordField
+	WORKFLOW_CONFIG         *TextField
+	WORKFLOW_STATUS         *KeywordField
+	WORKFLOW_RUN_EXPIRES_IN *TextField
+	WORKFLOW_CREATED_BY     *KeywordField
+	WORKFLOW_UPDATED_BY     *KeywordField
+	WORKFLOW_DELETED_AT     *NumericField
+}
+
+// WorkflowRunFields represents the fields for a workflow run.
+type WorkflowRunFields struct {
+	AssetFields
+	WORKFLOW_RUN_WORKFLOW_GUID *KeywordField
+	WORKFLOW_RUN_TYPE          *KeywordField
+	WORKFLOW_RUN_ON_ASSET_GUID *KeywordField
+	WORKFLOW_RUN_COMMENT       *TextField
+	WORKFLOW_RUN_CONFIG        *TextField
+	WORKFLOW_RUN_STATUS        *KeywordField
+	WORKFLOW_RUN_EXPIRES_AT    *NumericField
+	WORKFLOW_RUN_CREATED_BY    *KeywordField
+	WORKFLOW_RUN_UPDATED_BY    *KeywordField
+	WORKFLOW_RUN_DELETED_AT    *NumericField
+}
+
 // NewSearchTable returns a new AtlasTable object for Searching
 func NewSearchTable() *AtlasTableFields {
 	return &AtlasTableFields{
@@ -1019,6 +1046,106 @@ func NewPurposeFields() *PurposeFields {
 			},
 		},
 		PURPOSE_CLASSIFICATIONS: NewKeywordField("purposeClassifications", "purposeClassifications"),
+	}
+}
+
+// NewWorkflowFields initializes and returns a WorkflowFields struct.
+func NewWorkflowFields() *WorkflowFields {
+	return &WorkflowFields{
+		AssetFields: AssetFields{
+			AttributesFields: AttributesFields{
+				TYPENAME:              NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
+				GUID:                  NewKeywordField("guid", "__guid"),
+				CREATED_BY:            NewKeywordField("createdBy", "__createdBy"),
+				UPDATED_BY:            NewKeywordField("updatedBy", "__modifiedBy"),
+				STATUS:                NewKeywordField("status", "__state"),
+				ATLAN_TAGS:            NewKeywordTextField("classificationNames", "__traitNames", "__classificationsText"),
+				PROPOGATED_ATLAN_TAGS: NewKeywordTextField("classificationNames", "__propagatedTraitNames", "__classificationsText"),
+				ASSIGNED_TERMS:        NewKeywordTextField("meanings", "__meanings", "__meaningsText"),
+				SUPERTYPE_NAMES:       NewKeywordTextField("typeName", "__superTypeNames.keyword", "__superTypeNames"),
+				CREATE_TIME:           NewNumericField("createTime", "__timestamp"),
+				UPDATE_TIME:           NewNumericField("updateTime", "__modificationTimestamp"),
+				QUALIFIED_NAME:        NewKeywordTextField("qualifiedName", "qualifiedName", "qualifiedName.text"),
+			},
+			NAME:                       NewKeywordTextStemmedField("name", "name.keyword", "name", "name"),
+			DISPLAY_NAME:               NewKeywordTextField("displayName", "displayName.keyword", "displayName"),
+			DESCRIPTION:                NewKeywordTextField("description", "description", "description.text"),
+			USER_DESCRIPTION:           NewKeywordTextField("userDescription", "userDescription", "userDescription.text"),
+			TENET_ID:                   NewKeywordField("tenetId", "tenetId"),
+			CERTIFICATE_STATUS:         NewKeywordTextField("certificateStatus", "certificateStatus", "certificateStatus.text"),
+			CERTIFICATE_STATUS_MESSAGE: NewKeywordField("certificateStatusMessage", "certificateStatusMessage"),
+			CERTIFICATE_UPDATED_BY:     NewNumericField("certificateUpdatedBy", "certificateUpdatedBy"),
+			ANNOUNCEMENT_TITLE:         NewKeywordField("announcementTitle", "announcementTitle"),
+			ANNOUNCEMENT_MESSAGE:       NewKeywordTextField("announcementMessage", "announcementMessage", "announcementMessage.text"),
+			ANNOUNCEMENT_TYPE:          NewKeywordField("announcementType", "announcementType"),
+			ANNOUNCEMENT_UPDATED_AT:    NewNumericField("announcementUpdatedAt", "announcementUpdatedAt"),
+			ANNOUNCEMENT_UPDATED_BY:    NewKeywordField("announcementUpdatedBy", "announcementUpdatedBy"),
+			OWNER_USERS:                NewKeywordTextField("ownerUsers", "ownerUsers", "ownerUsers.text"),
+			ADMIN_USERS:                NewKeywordField("adminUsers", "adminUsers"),
+			VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
+			VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
+			CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+			CONNECTION_QUALIFIED_NAME:  NewKeywordTextField("connectionQualifiedName", "connectionQualifiedName", "connectionQualifiedName.text"),
+		},
+		WORKFLOW_TEMPLATE_GUID:  NewKeywordField("workflowTemplateGuid", "workflowTemplateGuid"),
+		WORKFLOW_TYPE:           NewKeywordField("workflowType", "workflowType"),
+		WORKFLOW_CONFIG:         NewTextField("workflowConfig", "workflowConfig"),
+		WORKFLOW_STATUS:         NewKeywordField("workflowStatus", "workflowStatus"),
+		WORKFLOW_RUN_EXPIRES_IN: NewTextField("workflowRunExpiresIn", "workflowRunExpiresIn"),
+		WORKFLOW_CREATED_BY:     NewKeywordField("workflowCreatedBy", "workflowCreatedBy"),
+		WORKFLOW_UPDATED_BY:     NewKeywordField("workflowUpdatedBy", "workflowUpdatedBy"),
+		WORKFLOW_DELETED_AT:     NewNumericField("workflowDeletedAt", "workflowDeletedAt"),
+	}
+}
+
+// NewWorkflowRunFields initializes and returns a WorkflowRunFields struct.
+func NewWorkflowRunFields() *WorkflowRunFields {
+	return &WorkflowRunFields{
+		AssetFields: AssetFields{
+			AttributesFields: AttributesFields{
+				TYPENAME:              NewKeywordTextField("typeName", "__typeName.keyword", "__typeName"),
+				GUID:                  NewKeywordField("guid", "__guid"),
+				CREATED_BY:            NewKeywordField("createdBy", "__createdBy"),
+				UPDATED_BY:            NewKeywordField("updatedBy", "__modifiedBy"),
+				STATUS:                NewKeywordField("status", "__state"),
+				ATLAN_TAGS:            NewKeywordTextField("classificationNames", "__traitNames", "__classificationsText"),
+				PROPOGATED_ATLAN_TAGS: NewKeywordTextField("classificationNames", "__propagatedTraitNames", "__classificationsText"),
+				ASSIGNED_TERMS:        NewKeywordTextField("meanings", "__meanings", "__meaningsText"),
+				SUPERTYPE_NAMES:       NewKeywordTextField("typeName", "__superTypeNames.keyword", "__superTypeNames"),
+				CREATE_TIME:           NewNumericField("createTime", "__timestamp"),
+				UPDATE_TIME:           NewNumericField("updateTime", "__modificationTimestamp"),
+				QUALIFIED_NAME:        NewKeywordTextField("qualifiedName", "qualifiedName", "qualifiedName.text"),
+			},
+			NAME:                       NewKeywordTextStemmedField("name", "name.keyword", "name", "name"),
+			DISPLAY_NAME:               NewKeywordTextField("displayName", "displayName.keyword", "displayName"),
+			DESCRIPTION:                NewKeywordTextField("description", "description", "description.text"),
+			USER_DESCRIPTION:           NewKeywordTextField("userDescription", "userDescription", "userDescription.text"),
+			TENET_ID:                   NewKeywordField("tenetId", "tenetId"),
+			CERTIFICATE_STATUS:         NewKeywordTextField("certificateStatus", "certificateStatus", "certificateStatus.text"),
+			CERTIFICATE_STATUS_MESSAGE: NewKeywordField("certificateStatusMessage", "certificateStatusMessage"),
+			CERTIFICATE_UPDATED_BY:     NewNumericField("certificateUpdatedBy", "certificateUpdatedBy"),
+			ANNOUNCEMENT_TITLE:         NewKeywordField("announcementTitle", "announcementTitle"),
+			ANNOUNCEMENT_MESSAGE:       NewKeywordTextField("announcementMessage", "announcementMessage", "announcementMessage.text"),
+			ANNOUNCEMENT_TYPE:          NewKeywordField("announcementType", "announcementType"),
+			ANNOUNCEMENT_UPDATED_AT:    NewNumericField("announcementUpdatedAt", "announcementUpdatedAt"),
+			ANNOUNCEMENT_UPDATED_BY:    NewKeywordField("announcementUpdatedBy", "announcementUpdatedBy"),
+			OWNER_USERS:                NewKeywordTextField("ownerUsers", "ownerUsers", "ownerUsers.text"),
+			ADMIN_USERS:                NewKeywordField("adminUsers", "adminUsers"),
+			VIEWER_USERS:               NewKeywordField("viewerUsers", "viewerUsers"),
+			VIEWER_GROUPS:              NewKeywordField("viewerGroups", "viewerGroups"),
+			CONNECTOR_NAME:             NewKeywordTextField("connectorName", "connectorName", "connectorName.text"),
+			CONNECTION_QUALIFIED_NAME:  NewKeywordTextField("connectionQualifiedName", "connectionQualifiedName", "connectionQualifiedName.text"),
+		},
+		WORKFLOW_RUN_WORKFLOW_GUID: NewKeywordField("workflowRunWorkflowGuid", "workflowRunWorkflowGuid"),
+		WORKFLOW_RUN_TYPE:          NewKeywordField("workflowRunType", "workflowRunType"),
+		WORKFLOW_RUN_ON_ASSET_GUID: NewKeywordField("workflowRunOnAssetGuid", "workflowRunOnAssetGuid"),
+		WORKFLOW_RUN_COMMENT:       NewTextField("workflowRunComment", "workflowRunComment"),
+		WORKFLOW_RUN_CONFIG:        NewTextField("workflowRunConfig", "workflowRunConfig"),
+		WORKFLOW_RUN_STATUS:        NewKeywordField("workflowRunStatus", "workflowRunStatus"),
+		WORKFLOW_RUN_EXPIRES_AT:    NewNumericField("workflowRunExpiresAt", "workflowRunExpiresAt"),
+		WORKFLOW_RUN_CREATED_BY:    NewKeywordField("workflowRunCreatedBy", "workflowRunCreatedBy"),
+		WORKFLOW_RUN_UPDATED_BY:    NewKeywordField("workflowRunUpdatedBy", "workflowRunUpdatedBy"),
+		WORKFLOW_RUN_DELETED_AT:    NewNumericField("workflowRunDeletedAt", "workflowRunDeletedAt"),
 	}
 }
 

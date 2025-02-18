@@ -407,6 +407,55 @@ func (s *SortItem) ToJSON() map[string]interface{} {
 	return map[string]interface{}{s.Field: sortField}
 }
 
+/*
+I don’t remember why we made a separate `ToJSON()` method for above search queries instead of using
+the custom `MarshalJSON()` method, which would automatically be used when preparing a request.
+I won’t change these methods for now, but I’ll make a separate JIRA ticket to refactor them and check if anything breaks.
+*/
+
+// WorkflowSearchRequest captures the request structure for workflow search. (Added here in order to avoid circular imports)
+type WorkflowSearchRequest struct {
+	From           int        `json:"from"`
+	Size           int        `json:"size"`
+	TrackTotalHits bool       `json:"track_total_hits"`
+	PostFilter     Query      `json:"post_filter,omitempty"`
+	Query          Query      `json:"query,omitempty"`
+	Sort           []SortItem `json:"sort"`
+}
+
+// MarshalJSON marshals the WorkflowSearchRequest to JSON.
+func (w WorkflowSearchRequest) MarshalJSON() ([]byte, error) {
+	type Alias WorkflowSearchRequest
+	alias := Alias(w)
+
+	var queryJSON map[string]interface{}
+	if w.Query != nil {
+		queryJSON = w.Query.ToJSON()
+	}
+
+	var postFilterJSON map[string]interface{}
+	if w.PostFilter != nil {
+		postFilterJSON = w.PostFilter.ToJSON()
+	}
+
+	var sortJSON []map[string]interface{}
+	for _, s := range w.Sort {
+		sortJSON = append(sortJSON, s.ToJSON())
+	}
+
+	return json.Marshal(&struct {
+		Query      map[string]interface{}   `json:"query,omitempty"`
+		PostFilter map[string]interface{}   `json:"post_filter,omitempty"`
+		Sort       []map[string]interface{} `json:"sort,omitempty"`
+		Alias
+	}{
+		Query:      queryJSON,
+		PostFilter: postFilterJSON,
+		Sort:       sortJSON,
+		Alias:      alias,
+	})
+}
+
 // SearchRequest represents a search request in the Atlas search DSL.
 type SearchRequest struct {
 	Attributes          []string `json:"attributes,omitempty"`
