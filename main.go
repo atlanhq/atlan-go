@@ -1,9 +1,9 @@
 package main
 
 import (
-	_ "github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/assets"
-	_ "github.com/atlanhq/atlan-go/atlan/model/structs"
+	_ "github.com/getsynq/atlan-go/atlan"
+	"github.com/getsynq/atlan-go/atlan/assets"
+	_ "github.com/getsynq/atlan-go/atlan/model/structs"
 )
 
 func main() {

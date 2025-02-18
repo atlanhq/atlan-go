@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/model"
+	"github.com/getsynq/atlan-go/atlan"
+	"github.com/getsynq/atlan-go/atlan/model"
 )
 
 type TypeDefClient struct {

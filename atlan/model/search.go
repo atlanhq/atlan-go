@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
+	"github.com/getsynq/atlan-go/atlan"
+	"github.com/getsynq/atlan-go/atlan/model/structs"
 )
 
 // Query is an interface that represents the base query behavior.
@@ -480,7 +480,7 @@ func (isr *IndexSearchResponse) UnmarshalJSON(data []byte) error {
 	var entities []SearchAssets
 	for _, entityData := range aux.Entities {
 		var sa SearchAssets
-		if err := json.Unmarshal(entityData, &sa); err != nil {
+		if err := sa.UnmarshalJSON(entityData); err != nil {
 			return err
 		}
 		// Populate custom metadata set for each entity
@@ -541,9 +541,12 @@ type SearchAssets struct {
 	structs.AuthPolicy
 	structs.Persona
 	structs.AccessControl
+	structs.Connection
+	structs.DataProduct
+	structs.DataDomain
 	QualifiedName       *string           `json:"qualifiedName,omitempty"`
 	Name                *string           `json:"name,omitempty"`
-	SearchAttributes    *SearchAttributes `json:"Attributes,omitempty"`
+	SearchAttributes    *SearchAttributes `json:"attributes,omitempty"`
 	SearchMeanings      []Meanings        `json:"meanings,omitempty"` // If meanings as json is already defined in Asset struct then defining the meanings here would result in an empty response.
 	NotNull             *bool             `json:"notNull,omitempty"`
 	rawSearchAttributes map[string]interface{}
@@ -557,6 +560,13 @@ type Meanings struct {
 }
 
 type SearchAttributes struct {
+	// DataProduct attributes
+	DataProductAssetsDSL *string             `json:"dataProductAssetsDSL,omitempty"`
+	DataDomain           *structs.DataDomain `json:"dataDomain,omitempty"`
+
+	// DataDomain attributes
+	ParentDomain *structs.DataDomain `json:"parentDomain,omitempty"`
+
 	// Column Attributes
 	SubDataType                    *string                            `json:"subDataType,omitempty"`
 	RawDataTypeDefinition          *string                            `json:"rawDataTypeDefinition,omitempty"`
@@ -669,6 +679,7 @@ type SearchAttributes struct {
 	AnnouncementMessage      *string                  `json:"announcementMessage,omitempty"`
 	CertificateStatus        *atlan.CertificateStatus `json:"certificateStatus,omitempty"`
 	CertificateStatusMessage *string                  `json:"certificateStatusMessage,omitempty"`
+	ConnectionQualifiedName  *string                  `json:"connectionQualifiedName,omitempty"`
 }
 
 // Used in End-to-end bulk update
@@ -891,6 +902,8 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		structs.Persona
 		structs.Purpose
 		structs.AccessControl
+		structs.DataProduct
+		structs.DataDomain
 		QualifiedName    *string           `json:"qualifiedName,omitempty"`
 		Name             *string           `json:"name,omitempty"`
 		SearchAttributes *SearchAttributes `json:"attributes,omitempty"`
@@ -942,6 +955,20 @@ func (sa *SearchAssets) UnmarshalJSON(data []byte) error {
 		sa.AnnouncementMessage = aux.SearchAttributes.AnnouncementMessage
 		sa.CertificateStatus = aux.SearchAttributes.CertificateStatus
 		sa.CertificateStatusMessage = aux.SearchAttributes.CertificateStatusMessage
+		if aux.SearchAttributes.ConnectionQualifiedName != nil {
+			sa.ConnectionQualifiedName = aux.SearchAttributes.ConnectionQualifiedName
+		}
+		// DataProduct Attributes
+		sa.DataProductAssetsDSL = aux.SearchAttributes.DataProductAssetsDSL
+		sa.DataProductDataDomain = aux.SearchAttributes.DataDomain
+		if aux.SearchAttributes.DataDomain != nil && aux.SearchAttributes.DataDomain.UniqueAttributes != nil && aux.SearchAttributes.DataDomain.UniqueAttributes.QualifiedName != nil {
+			sa.DataProductDataDomain.QualifiedName = aux.SearchAttributes.DataDomain.UniqueAttributes.QualifiedName
+		}
+		// DataDomain Attributes
+		sa.ParentDomain = aux.SearchAttributes.ParentDomain
+		if aux.SearchAttributes.ParentDomain != nil && aux.SearchAttributes.ParentDomain.UniqueAttributes != nil && aux.SearchAttributes.ParentDomain.UniqueAttributes.QualifiedName != nil {
+			sa.ParentDomain.QualifiedName = aux.SearchAttributes.ParentDomain.UniqueAttributes.QualifiedName
+		}
 		// Column Attributes
 		sa.MaxLength = aux.SearchAttributes.MaxLength
 		sa.Precision = aux.SearchAttributes.Precision

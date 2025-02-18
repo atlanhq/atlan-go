@@ -1,6 +1,6 @@
 package structs
 
-import "github.com/atlanhq/atlan-go/atlan"
+import "github.com/getsynq/atlan-go/atlan"
 
 type AtlanIcon string
 

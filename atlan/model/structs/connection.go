@@ -3,7 +3,7 @@ package structs
 import (
 	"time"
 
-	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/getsynq/atlan-go/atlan"
 )
 
 type Connection struct {

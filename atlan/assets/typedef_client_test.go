@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/getsynq/atlan-go/atlan"
 	"github.com/stretchr/testify/assert"
 )
 

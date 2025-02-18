@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
+	"github.com/getsynq/atlan-go/atlan"
+	"github.com/getsynq/atlan-go/atlan/model/structs"
 )
 
 type AuthPolicy structs.AuthPolicy

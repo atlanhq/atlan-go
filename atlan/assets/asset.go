@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/getsynq/atlan-go/atlan"
 
-	"github.com/atlanhq/atlan-go/atlan/model"
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
+	"github.com/getsynq/atlan-go/atlan/model"
+	"github.com/getsynq/atlan-go/atlan/model/structs"
 )
 
 // AtlanObject is an interface that all asset types should implement

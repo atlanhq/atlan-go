@@ -3,8 +3,8 @@ package assets
 import (
 	"errors"
 
-	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/model"
+	"github.com/getsynq/atlan-go/atlan"
+	"github.com/getsynq/atlan-go/atlan/model"
 )
 
 // FailedBatch is an internal struct to capture batch failures.

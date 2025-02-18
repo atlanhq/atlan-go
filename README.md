@@ -16,7 +16,7 @@ To get started developing or using the SDK, follow the steps below. For a more d
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/atlanhq/atlan-go.git
+   git clone https://github.com/getsynq/atlan-go.git
    ```
 
 2. Ensure you have Go 1.19 or later installed. You can verify your Go version with:

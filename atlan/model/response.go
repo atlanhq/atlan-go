@@ -3,7 +3,7 @@ package model
 import (
 	"reflect"
 
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
+	"github.com/getsynq/atlan-go/atlan/model/structs"
 )
 
 // Unmarshal on assets changed the unmarshalling for the whole sdk asset structure

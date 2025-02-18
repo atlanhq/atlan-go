@@ -1,7 +1,7 @@
 package structs
 
 import (
-	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/getsynq/atlan-go/atlan"
 )
 
 // AccessControl represents the attributes of the AccessControl asset.

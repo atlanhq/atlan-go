@@ -1,4 +1,4 @@
-module github.com/atlanhq/atlan-go
+module github.com/getsynq/atlan-go
 
 go 1.19
 

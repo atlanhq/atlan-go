@@ -3,7 +3,7 @@ package structs
 import (
 	"encoding/json"
 
-	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/getsynq/atlan-go/atlan"
 )
 
 type _Glossary AtlasGlossary

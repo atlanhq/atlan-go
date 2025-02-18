@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/atlanhq/atlan-go/atlan/model"
+	"github.com/getsynq/atlan-go/atlan/model"
 )
 
 // A client for operating on Atlan's tenant object storage.

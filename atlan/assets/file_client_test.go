@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/atlanhq/atlan-go/atlan/model"
+	"github.com/getsynq/atlan-go/atlan/model"
 	"github.com/stretchr/testify/assert"
 )
 

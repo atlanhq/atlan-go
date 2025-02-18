@@ -1,8 +1,8 @@
 package assets
 
 import (
-	"github.com/atlanhq/atlan-go/atlan"
-	"github.com/atlanhq/atlan-go/atlan/model"
+	"github.com/getsynq/atlan-go/atlan"
+	"github.com/getsynq/atlan-go/atlan/model"
 )
 
 // FluentSearch is a struct that represents a fluent search query.
@@ -17,6 +17,7 @@ type FluentSearch struct {
 	IncludesOnResults   []string
 	IncludesOnRelations []string
 	UtmTags             []string
+	Client              *AtlanClient
 }
 
 // SetUtmTags sets the UTM tags for tracking the source of requests.
@@ -136,6 +137,12 @@ func (fs *FluentSearch) IncludeOnRelations(fields ...string) *FluentSearch {
 	return fs
 }
 
+// WithClient sets the Client field.
+func (fs *FluentSearch) WithClient(client *AtlanClient) *FluentSearch {
+	fs.Client = client
+	return fs
+}
+
 // Execute performs the search and returns the results.
 func (fs *FluentSearch) Execute() ([]*model.IndexSearchResponse, error) {
 	if fs.PageSize == 0 {
@@ -146,6 +153,9 @@ func (fs *FluentSearch) Execute() ([]*model.IndexSearchResponse, error) {
 	request := fs.ToRequest()
 
 	iterator := NewIndexSearchIterator(pageSize, *request)
+	if fs.Client != nil {
+		iterator.SetClient(fs.Client)
+	}
 	responses := make([]*model.IndexSearchResponse, 0)
 
 	for iterator.HasMoreResults() {

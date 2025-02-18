@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
+	"github.com/getsynq/atlan-go/atlan/model/structs"
 )
 
 type (

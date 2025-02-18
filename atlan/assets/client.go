@@ -10,9 +10,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/atlanhq/atlan-go/config"
+	"github.com/getsynq/atlan-go/config"
 
-	"github.com/atlanhq/atlan-go/atlan/logger"
+	"github.com/getsynq/atlan-go/atlan/logger"
 	"github.com/k0kubun/go-ansi"
 	"github.com/schollz/progressbar/v3"
 )

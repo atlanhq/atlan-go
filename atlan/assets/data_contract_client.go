@@ -3,7 +3,7 @@ package assets
 import (
 	"encoding/json"
 
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
+	"github.com/getsynq/atlan-go/atlan/model/structs"
 )
 
 type DataContract structs.DataContract

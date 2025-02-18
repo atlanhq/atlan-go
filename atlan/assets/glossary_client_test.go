@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/atlanhq/atlan-go/atlan"
+	"github.com/getsynq/atlan-go/atlan"
 	"github.com/stretchr/testify/assert"
 )
 
