@@ -752,11 +752,9 @@ func (w *WorkflowClient) FindScheduleQueryBetween(request structs.ScheduleQuerie
 //
 // This method triggers the workflow and attaches a schedule if provided.
 //
-// Param:
-//   - workflow: The workflow object to execute, can be of any type (WorkflowResponse, WorkflowSearchResult, etc.).
-//   - schedule: A WorkflowSchedule object containing:
-//   - Cron schedule expression (e.g., `5 4 * * *`).
-//   - Timezone for the cron schedule (e.g., `Europe/Paris`).
+// Params:
+//   - workflow: The workflow object to execute, can be a JSON string or an object (WorkflowResponse, WorkflowSearchResult, etc.).
+//   - schedule: A WorkflowSchedule object containing cron expression and timezone.
 //
 // Returns:
 //   - A WorkflowResponse object containing the details of the executed workflow.
@@ -766,12 +764,23 @@ func (w *WorkflowClient) Run(workflow interface{}, schedule *structs.WorkflowSch
 		return nil, errors.New("workflow cannot be nil")
 	}
 
+	var workflowPayload interface{}
+
+	switch v := workflow.(type) {
+	case string: // If workflow is a JSON string, unmarshal it
+		if err := json.Unmarshal([]byte(v), &workflowPayload); err != nil {
+			return nil, fmt.Errorf("invalid JSON workflow: %w", err)
+		}
+	default:
+		workflowPayload = workflow
+	}
+
 	if schedule != nil {
-		workflowToUpdate, _ := w.handleWorkflowTypes(workflow)
+		workflowToUpdate, _ := w.handleWorkflowTypes(workflowPayload)
 		w.addSchedule(workflowToUpdate, schedule)
 	}
 
-	responseData, err := DefaultAtlanClient.CallAPI(&WORKFLOW_RUN, nil, workflow)
+	responseData, err := DefaultAtlanClient.CallAPI(&WORKFLOW_RUN, nil, workflowPayload)
 	if err != nil {
 		return nil, fmt.Errorf("error executing workflow: %w", err)
 	}
