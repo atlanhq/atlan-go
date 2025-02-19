@@ -69,11 +69,12 @@ type WorkflowTemplate struct {
 
 // WorkflowSpec defines the specification of a workflow.
 type WorkflowSpec struct {
-	Entrypoint          *string            `json:"entrypoint,omitempty"`
-	Arguments           interface{}        `json:"arguments,omitempty"`
-	Templates           []WorkflowTemplate `json:"templates,omitempty"`
-	WorkflowTemplateRef map[string]string  `json:"workflowTemplateRef,omitempty"`
-	WorkflowMetadata    *WorkflowMetadata  `json:"workflowMetadata,omitempty"`
+	Entrypoint          *string                  `json:"entrypoint,omitempty"`
+	Arguments           interface{}              `json:"arguments,omitempty"`
+	Templates           []WorkflowTemplate       `json:"templates,omitempty"`
+	WorkflowTemplateRef map[string]string        `json:"workflowTemplateRef,omitempty"`
+	WorkflowMetadata    *WorkflowMetadata        `json:"workflowMetadata,omitempty"`
+	Synchronization     *WorkflowSynchronization `json:"synchronization,omitempty"`
 }
 
 // Workflow represents the primary workflow object.
@@ -245,4 +246,20 @@ type WorkflowRunAttributes struct {
 	WorkflowRunCreatedBy   *string `json:"workflowRunCreatedBy,omitempty"`
 	WorkflowRunUpdatedBy   *string `json:"workflowRunUpdatedBy,omitempty"`
 	WorkflowRunDeletedAt   *string `json:"workflowRunDeletedAt,omitempty"`
+}
+
+// WorkflowSynchronization represents the synchronization settings for a workflow.
+type WorkflowSynchronization struct {
+	Semaphore *WorkflowSemaphore `json:"semaphore,omitempty"`
+}
+
+// WorkflowSemaphore represents a semaphore for workflow concurrency control.
+type WorkflowSemaphore struct {
+	ConfigMapKeyRef *WorkflowConfigMapKeyRef `json:"configMapKeyRef,omitempty"`
+}
+
+// WorkflowConfigMapKeyRef represents a reference to a ConfigMap key.
+type WorkflowConfigMapKeyRef struct {
+	Name string `json:"name"`
+	Key  string `json:"key"`
 }
