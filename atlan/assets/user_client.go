@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
@@ -461,4 +462,143 @@ func ParseAtlanUser(data interface{}) (AtlanUser, error) {
 	}
 
 	return user, nil
+}
+
+// RemoveUser removes a user and transfers their assets to another user.
+// Params:
+//   - userName: The username of the user to be removed.
+//   - transferToUserName: The username of the user to transfer assets to.
+//   - wfCreatorUserName (optional): The username of the workflow creator (if not provided, defaults to transferToUserName).
+//
+// Returns:
+//   - WorkflowResponse: Response of the workflow execution.
+//   - Error: If any API issue occurs.
+func (uc *UserClient) RemoveUser(userName, transferToUserName string, wfCreatorUserName *string) (*structs.WorkflowResponse, error) {
+	// Fetch user details using userName
+	userDetails, err := uc.GetByUsername(userName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch user details: %w", err)
+	}
+
+	// Ensure the user can only be deleted if their role is not "admin"
+	if userDetails.WorkspaceRole == "$admin" {
+		return nil, fmt.Errorf("user %s cannot be deleted as they are admin", userName)
+	}
+
+	// Fetch transferee user details
+	transferUserDetails, err := uc.GetByUsername(transferToUserName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch transferee user details: %w", err)
+	}
+
+	// Determine workflow creator details, also avoiding an extra request if wfCreatorUserName == transferToUserName
+	var wfCreatorDetails *AtlanUser
+	if wfCreatorUserName != nil && *wfCreatorUserName != transferToUserName {
+		wfCreatorDetails, err = uc.GetByUsername(*wfCreatorUserName)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch workflow creator user details: %w", err)
+		}
+	} else {
+		wfCreatorDetails = transferUserDetails // Default to transferee if not provided or same as transferToUserName
+	}
+
+	// Workflow Payload
+	workflowSpec := structs.WorkflowSpec{
+		Entrypoint: structs.StringPtr("main"),
+		Synchronization: &structs.WorkflowSynchronization{
+			Semaphore: &structs.WorkflowSemaphore{
+				ConfigMapKeyRef: &structs.WorkflowConfigMapKeyRef{
+					Name: "atlan-delete-user",
+					Key:  "concurrency",
+				},
+			},
+		},
+		Templates: []structs.WorkflowTemplate{
+			{
+				Name: "main",
+				DAG: structs.WorkflowDAG{
+					Tasks: []structs.WorkflowTask{
+						{
+							Name: "run",
+							Arguments: structs.WorkflowParameters{
+								Parameters: []structs.NameValuePair{
+									{Name: "user-id", Value: userDetails.ID},
+									{Name: "username", Value: userDetails.Username},
+									{Name: "user-full-name", Value: *userDetails.FirstName + " " + *userDetails.LastName},
+									{Name: "user-email", Value: userDetails.Email},
+									{Name: "transfer-assets-to-user-id", Value: transferUserDetails.ID},
+									{Name: "transfer-assets-to-username", Value: transferUserDetails.Username},
+									{Name: "transferee-full-name", Value: *transferUserDetails.FirstName + " " + *transferUserDetails.LastName},
+									{Name: "kube-secret-name", Value: "argo-client-creds"},
+									{Name: "wf-creator-full-name", Value: *wfCreatorDetails.FirstName + " " + *wfCreatorDetails.LastName},
+									{Name: "wf-creator-email", Value: wfCreatorDetails.Email},
+								},
+							},
+							TemplateRef: structs.WorkflowTemplateRef{
+								Name:         "atlan-delete-user",
+								Template:     "main",
+								ClusterScope: true,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	workflowMetadata := &structs.WorkflowMetadata{
+		Name:      structs.StringPtr(fmt.Sprintf("atln-del-usr-%s-%d", userDetails.ID, time.Now().Unix())),
+		Namespace: structs.StringPtr("default"),
+		Labels: map[string]string{
+			"orchestration.atlan.com/certified": "false",
+			"orchestration.atlan.com/type":      "utility",
+			"orchestration.atlan.com/verified":  "false",
+			"package.argoproj.io/installer":     "argopm",
+			"package.argoproj.io/name":          "a-t-ratlans-l-a-s-hdelete-user",
+			"package.argoproj.io/parent":        "",
+			"package.argoproj.io/registry":      "local",
+			"package.argoproj.io/version":       "0.2.105",
+		},
+		Annotations: map[string]string{
+			"orchestration.atlan.com/allowSchedule":    "false",
+			"orchestration.atlan.com/categories":       "utility,admin,user,delete",
+			"orchestration.atlan.com/dependentPackage": "",
+			"orchestration.atlan.com/docsUrl":          "https://ask.atlan.com/hc/en-us/articles/6755306791697",
+			"orchestration.atlan.com/emoji":            "🗑️",
+			"orchestration.atlan.com/icon":             "https://assets.atlan.com/assets/remove-user.svg",
+			"orchestration.atlan.com/logo":             "https://assets.atlan.com/assets/remove-user.svg",
+			"orchestration.atlan.com/marketplaceLink":  "https://packages.atlan.com/-/web/detail/@atlan/delete-user",
+			"orchestration.atlan.com/name":             "Delete User",
+			"package.argoproj.io/author":               "Atlan",
+			"package.argoproj.io/description":          "Transfers user assets and deletes user",
+			"package.argoproj.io/homepage":             "https://packages.atlan.com/-/web/detail/@atlan/delete-user",
+			"package.argoproj.io/keywords":             "[\"delete\",\"user\",\"admin\",\"utility\"]",
+			"package.argoproj.io/name":                 "@atlan/delete-user",
+			"package.argoproj.io/parent":               ".",
+			"package.argoproj.io/registry":             "local",
+			"package.argoproj.io/repository":           "https://github.com/atlanhq/marketplace-packages.git",
+			"package.argoproj.io/support":              "support@atlan.com",
+		},
+	}
+
+	var payload []structs.PackageParameter
+
+	// Final workflow struct
+	workflowPayload := &structs.Workflow{
+		Metadata: workflowMetadata,
+		Spec:     &workflowSpec,
+		Payload:  payload,
+	}
+
+	responseData, err := DefaultAtlanClient.CallAPI(&WORKFLOW_RUN, nil, workflowPayload)
+	if err != nil {
+		return nil, fmt.Errorf("error executing workflow: %w", err)
+	}
+
+	var workflowResponse structs.WorkflowResponse
+	if err := json.Unmarshal(responseData, &workflowResponse); err != nil {
+		return nil, fmt.Errorf("failed to parse workflow response: %w", err)
+	}
+
+	return &workflowResponse, nil
 }
