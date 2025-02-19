@@ -464,7 +464,7 @@ func ParseAtlanUser(data interface{}) (AtlanUser, error) {
 	return user, nil
 }
 
-// DeleteUser removes a user and transfers their assets to another user.
+// RemoveUser removes a user and transfers their assets to another user.
 // Params:
 //   - userName: The username of the user to be removed.
 //   - transferToUserName: The username of the user to transfer assets to.
@@ -473,7 +473,7 @@ func ParseAtlanUser(data interface{}) (AtlanUser, error) {
 // Returns:
 //   - WorkflowResponse: Response of the workflow execution.
 //   - Error: If any API issue occurs.
-func (uc *UserClient) DeleteUser(userName, transferToUserName string, wfCreatorUserName *string) (*structs.WorkflowResponse, error) {
+func (uc *UserClient) RemoveUser(userName, transferToUserName string, wfCreatorUserName *string) (*structs.WorkflowResponse, error) {
 	// Fetch user details using userName
 	userDetails, err := uc.GetByUsername(userName)
 	if err != nil {

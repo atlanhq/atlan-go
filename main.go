@@ -11,7 +11,7 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	response, err := ctx.UserClient.DeleteUser("singhkaranjot99", "karanjot.singh", nil)
+	response, err := ctx.UserClient.RemoveUser("singhkaranjot99", "karanjot.singh", nil)
 	if err != nil {
 		log.Fatalf("Error deleting user: %v", err)
 	}
