@@ -773,7 +773,7 @@ func handleApiError(response *http.Response, originalError error) error {
 		fmt.Println(errorResponse)
 		causes = errorResponse.Causes
 		// Check for Atlan-specific error code 1006
-		if errorResponse.ErrorID == "1006" || strings.Contains(errorResponse.Message, "Please provide the required payload") {
+		if errorResponse.ErrorID == "1006" && strings.Contains(errorResponse.Message, "Please provide the required payload") {
 			return ThrowAtlanError(originalError, PERMISSION_PASSTHROUGH, nil, "API token doesn't have necessary permissions")
 		}
 	}
