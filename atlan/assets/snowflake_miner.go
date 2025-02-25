@@ -69,6 +69,44 @@ func (s *SnowflakeMiner) Direct(startEpoch int64, database, schema string) *Snow
 	return s
 }
 
+// S3 sets up the miner to extract from S3 using JSON line-separated files.
+//
+// Parameters:
+//   - s3Bucket: S3 bucket where the JSON line-separated files are located
+//   - s3Prefix: Prefix within the S3 bucket where the JSON files are stored
+//   - sqlQueryKey: JSON key containing the query definition
+//   - defaultDatabaseKey: JSON key containing the default database name
+//   - defaultSchemaKey: JSON key containing the default schema name
+//   - sessionIDKey: JSON key containing the session ID of the SQL query
+//   - s3BucketRegion: (Optional) Region of the S3 bucket if applicable
+//
+// Returns:
+//   - SnowflakeMiner instance, set up to extract from S3
+func (s *SnowflakeMiner) S3(
+	s3Bucket string,
+	s3Prefix string,
+	sqlQueryKey string,
+	defaultDatabaseKey string,
+	defaultSchemaKey string,
+	sessionIDKey string,
+	s3BucketRegion *string,
+) *SnowflakeMiner {
+	s.Parameters = append(s.Parameters, structs.NameValuePair{Name: "extraction-method", Value: "s3"})
+	s.Parameters = append(s.Parameters, structs.NameValuePair{Name: "extraction-s3-bucket", Value: s3Bucket})
+	s.Parameters = append(s.Parameters, structs.NameValuePair{Name: "extraction-s3-prefix", Value: s3Prefix})
+	s.Parameters = append(s.Parameters, structs.NameValuePair{Name: "sql-json-key", Value: sqlQueryKey})
+	s.Parameters = append(s.Parameters, structs.NameValuePair{Name: "catalog-json-key", Value: defaultDatabaseKey})
+	s.Parameters = append(s.Parameters, structs.NameValuePair{Name: "schema-json-key", Value: defaultSchemaKey})
+	s.Parameters = append(s.Parameters, structs.NameValuePair{Name: "session-json-key", Value: sessionIDKey})
+
+	// Add S3 bucket region only if provided
+	if s3BucketRegion != nil {
+		s.Parameters = append(s.Parameters, structs.NameValuePair{Name: "extraction-s3-region", Value: *s3BucketRegion})
+	}
+
+	return s
+}
+
 // ExcludeUsers excludes certain users from being considered in the usage metrics calculation for assets (e.g., system users).
 //
 // Param:

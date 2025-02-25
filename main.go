@@ -2,20 +2,43 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/atlanhq/atlan-go/atlan/assets"
+	"github.com/atlanhq/atlan-go/atlan/logger"
+	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
 func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	response, err := ctx.UserClient.RemoveUser("singhkaranjot99", "karanjot.singh", nil)
+	miner := assets.NewSnowflakeMiner("default/snowflake/1739484068").
+		S3(
+			"test-s3-bucket",
+			"test-s3-prefix",
+			"TEST_QUERY",
+			"TEST_SNOWFLAKE",
+			"TEST_SCHEMA",
+			"TEST_SESSION_ID",
+			structs.StringPtr("test-s3-bucket-region"),
+		).
+		PopularityWindow(30).
+		NativeLineage(true).
+		CustomConfig(map[string]interface{}{
+			"test":    true,
+			"feature": 1234,
+		}).
+		ToWorkflow()
+
+	Schedule := structs.WorkflowSchedule{CronSchedule: "45 5 * * *", Timezone: "Europe/Paris"}
+
+	// Run the workflow
+	response, err := ctx.WorkflowClient.Run(miner, &Schedule)
 	if err != nil {
-		log.Fatalf("Error deleting user: %v", err)
+		logger.Log.Errorf("Error running workflow: %v", err)
+		return
 	}
-	fmt.Printf("Workflow Execution Response: %+v\n", *response)
+	fmt.Println(response.Spec)
 
 	/*
 		workflowJSON := `{
