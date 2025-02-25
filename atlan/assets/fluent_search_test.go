@@ -41,7 +41,7 @@ func TestIntegrationFluentSearch(t *testing.T) {
 
 	time.Sleep(5 * time.Second)
 	// Search for glossary with Active Status and Name as GlossaryName
-	searchResult, err := NewFluentSearch().
+	searchResult := NewFluentSearch().
 		PageSizes(10).
 		ActiveAssets().
 		Where(ctx.Glossary.NAME.Eq(GlossaryName)).
@@ -51,17 +51,19 @@ func TestIntegrationFluentSearch(t *testing.T) {
 		fmt.Printf("Error executing search: %v\n", err)
 		return
 	}
+	firstPage, _ := searchResult.CurrentPage()
+	glossary := firstPage.Entities[0]
 
 	assert.NotNil(t, searchResult, "search result should not be nil")
 	assert.Len(t, searchResult, 1, "number of glossaries should be 1")
-	assert.Equal(t, GlossaryName, *searchResult[0].Entities[0].DisplayName, "glossary name should match")
-	assert.Equal(t, GlossaryDescription, *searchResult[0].Entities[0].Description, "glossary description should exist")
-	assert.Equal(t, AnnouncementType, *searchResult[0].Entities[0].AnnouncementType, "announcement type should exist")
-	assert.Equal(t, AnnouncementTitle, *searchResult[0].Entities[0].AnnouncementTitle, "announcement title should exist")
-	assert.Equal(t, AnnouncementMessage, *searchResult[0].Entities[0].AnnouncementMessage, "announcement message should exist")
+	assert.Equal(t, GlossaryName, *glossary.DisplayName, "glossary name should match")
+	assert.Equal(t, GlossaryDescription, *glossary.Description, "glossary description should exist")
+	assert.Equal(t, AnnouncementType, *glossary.AnnouncementType, "announcement type should exist")
+	assert.Equal(t, AnnouncementTitle, *glossary.AnnouncementTitle, "announcement title should exist")
+	assert.Equal(t, AnnouncementMessage, *glossary.AnnouncementMessage, "announcement message should exist")
 
 	// Search for glossaries starts with letter G and sort them in ascending order by name
-	searchResult, err = NewFluentSearch().
+	searchResult = NewFluentSearch().
 		PageSizes(10).
 		ActiveAssets().
 		Where(ctx.Glossary.NAME.StartsWith("gsdk", nil)).
@@ -72,8 +74,11 @@ func TestIntegrationFluentSearch(t *testing.T) {
 		return
 	}
 
+	firstPage, _ = searchResult.CurrentPage()
+	glossary = firstPage.Entities[0]
+
 	assert.Len(t, searchResult, 1, "number of glossaries should be 1")
-	assert.Equal(t, "g", string((*searchResult[0].Entities[0].DisplayName)[0]), "glossary name should start with G")
+	assert.Equal(t, "g", string((*glossary.DisplayName)[0]), "glossary name should start with G")
 
 	// Delete already created glossary
 	deleteresponse, _ := PurgeByGuid([]string{response.MutatedEntities.CREATE[0].Guid})
