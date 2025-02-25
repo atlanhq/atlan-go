@@ -55,7 +55,7 @@ func TestIntegrationFluentSearch(t *testing.T) {
 	glossary := firstPage.Entities[0]
 
 	assert.NotNil(t, searchResult, "search result should not be nil")
-	assert.Len(t, searchResult, 1, "number of glossaries should be 1")
+	assert.Len(t, firstPage.Entities, 1, "number of glossaries should be 1")
 	assert.Equal(t, GlossaryName, *glossary.DisplayName, "glossary name should match")
 	assert.Equal(t, GlossaryDescription, *glossary.Description, "glossary description should exist")
 	assert.Equal(t, AnnouncementType, *glossary.AnnouncementType, "announcement type should exist")
@@ -77,7 +77,7 @@ func TestIntegrationFluentSearch(t *testing.T) {
 	firstPage, _ = searchResult.CurrentPage()
 	glossary = firstPage.Entities[0]
 
-	assert.Len(t, searchResult, 1, "number of glossaries should be 1")
+	assert.Len(t, firstPage.Entities, 1, "number of glossaries should be 1")
 	assert.Equal(t, "g", string((*glossary.DisplayName)[0]), "glossary name should start with G")
 
 	// Delete already created glossary
