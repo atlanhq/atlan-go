@@ -777,7 +777,6 @@ func handleApiError(response *http.Response, originalError error) error {
 			return ThrowAtlanError(originalError, PERMISSION_PASSTHROUGH, nil, "API token doesn't have necessary permissions")
 		}
 	}
-
 	var causesString string
 	if len(causes) > 0 {
 		for _, cause := range causes {

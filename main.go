@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/atlanhq/atlan-go/atlan/assets"
 	"github.com/atlanhq/atlan-go/atlan/logger"
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
