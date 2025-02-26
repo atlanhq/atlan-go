@@ -116,7 +116,7 @@ func FindCategoryByName(categoryName string, glossaryQualifiedName string) (*mod
 		if err != nil {
 			return nil, fmt.Errorf("error executing search: %v", err)
 		}
-		fmt.Println("Current Page: ", iterator.CurrentPage())
+		fmt.Println("Current Page: ", iterator.CurrentPageNumber())
 		for _, entity := range response.Entities {
 			if *entity.TypeName == "AtlasGlossaryCategory" {
 				return response, err
@@ -232,7 +232,8 @@ func WithGlossary(value string) *model.TermQuery {
 
 type IndexSearchIterator struct {
 	request        model.IndexSearchRequest
-	currentPage    int
+	currentPage    *model.IndexSearchResponse
+	currentPageNum int
 	pageSize       int
 	totalResults   int64
 	hasMoreResults bool
@@ -241,7 +242,8 @@ type IndexSearchIterator struct {
 func NewIndexSearchIterator(pageSize int, initialRequest model.IndexSearchRequest) *IndexSearchIterator {
 	return &IndexSearchIterator{
 		request:        initialRequest,
-		currentPage:    0,
+		currentPage:    nil,
+		currentPageNum: 0,
 		pageSize:       pageSize,
 		totalResults:   0,
 		hasMoreResults: true,
@@ -254,7 +256,7 @@ func (it *IndexSearchIterator) NextPage() (*model.IndexSearchResponse, error) {
 		return nil, fmt.Errorf("no more results available")
 	}
 
-	it.request.Dsl.From = it.currentPage * it.pageSize
+	it.request.Dsl.From = it.currentPageNum * it.pageSize
 	it.request.Dsl.Size = it.pageSize
 
 	response, err := Search(it.request)
@@ -262,16 +264,27 @@ func (it *IndexSearchIterator) NextPage() (*model.IndexSearchResponse, error) {
 		return nil, err
 	}
 
+	it.currentPage = response
 	it.totalResults = response.ApproximateCount
 	it.hasMoreResults = int64(it.request.Dsl.From+it.pageSize) < it.totalResults
-	it.currentPage++
+	it.currentPageNum++
 
 	return response, nil
 }
 
-// CurrentPage returns the current page number.
-func (it *IndexSearchIterator) CurrentPage() int {
-	return it.currentPage
+// CurrentPageNumber returns the current page number.
+func (it *IndexSearchIterator) CurrentPageNumber() int {
+	return it.currentPageNum
+}
+
+// CurrentPage returns the current page if available or fetches the first page if none have been retrieved yet.
+func (it *IndexSearchIterator) CurrentPage() (*model.IndexSearchResponse, error) {
+	// If no search has been performed yet, fetch the first page
+	if it.currentPage == nil {
+		return it.NextPage()
+	}
+	// Return the last retrieved page
+	return it.currentPage, nil
 }
 
 // IteratePages returns all pages of search results.
@@ -333,7 +346,7 @@ func (it *IndexSearchIterator) IteratePages() ([]*model.IndexSearchResponse, err
 
 	// Update the iterator state
 	it.hasMoreResults = int64(it.request.Dsl.From+it.pageSize) < it.totalResults
-	it.currentPage++
+	it.currentPageNum++
 
 	return responses, nil
 }

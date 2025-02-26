@@ -137,7 +137,7 @@ func (fs *FluentSearch) IncludeOnRelations(fields ...string) *FluentSearch {
 }
 
 // Execute performs the search and returns the results.
-func (fs *FluentSearch) Execute() ([]*model.IndexSearchResponse, error) {
+func (fs *FluentSearch) Execute() *IndexSearchIterator {
 	if fs.PageSize == 0 {
 		fs.PageSize = 300 // Set Default Page Size
 	}
@@ -145,21 +145,7 @@ func (fs *FluentSearch) Execute() ([]*model.IndexSearchResponse, error) {
 	pageSize := fs.PageSize
 	request := fs.ToRequest()
 
-	iterator := NewIndexSearchIterator(pageSize, *request)
-	responses := make([]*model.IndexSearchResponse, 0)
-
-	for iterator.HasMoreResults() {
-		{
-			response, err := iterator.NextPage()
-			if err != nil {
-				// fmt.Printf("Error executing search: %v\n", err)
-				return nil, err
-			}
-
-			responses = append(responses, response)
-		}
-	}
-	return responses, nil
+	return NewIndexSearchIterator(pageSize, *request)
 }
 
 // Sort by GUID by default only if not already specified by the developer
