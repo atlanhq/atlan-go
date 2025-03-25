@@ -41,7 +41,7 @@ func TestIntegrationFluentSearch(t *testing.T) {
 
 	time.Sleep(5 * time.Second)
 	// Search for glossary with Active Status and Name as GlossaryName
-	searchResult := NewFluentSearch().
+	searchResult, err := NewFluentSearch().
 		PageSizes(10).
 		ActiveAssets().
 		Where(ctx.Glossary.NAME.Eq(GlossaryName)).
@@ -63,7 +63,7 @@ func TestIntegrationFluentSearch(t *testing.T) {
 	assert.Equal(t, AnnouncementMessage, *glossary.AnnouncementMessage, "announcement message should exist")
 
 	// Search for glossaries starts with letter G and sort them in ascending order by name
-	searchResult = NewFluentSearch().
+	searchResult, err = NewFluentSearch().
 		PageSizes(10).
 		ActiveAssets().
 		Where(ctx.Glossary.NAME.StartsWith("gsdk", nil)).

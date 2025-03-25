@@ -11,9 +11,13 @@ import (
 )
 
 // Call the search API
-func Search(request model.IndexSearchRequest) (*model.IndexSearchResponse, error) {
-	// Define the API endpoint and method
+func Search(request model.IndexSearchRequest) (*IndexSearchIterator, error) {
+	// Define the API endpoint
 	api := &INDEX_SEARCH
+
+	if request.Dsl.Size == 0 {
+		request.Dsl.Size = 300 // Switch to default page size
+	}
 
 	// Call the API
 	responseBytes, err := DefaultAtlanClient.CallAPI(api, nil, &request)
@@ -21,14 +25,23 @@ func Search(request model.IndexSearchRequest) (*model.IndexSearchResponse, error
 		return nil, err
 	}
 
-	// Unmarshal the response
+	// Unmarshal response
 	var response model.IndexSearchResponse
 	err = json.Unmarshal(responseBytes, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	// Initialize the iterator with the first page (since we already fetch the first page)
+	return &IndexSearchIterator{
+		request:        request,
+		currentPage:    &response,
+		currentIndex:   0,
+		currentPageNum: 1,
+		pageSize:       request.Dsl.Size,
+		totalResults:   response.ApproximateCount,
+		hasMoreResults: len(response.Entities) > 0,
+	}, nil
 }
 
 // FindGlossaryByName searches for a glossary by name.
@@ -229,14 +242,55 @@ func WithGlossary(value string) *model.TermQuery {
 }
 
 // Pagination Implemented here:
-
 type IndexSearchIterator struct {
 	request        model.IndexSearchRequest
-	currentPage    *model.IndexSearchResponse
+	currentPage    *model.IndexSearchResponse // Use a pointer for pagination
+	currentIndex   int                        // Track position in current page
 	currentPageNum int
 	pageSize       int
 	totalResults   int64
 	hasMoreResults bool
+}
+
+func (it *IndexSearchIterator) Iter() (<-chan *model.SearchAssets, <-chan error) {
+	assetsCh := make(chan *model.SearchAssets)
+	errCh := make(chan error, 1) // Buffered to avoid deadlocks
+
+	go func() {
+		defer close(assetsCh)
+		defer close(errCh)
+
+		for {
+			// Fetch the first page if needed
+			if it.currentPage == nil {
+				_, err := it.NextPage()
+				if err != nil {
+					errCh <- err // Send error and stop iteration
+					return
+				}
+			}
+
+			// Iterate over current page assets
+			for it.currentIndex < len(it.currentPage.Entities) {
+				assetsCh <- &it.currentPage.Entities[it.currentIndex]
+				it.currentIndex++
+			}
+
+			// Fetch the next page if available
+			if it.hasMoreResults {
+				_, err := it.NextPage()
+				if err != nil {
+					errCh <- err // Send error and stop iteration
+					return
+				}
+				it.currentIndex = 0 // Reset index for the new page
+			} else {
+				return
+			}
+		}
+	}()
+
+	return assetsCh, errCh
 }
 
 func NewIndexSearchIterator(pageSize int, initialRequest model.IndexSearchRequest) *IndexSearchIterator {
@@ -264,12 +318,12 @@ func (it *IndexSearchIterator) NextPage() (*model.IndexSearchResponse, error) {
 		return nil, err
 	}
 
-	it.currentPage = response
-	it.totalResults = response.ApproximateCount
+	it.currentPage = response.currentPage
+	it.totalResults = response.currentPage.ApproximateCount
 	it.hasMoreResults = int64(it.request.Dsl.From+it.pageSize) < it.totalResults
 	it.currentPageNum++
 
-	return response, nil
+	return response.currentPage, nil
 }
 
 // CurrentPageNumber returns the current page number.
@@ -287,14 +341,16 @@ func (it *IndexSearchIterator) CurrentPage() (*model.IndexSearchResponse, error)
 	return it.currentPage, nil
 }
 
+// Return the approximate count for the search results
+func (it *IndexSearchIterator) Count() int64 {
+	// Return the approximate count for the current page
+	return it.currentPage.ApproximateCount
+}
+
 // IteratePages returns all pages of search results.
 func (it *IndexSearchIterator) IteratePages() ([]*model.IndexSearchResponse, error) {
 	if !it.hasMoreResults {
 		return nil, fmt.Errorf("no more results available")
-	}
-
-	if it.pageSize == 0 {
-		it.pageSize = 300 // Set Default Page Size
 	}
 	// Perform an initial search to get the approximateCount
 	it.request.Dsl.From = 0
@@ -303,7 +359,7 @@ func (it *IndexSearchIterator) IteratePages() ([]*model.IndexSearchResponse, err
 	if err != nil {
 		return nil, err
 	}
-	it.totalResults = response.ApproximateCount
+	it.totalResults = response.currentPage.ApproximateCount
 	it.hasMoreResults = it.totalResults > 0
 	if !it.hasMoreResults {
 		return nil, fmt.Errorf("no more results available")
@@ -311,7 +367,7 @@ func (it *IndexSearchIterator) IteratePages() ([]*model.IndexSearchResponse, err
 
 	// If approximateCount is 1, return the response immediately
 	if it.totalResults == 1 {
-		return []*model.IndexSearchResponse{response}, nil
+		return []*model.IndexSearchResponse{response.currentPage}, nil
 	}
 
 	// Num of pages to fetch
@@ -332,7 +388,7 @@ func (it *IndexSearchIterator) IteratePages() ([]*model.IndexSearchResponse, err
 				errors[i] = err
 				return
 			}
-			responses[i] = response
+			responses[i] = response.currentPage
 		}(i)
 	}
 

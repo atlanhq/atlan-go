@@ -137,15 +137,8 @@ func (fs *FluentSearch) IncludeOnRelations(fields ...string) *FluentSearch {
 }
 
 // Execute performs the search and returns the results.
-func (fs *FluentSearch) Execute() *IndexSearchIterator {
-	if fs.PageSize == 0 {
-		fs.PageSize = 300 // Set Default Page Size
-	}
-
-	pageSize := fs.PageSize
-	request := fs.ToRequest()
-
-	return NewIndexSearchIterator(pageSize, *request)
+func (fs *FluentSearch) Execute() (*IndexSearchIterator, error) {
+	return Search(*fs.ToRequest())
 }
 
 // Sort by GUID by default only if not already specified by the developer

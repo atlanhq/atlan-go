@@ -11,7 +11,7 @@ func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	columnSearchResponse := assets.NewFluentSearch().
+	columnSearchResponse, _ := assets.NewFluentSearch().
 		PageSizes(50).
 		Where(ctx.Column.TYPENAME.Eq("Column")).
 		Execute()
