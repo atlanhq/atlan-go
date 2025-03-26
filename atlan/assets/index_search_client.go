@@ -252,6 +252,7 @@ type IndexSearchIterator struct {
 	hasMoreResults bool
 }
 
+// Iter returns a channel to iterate over search results.
 func (it *IndexSearchIterator) Iter() (<-chan *model.SearchAssets, <-chan error) {
 	assetsCh := make(chan *model.SearchAssets)
 	errCh := make(chan error, 1) // Buffered to avoid deadlocks
