@@ -2,44 +2,90 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/atlanhq/atlan-go/atlan/assets"
-	"github.com/atlanhq/atlan-go/atlan/logger"
-	"github.com/atlanhq/atlan-go/atlan/model/structs"
 )
 
 func main() {
 	ctx := assets.NewContext()
 	ctx.EnableLogging("debug")
 
-	miner := assets.NewSnowflakeMiner("default/snowflake/1739484068").
-		S3(
-			"test-s3-bucket",
-			"test-s3-prefix",
-			"TEST_QUERY",
-			"TEST_SNOWFLAKE",
-			"TEST_SCHEMA",
-			"TEST_SESSION_ID",
-			structs.StringPtr("test-s3-bucket-region"),
-		).
-		PopularityWindow(30).
-		NativeLineage(true).
-		CustomConfig(map[string]interface{}{
-			"test":    true,
-			"feature": 1234,
-		}).
-		ToWorkflow()
+	columnSearchResponse, _ := assets.NewFluentSearch().
+		PageSizes(50).
+		Where(ctx.Column.TYPENAME.Eq("Column")).
+		Execute()
 
-	Schedule := structs.WorkflowSchedule{CronSchedule: "45 5 * * *", Timezone: "Europe/Paris"}
-
-	// Run the workflow
-	response, err := ctx.WorkflowClient.Run(miner, &Schedule)
+	// Fetch the first page
+	page, err := columnSearchResponse.CurrentPage()
 	if err != nil {
-		logger.Log.Errorf("Error running workflow: %v", err)
-		return
+		log.Fatal(err)
 	}
-	fmt.Println(response.Spec)
 
+	// Iterate through the assets in the current page
+	for _, asset := range page.Entities {
+		fmt.Println("Asset:", asset)
+	}
+
+	// Iterate through pages until there are no more results
+	for {
+		page, err := columnSearchResponse.CurrentPage() // Fetch the current page (first fetch happens automatically)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Process assets from the current page
+		for _, asset := range page.Entities {
+			fmt.Println("Asset:", asset)
+		}
+
+		// Move to the next page, exit loop if no more results
+		if _, err := columnSearchResponse.NextPage(); err != nil {
+			break
+		}
+	}
+
+	// Iterate over all results across all pages
+	for columnSearchResponse.HasMoreResults() {
+		page, err := columnSearchResponse.NextPage()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Process each asset in the page
+		for _, asset := range page.Entities {
+			fmt.Println("Asset:", asset)
+		}
+	}
+	/*
+		miner := assets.NewSnowflakeMiner("default/snowflake/1739484068").
+			S3(
+				"test-s3-bucket",
+				"test-s3-prefix",
+				"TEST_QUERY",
+				"TEST_SNOWFLAKE",
+				"TEST_SCHEMA",
+				"TEST_SESSION_ID",
+				structs.StringPtr("test-s3-bucket-region"),
+			).
+			PopularityWindow(30).
+			NativeLineage(true).
+			CustomConfig(map[string]interface{}{
+				"test":    true,
+				"feature": 1234,
+			}).
+			ToWorkflow()
+
+		Schedule := structs.WorkflowSchedule{CronSchedule: "45 5 * * *", Timezone: "Europe/Paris"}
+
+		// Run the workflow
+		response, err := ctx.WorkflowClient.Run(miner, &Schedule)
+		if err != nil {
+			logger.Log.Errorf("Error running workflow: %v", err)
+			return
+		}
+		fmt.Println(response.Spec)
+	*/
 	/*
 		workflowJSON := `{
 			"metadata": {

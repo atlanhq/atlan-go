@@ -241,7 +241,7 @@ func FindPersonasByName(name string) (*model.IndexSearchResponse, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error executing search: %v", err)
 		}
-		fmt.Println("Current Page: ", iterator.CurrentPage())
+		fmt.Println("Current Page: ", iterator.CurrentPageNumber())
 		for _, entity := range response.Entities {
 			if *entity.TypeName == "Persona" {
 				return response, err

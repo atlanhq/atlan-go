@@ -206,7 +206,7 @@ func FindPurposesByName(name string) (*model.IndexSearchResponse, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error executing search: %v", err)
 		}
-		fmt.Println("Current Page: ", iterator.CurrentPage())
+		fmt.Println("Current Page: ", iterator.CurrentPageNumber())
 
 		// Check each entity in the current page
 		for _, entity := range response.Entities {
