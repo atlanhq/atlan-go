@@ -38,7 +38,7 @@ func TestIntegrationAtlanTagCache_GetIDForName(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.NotEmpty(t, resp.AtlanTagDefs, "No Atlan tags found in the system")
-	
+
 	tagName := resp.AtlanTagDefs[0].DisplayName
 
 	// _ = cache.RefreshCache()
@@ -67,7 +67,7 @@ func TestIntegrationAtlanTagCache_GetNameForID(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.NotEmpty(t, resp.AtlanTagDefs, "No Atlan tags found in the system")
-	
+
 	tagName := resp.AtlanTagDefs[0].DisplayName
 	id, err := cache.GetIDForName(tagName)
 	require.NoError(t, err)
