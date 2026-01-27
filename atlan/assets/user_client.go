@@ -470,11 +470,8 @@ type UpdateUserRequest struct {
 }
 
 // UpdateUser updates a user's properties.
-//
 // Params:
-//
 // - guid: Unique identifier (GUID) of the user to update.
-//
 // - enabled: Pointer to boolean indicating whether the user should be enabled or disabled.
 //
 // Returns:
@@ -488,10 +485,10 @@ func (uc *UserClient) UpdateUser(guid string, enabled *bool) error {
 		Enabled: enabled,
 	}
 
-	api := &UPDATE_USERS
+	api := UPDATE_USERS
 	api.Path = fmt.Sprintf("users/%s", guid)
 
-	_, err := DefaultAtlanClient.CallAPI(api, nil, requestPayload)
+	_, err := DefaultAtlanClient.CallAPI(&api, nil, requestPayload)
 	if err != nil {
 		return err
 	}

@@ -170,6 +170,7 @@ func testRemoveUserDisablesBeforeDeletion(t *testing.T, userID string, username 
 	// Verify user is enabled before test
 	user, err := client.GetByUsername(username)
 	require.NoError(t, err, "error should be nil while retrieving user before test")
+	assert.NotNil(t, user, "retrieved user should not be nil")
 	if user.Enabled != nil {
 		assert.True(t, *user.Enabled, "user should be enabled before test")
 	}
@@ -177,6 +178,7 @@ func testRemoveUserDisablesBeforeDeletion(t *testing.T, userID string, username 
 	// This verifies the disable-before-delete logic without actually deleting the user
 	userDetails, err := client.GetByUsername(username)
 	require.NoError(t, err, "error should be nil while fetching user details")
+	assert.NotNil(t, userDetails, "retrieved user details should not be nil")
 
 	if userDetails.Enabled == nil || *userDetails.Enabled {
 		enabled := false
@@ -208,6 +210,7 @@ func testRemoveUserHandlesNilEnabled(t *testing.T, userID string, username strin
 	// Get user details
 	userDetails, err := client.GetByUsername(username)
 	require.NoError(t, err, "error should be nil while fetching user details")
+	assert.NotNil(t, userDetails, "retrieved user details should not be nil")
 
 	// This verifies that the code doesn't panic when Enabled is nil
 	if userDetails.Enabled == nil || (userDetails.Enabled != nil && *userDetails.Enabled) {
