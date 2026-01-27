@@ -521,7 +521,7 @@ func (uc *UserClient) RemoveUser(userName, transferToUserName string, wfCreatorU
 	}
 
 	// Disable the user before deletion (if not already disabled)
-	if *userDetails.Enabled {
+	if userDetails.Enabled == nil || *userDetails.Enabled {
 		enabled := false
 		err = uc.UpdateUser(userDetails.ID, &enabled)
 		if err != nil {
