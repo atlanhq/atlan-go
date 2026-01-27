@@ -141,8 +141,8 @@ type AttributeDef struct {
 	TypeName              *string                       `json:"typeName,omitempty"`
 	ValuesMinCount        *float64                      `json:"valuesMinCount,omitempty"`
 	ValuesMaxCount        *float64                      `json:"valuesMaxCount,omitempty"`
-	IndexTypeESConfig     *map[string]string            `json:"indexTypeESConfig,omitempty"`
-	IndexTypeESFields     *map[string]map[string]string `json:"indexTypeESFields,omitempty"`
+	IndexTypeESConfig     *map[string]interface{}       `json:"indexTypeESConfig,omitempty"`
+	IndexTypeESFields     *map[string]interface{}       `json:"indexTypeESFields,omitempty"`
 	IsDefaultValueNull    CustomBool                    `json:"isDefaultValueNull,omitempty"`
 }
 
