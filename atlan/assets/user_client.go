@@ -466,7 +466,7 @@ func ParseAtlanUser(data interface{}) (AtlanUser, error) {
 
 // UpdateUserRequest represents the request payload for updating a user.
 type UpdateUserRequest struct {
-	Enabled *bool  `json:"enabled"`
+	Enabled *bool `json:"enabled"`
 }
 
 // UpdateUser updates a user's properties.
