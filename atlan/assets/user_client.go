@@ -464,6 +464,38 @@ func ParseAtlanUser(data interface{}) (AtlanUser, error) {
 	return user, nil
 }
 
+// UpdateUserRequest represents the request payload for updating a user.
+type UpdateUserRequest struct {
+	Enabled *bool `json:"enabled"`
+}
+
+// UpdateUser updates a user's properties.
+// Params:
+// - guid: Unique identifier (GUID) of the user to update.
+// - enabled: Pointer to boolean indicating whether the user should be enabled or disabled.
+//
+// Returns:
+//   - An error if any API communication issue occurs.
+func (uc *UserClient) UpdateUser(guid string, enabled *bool) error {
+	if guid == "" {
+		return fmt.Errorf("user GUID cannot be empty")
+	}
+
+	requestPayload := UpdateUserRequest{
+		Enabled: enabled,
+	}
+
+	api := UPDATE_USERS
+	api.Path = fmt.Sprintf("users/%s", guid)
+
+	_, err := DefaultAtlanClient.CallAPI(&api, nil, requestPayload)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // RemoveUser removes a user and transfers their assets to another user.
 // Params:
 //   - userName: The username of the user to be removed.
@@ -483,6 +515,15 @@ func (uc *UserClient) RemoveUser(userName, transferToUserName string, wfCreatorU
 	// Ensure the user can only be deleted if their role is not "admin"
 	if userDetails.WorkspaceRole == "$admin" {
 		return nil, fmt.Errorf("user %s cannot be deleted as they are admin", userName)
+	}
+
+	// Disable the user before deletion (if not already disabled)
+	if userDetails.Enabled == nil || *userDetails.Enabled {
+		enabled := false
+		err = uc.UpdateUser(userDetails.ID, &enabled)
+		if err != nil {
+			return nil, fmt.Errorf("failed to disable user before deletion: %w", err)
+		}
 	}
 
 	// Fetch transferee user details

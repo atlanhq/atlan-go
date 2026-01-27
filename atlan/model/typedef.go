@@ -122,28 +122,28 @@ type AttributeOptions struct {
 
 // AttributeDef represents the definition of an attribute.
 type AttributeDef struct {
-	IsNew                 CustomBool                    `json:"isNew,omitempty"`
-	Cardinality           *atlan.Cardinality            `json:"cardinality,omitempty"`
-	Constraints           *[]map[string]interface{}     `json:"constraints,omitempty"`
-	EnumValues            *[]string                     `json:"enumValues,omitempty"`
-	Description           *string                       `json:"description,omitempty"`
-	DefaultValue          *string                       `json:"defaultValue,omitempty"`
-	DisplayName           *string                       `json:"displayName,omitempty"`
-	Name                  *string                       `json:"name,omitempty"`
-	IncludeInNotification CustomBool                    `json:"includeInNotification,omitempty"`
-	IndexType             *IndexType                    `json:"indexType,omitempty"`
-	IsIndexable           CustomBool                    `json:"isIndexable,omitempty"`
-	IsOptional            CustomBool                    `json:"isOptional,omitempty"`
-	IsUnique              CustomBool                    `json:"isUnique,omitempty"`
-	Options               *AttributeOptions             `json:"options,omitempty"`
-	SearchWeight          *float64                      `json:"searchWeight,omitempty"`
-	SkipScrubbing         CustomBool                    `json:"skipScrubbing,omitempty"`
-	TypeName              *string                       `json:"typeName,omitempty"`
-	ValuesMinCount        *float64                      `json:"valuesMinCount,omitempty"`
-	ValuesMaxCount        *float64                      `json:"valuesMaxCount,omitempty"`
-	IndexTypeESConfig     *map[string]string            `json:"indexTypeESConfig,omitempty"`
-	IndexTypeESFields     *map[string]map[string]string `json:"indexTypeESFields,omitempty"`
-	IsDefaultValueNull    CustomBool                    `json:"isDefaultValueNull,omitempty"`
+	IsNew                 CustomBool                `json:"isNew,omitempty"`
+	Cardinality           *atlan.Cardinality        `json:"cardinality,omitempty"`
+	Constraints           *[]map[string]interface{} `json:"constraints,omitempty"`
+	EnumValues            *[]string                 `json:"enumValues,omitempty"`
+	Description           *string                   `json:"description,omitempty"`
+	DefaultValue          *string                   `json:"defaultValue,omitempty"`
+	DisplayName           *string                   `json:"displayName,omitempty"`
+	Name                  *string                   `json:"name,omitempty"`
+	IncludeInNotification CustomBool                `json:"includeInNotification,omitempty"`
+	IndexType             *IndexType                `json:"indexType,omitempty"`
+	IsIndexable           CustomBool                `json:"isIndexable,omitempty"`
+	IsOptional            CustomBool                `json:"isOptional,omitempty"`
+	IsUnique              CustomBool                `json:"isUnique,omitempty"`
+	Options               *AttributeOptions         `json:"options,omitempty"`
+	SearchWeight          *float64                  `json:"searchWeight,omitempty"`
+	SkipScrubbing         CustomBool                `json:"skipScrubbing,omitempty"`
+	TypeName              *string                   `json:"typeName,omitempty"`
+	ValuesMinCount        *float64                  `json:"valuesMinCount,omitempty"`
+	ValuesMaxCount        *float64                  `json:"valuesMaxCount,omitempty"`
+	IndexTypeESConfig     *map[string]interface{}   `json:"indexTypeESConfig,omitempty"`
+	IndexTypeESFields     *map[string]interface{}   `json:"indexTypeESFields,omitempty"`
+	IsDefaultValueNull    CustomBool                `json:"isDefaultValueNull,omitempty"`
 }
 
 // CustomMetadataDefOptions represents options for customizing metadata definitions.

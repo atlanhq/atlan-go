@@ -41,13 +41,14 @@ var (
 
 // Init initializes the default AtlanClient.
 func Init() error {
+	// Configure client and logger first
+	client, loggerInstance := configureClient()
+
+	// Now retrieve API config (after logger is initialized)
 	apiKey, baseURL := retrieveAPIConfig()
 
 	// Normalize the baseURL
 	baseURL = normalizeURL(baseURL)
-
-	// Configure client and logger
-	client, logger := configureClient()
 
 	// Initialize default AtlanClient
 	DefaultAtlanClient = &AtlanClient{
@@ -55,7 +56,7 @@ func Init() error {
 		host:          baseURL,
 		ApiKey:        apiKey,
 		requestParams: defaultRequestParams(apiKey),
-		logger:        *logger,
+		logger:        *loggerInstance,
 		SearchAssets:  newDefaultSearchAssets(),
 	}
 
