@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/atlanhq/atlan-go/atlan/model/structs"
@@ -496,6 +497,19 @@ func (uc *UserClient) UpdateUser(guid string, enabled *bool) error {
 	return nil
 }
 
+// safeFullName safely constructs a full name from first and last name pointers.
+// It handles nil pointers gracefully and returns a trimmed string.
+func safeFullName(first, last *string) string {
+	var f, l string
+	if first != nil {
+		f = *first
+	}
+	if last != nil {
+		l = *last
+	}
+	return strings.TrimSpace(f + " " + l)
+}
+
 // RemoveUser removes a user and transfers their assets to another user.
 // Params:
 //   - userName: The username of the user to be removed.
@@ -565,13 +579,13 @@ func (uc *UserClient) RemoveUser(userName, transferToUserName string, wfCreatorU
 								Parameters: []structs.NameValuePair{
 									{Name: "user-id", Value: userDetails.ID},
 									{Name: "username", Value: userDetails.Username},
-									{Name: "user-full-name", Value: *userDetails.FirstName + " " + *userDetails.LastName},
+									{Name: "user-full-name", Value: safeFullName(userDetails.FirstName, userDetails.LastName)},
 									{Name: "user-email", Value: userDetails.Email},
 									{Name: "transfer-assets-to-user-id", Value: transferUserDetails.ID},
 									{Name: "transfer-assets-to-username", Value: transferUserDetails.Username},
-									{Name: "transferee-full-name", Value: *transferUserDetails.FirstName + " " + *transferUserDetails.LastName},
+									{Name: "transferee-full-name", Value: safeFullName(transferUserDetails.FirstName, transferUserDetails.LastName)},
 									{Name: "kube-secret-name", Value: "argo-client-creds"},
-									{Name: "wf-creator-full-name", Value: *wfCreatorDetails.FirstName + " " + *wfCreatorDetails.LastName},
+									{Name: "wf-creator-full-name", Value: safeFullName(wfCreatorDetails.FirstName, wfCreatorDetails.LastName)},
 									{Name: "wf-creator-email", Value: wfCreatorDetails.Email},
 								},
 							},
