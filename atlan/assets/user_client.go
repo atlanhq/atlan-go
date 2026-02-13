@@ -499,8 +499,8 @@ func (uc *UserClient) UpdateUser(guid string, enabled *bool) error {
 
 // safeFullName safely constructs a full name from optional first/last name pointers.
 // Each part is trimmed individually before joining to normalize internal whitespace.
-// Optional fallback values (e.g. username, email) are used when both names are nil or empty.
-func safeFullName(first, last *string, fallbacks ...string) string {
+// Falls back to the provided fallback (e.g. email) when both names are nil or empty.
+func safeFullName(first, last *string, fallback string) string {
 	var parts []string
 	if first != nil && strings.TrimSpace(*first) != "" {
 		parts = append(parts, strings.TrimSpace(*first))
@@ -511,10 +511,8 @@ func safeFullName(first, last *string, fallbacks ...string) string {
 	if len(parts) > 0 {
 		return strings.Join(parts, " ")
 	}
-	for _, fb := range fallbacks {
-		if strings.TrimSpace(fb) != "" {
-			return strings.TrimSpace(fb)
-		}
+	if strings.TrimSpace(fallback) != "" {
+		return strings.TrimSpace(fallback)
 	}
 	return ""
 }
