@@ -237,10 +237,11 @@ func testRemoveUserHandlesNilEnabled(t *testing.T, userID string, username strin
 // TestSafeFullName tests the safeFullName helper function with various nil pointer scenarios.
 func TestSafeFullName(t *testing.T) {
 	tests := []struct {
-		name     string
-		first    *string
-		last     *string
-		expected string
+		name      string
+		first     *string
+		last      *string
+		fallbacks []string
+		expected  string
 	}{
 		{
 			name:     "both first and last name present",
@@ -261,7 +262,7 @@ func TestSafeFullName(t *testing.T) {
 			expected: "Doe",
 		},
 		{
-			name:     "both names nil",
+			name:     "both names nil without fallback",
 			first:    nil,
 			last:     nil,
 			expected: "",
@@ -279,22 +280,57 @@ func TestSafeFullName(t *testing.T) {
 			expected: "John",
 		},
 		{
-			name:     "both names empty strings",
+			name:     "both names empty strings without fallback",
 			first:    stringPtr(""),
 			last:     stringPtr(""),
 			expected: "",
 		},
 		{
-			name:     "names with extra spaces",
+			name:     "names with extra spaces are individually trimmed",
 			first:    stringPtr("  John  "),
 			last:     stringPtr("  Doe  "),
-			expected: "John     Doe",
+			expected: "John Doe",
+		},
+		{
+			name:      "both names nil falls back to email",
+			first:     nil,
+			last:      nil,
+			fallbacks: []string{"john@example.com"},
+			expected:  "john@example.com",
+		},
+		{
+			name:      "both names empty falls back to email",
+			first:     stringPtr(""),
+			last:      stringPtr(""),
+			fallbacks: []string{"john@example.com"},
+			expected:  "john@example.com",
+		},
+		{
+			name:      "both names whitespace-only falls back to email",
+			first:     stringPtr("   "),
+			last:      stringPtr("   "),
+			fallbacks: []string{"john@example.com"},
+			expected:  "john@example.com",
+		},
+		{
+			name:      "names present ignores fallback",
+			first:     stringPtr("John"),
+			last:      stringPtr("Doe"),
+			fallbacks: []string{"john@example.com"},
+			expected:  "John Doe",
+		},
+		{
+			name:      "empty fallback skipped to next",
+			first:     nil,
+			last:      nil,
+			fallbacks: []string{"", "john@example.com"},
+			expected:  "john@example.com",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := safeFullName(tt.first, tt.last)
+			result := safeFullName(tt.first, tt.last, tt.fallbacks...)
 			assert.Equal(t, tt.expected, result, "safeFullName should return the expected value")
 		})
 	}

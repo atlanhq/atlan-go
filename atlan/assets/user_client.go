@@ -497,17 +497,26 @@ func (uc *UserClient) UpdateUser(guid string, enabled *bool) error {
 	return nil
 }
 
-// safeFullName safely constructs a full name from first and last name pointers.
-// It handles nil pointers gracefully and returns a trimmed string.
-func safeFullName(first, last *string) string {
-	var f, l string
-	if first != nil {
-		f = *first
+// safeFullName safely constructs a full name from optional first/last name pointers.
+// Each part is trimmed individually before joining to normalize internal whitespace.
+// Optional fallback values (e.g. username, email) are used when both names are nil or empty.
+func safeFullName(first, last *string, fallbacks ...string) string {
+	var parts []string
+	if first != nil && strings.TrimSpace(*first) != "" {
+		parts = append(parts, strings.TrimSpace(*first))
 	}
-	if last != nil {
-		l = *last
+	if last != nil && strings.TrimSpace(*last) != "" {
+		parts = append(parts, strings.TrimSpace(*last))
 	}
-	return strings.TrimSpace(f + " " + l)
+	if len(parts) > 0 {
+		return strings.Join(parts, " ")
+	}
+	for _, fb := range fallbacks {
+		if strings.TrimSpace(fb) != "" {
+			return strings.TrimSpace(fb)
+		}
+	}
+	return ""
 }
 
 // RemoveUser removes a user and transfers their assets to another user.
@@ -579,13 +588,13 @@ func (uc *UserClient) RemoveUser(userName, transferToUserName string, wfCreatorU
 								Parameters: []structs.NameValuePair{
 									{Name: "user-id", Value: userDetails.ID},
 									{Name: "username", Value: userDetails.Username},
-									{Name: "user-full-name", Value: safeFullName(userDetails.FirstName, userDetails.LastName)},
+									{Name: "user-full-name", Value: safeFullName(userDetails.FirstName, userDetails.LastName, userDetails.Email)},
 									{Name: "user-email", Value: userDetails.Email},
 									{Name: "transfer-assets-to-user-id", Value: transferUserDetails.ID},
 									{Name: "transfer-assets-to-username", Value: transferUserDetails.Username},
-									{Name: "transferee-full-name", Value: safeFullName(transferUserDetails.FirstName, transferUserDetails.LastName)},
+									{Name: "transferee-full-name", Value: safeFullName(transferUserDetails.FirstName, transferUserDetails.LastName, transferUserDetails.Email)},
 									{Name: "kube-secret-name", Value: "argo-client-creds"},
-									{Name: "wf-creator-full-name", Value: safeFullName(wfCreatorDetails.FirstName, wfCreatorDetails.LastName)},
+									{Name: "wf-creator-full-name", Value: safeFullName(wfCreatorDetails.FirstName, wfCreatorDetails.LastName, wfCreatorDetails.Email)},
 									{Name: "wf-creator-email", Value: wfCreatorDetails.Email},
 								},
 							},
