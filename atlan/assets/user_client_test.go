@@ -3,9 +3,8 @@ package assets
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const UserEmail = "gsdk-test-user@atlan.com"
@@ -233,4 +232,104 @@ func testRemoveUserHandlesNilEnabled(t *testing.T, userID string, username strin
 	}
 
 	t.Logf("Successfully verified nil Enabled field handling")
+}
+
+// TestSafeFullName tests the safeFullName helper function with various nil pointer scenarios.
+func TestSafeFullName(t *testing.T) {
+	tests := []struct {
+		name     string
+		first    *string
+		last     *string
+		fallback string
+		expected string
+	}{
+		{
+			name:     "both first and last name present",
+			first:    stringPtr("John"),
+			last:     stringPtr("Doe"),
+			expected: "John Doe",
+		},
+		{
+			name:     "only first name present",
+			first:    stringPtr("John"),
+			last:     nil,
+			expected: "John",
+		},
+		{
+			name:     "only last name present",
+			first:    nil,
+			last:     stringPtr("Doe"),
+			expected: "Doe",
+		},
+		{
+			name:     "both names nil without fallback",
+			first:    nil,
+			last:     nil,
+			expected: "",
+		},
+		{
+			name:     "empty first name",
+			first:    stringPtr(""),
+			last:     stringPtr("Doe"),
+			expected: "Doe",
+		},
+		{
+			name:     "empty last name",
+			first:    stringPtr("John"),
+			last:     stringPtr(""),
+			expected: "John",
+		},
+		{
+			name:     "both names empty strings without fallback",
+			first:    stringPtr(""),
+			last:     stringPtr(""),
+			expected: "",
+		},
+		{
+			name:     "names with extra spaces are individually trimmed",
+			first:    stringPtr("  John  "),
+			last:     stringPtr("  Doe  "),
+			expected: "John Doe",
+		},
+		{
+			name:     "both names nil falls back to email",
+			first:    nil,
+			last:     nil,
+			fallback: "john@example.com",
+			expected: "john@example.com",
+		},
+		{
+			name:     "both names empty falls back to email",
+			first:    stringPtr(""),
+			last:     stringPtr(""),
+			fallback: "john@example.com",
+			expected: "john@example.com",
+		},
+		{
+			name:     "both names whitespace-only falls back to email",
+			first:    stringPtr("   "),
+			last:     stringPtr("   "),
+			fallback: "john@example.com",
+			expected: "john@example.com",
+		},
+		{
+			name:     "names present ignores fallback",
+			first:    stringPtr("John"),
+			last:     stringPtr("Doe"),
+			fallback: "john@example.com",
+			expected: "John Doe",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := safeFullName(tt.first, tt.last, tt.fallback)
+			assert.Equal(t, tt.expected, result, "safeFullName should return the expected value")
+		})
+	}
+}
+
+// stringPtr is a helper function to create a pointer to a string.
+func stringPtr(s string) *string {
+	return &s
 }
