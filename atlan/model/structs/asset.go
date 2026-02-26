@@ -85,6 +85,8 @@ type Asset struct {
 	AnnouncementUpdatedAt *int64 `json:"announcementUpdatedAt,omitempty"`
 	// Name of the user who last updated the announcement.
 	AnnouncementUpdatedBy *string `json:"announcementUpdatedBy,omitempty"`
+	// Time (epoch) at which the announcement expires, in milliseconds.
+	AnnouncementExpiredAt *int64 `json:"announcementExpiredAt,omitempty"`
 	// Name of the account in which this asset exists in dbt.
 	AssetDbtAccountName *string `json:"assetDbtAccountName,omitempty"`
 	// Alias of this asset in dbt.
